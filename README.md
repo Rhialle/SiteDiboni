@@ -1,4 +1,4 @@
-# Sistema da Loja: compra online, retirada na loja e gestão
+# Di Boni: compra online, retirada na loja e gestão
 
 Sistema próprio para uma loja física de embalagens, descartáveis e artigos de confeitaria e festas. Junta num lugar só:
 
