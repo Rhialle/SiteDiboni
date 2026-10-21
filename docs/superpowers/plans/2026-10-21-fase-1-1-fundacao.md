@@ -96,7 +96,7 @@ Cinco situações que a especificação implica e que são as mais prováveis de
 
 ---
 
-### Tarefa 1: Esqueleto do app, primeiro envio ao GitHub e primeira publicação
+### Task 1: Esqueleto do app, primeiro envio ao GitHub e primeira publicação
 
 **Arquivos:**
 - Criar: arquivos gerados pelo `create-next-app` e `shadcn init`, `vercel.json`, `vitest.config.ts`, `src/lib/formatacao.ts`, `src/lib/formatacao.test.ts`, `src/app/page.tsx` (substituir), `.env.example`
@@ -141,7 +141,7 @@ expect(() => reaisParaCentavos('-1,00')).toThrow('Valor inválido')
   - Avisar antes que a primeira publicação de produção vai falhar, e que isso é esperado: o `main` ainda só tem documentos e só recebe o app no fim deste plano.
   - Conferir no navegador que o endereço de pré-visualização do branch `fase-1-1-fundacao` mostra "Entrar".
 
-### Tarefa 2: Supabase no projeto (local, clientes e sessão)
+### Task 2: Supabase no projeto (local, clientes e sessão)
 
 **Arquivos:**
 - Criar: `supabase/config.toml` (via `npx supabase init`), `supabase/seed.sql`, `scripts/gerar-env-local.mjs`, `src/lib/supabase/servidor.ts`, `src/lib/supabase/navegador.ts`, `src/lib/supabase/admin.ts`, `src/lib/supabase/sessao-proxy.ts`, `src/proxy.ts` (no Next 16 ou superior; em versão anterior, `src/middleware.ts`)
@@ -179,7 +179,7 @@ expect(() => reaisParaCentavos('-1,00')).toThrow('Valor inválido')
 - [ ] **Passo 6:** rodar `npm run db:iniciar && npm run env:local && npm run db:tipos && npm run build` e confirmar que tudo passa.
 - [ ] **Passo 7:** commit com `Liga o projeto ao Supabase`.
 
-### Tarefa 3: Banco (usuários, papéis, configurações e histórico)
+### Task 3: Banco (usuários, papéis, configurações e histórico)
 
 **Arquivos:**
 - Criar: `supabase/migrations/<timestamp>_fundacao.sql`, `supabase/tests/database/01_usuarios.test.sql`, `supabase/tests/database/02_configuracoes.test.sql`, `supabase/tests/database/03_historico.test.sql`
@@ -273,7 +273,7 @@ select results_eq($$select campo, valor_antigo, valor_novo, usuario_id::text fro
 - [ ] **Passo 6:** rodar `npm run db:tipos && npm run typecheck`.
 - [ ] **Passo 7:** commit com `Cria usuários, papéis, configurações e histórico no banco`.
 
-### Tarefa 4: Login, duas etapas e proteção das páginas
+### Task 4: Login, duas etapas e proteção das páginas
 
 **Arquivos:**
 - Criar:
@@ -328,7 +328,7 @@ test('senha nova curta mostra a mensagem')                // 'curta' → getByTe
 - [ ] **Passo 5:** rodar `npm run test:e2e && npm test && npm run lint && npm run typecheck` e confirmar que tudo passa.
 - [ ] **Passo 6:** commit com `Adiciona login, duas etapas e recuperação de senha`.
 
-### Tarefa 5: Usuários e configurações (telas do administrador)
+### Task 5: Usuários e configurações (telas do administrador)
 
 **Arquivos:**
 - Criar:
@@ -392,7 +392,7 @@ test('limite de ajuste em reais é salvo em centavos')                      // d
 - [ ] **Passo 5:** rodar `npm test && npm run test:e2e && npx supabase test db && npm run lint && npm run typecheck` e confirmar que tudo passa.
 - [ ] **Passo 6:** commit com `Adiciona telas de usuários e configurações`.
 
-### Tarefa 6: CI, migrações nos ambientes de nuvem e manual
+### Task 6: CI, migrações nos ambientes de nuvem e manual
 
 **Arquivos:**
 - Criar:
