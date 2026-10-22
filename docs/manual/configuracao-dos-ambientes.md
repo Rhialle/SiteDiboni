@@ -4,7 +4,7 @@ Passos feitos uma vez, em cada serviço. Senhas e chaves secretas são digitadas
 
 ## Supabase
 
-- **Projeto de teste:** `koptsxaddudfbkmeacpo`.
+- **Projeto de teste:** `koptsxaddudfbkmeacpo` (por enquanto atende também o site principal, https://diboni-psi.vercel.app).
 - **Projeto de produção:** criado numa organização separada, região South America (São Paulo).
 - **Login:** a configuração de login de cada projeto (cadastro aberto desligado, senha mínima de 8, endereços permitidos) está em `supabase/config.toml`, nos blocos `[remotes.*]`, e é aplicada com:
 
@@ -25,6 +25,8 @@ Em **Settings** e depois **Environment Variables**:
 | `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto de teste | URL do projeto de produção |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | chave publicável do teste | chave publicável da produção |
 | `SUPABASE_SECRET_KEY` | chave secreta do teste | chave secreta da produção |
+
+**Por enquanto, Production usa os mesmos valores do teste**, até existir o banco de produção. Quando ele for criado: aplique o banco nele ("Aplicar banco na produção"), crie o seu usuário nele, troque as 3 variáveis de Production para os valores dele e publique de novo.
 
 As chaves ficam no Supabase, em **Project Settings** e depois **API Keys**. Depois de mudar variáveis, é preciso publicar de novo (**Deployments**, depois **Redeploy**).
 

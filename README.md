@@ -16,7 +16,9 @@ O princípio que guia tudo: **um estoque só, compartilhado entre o site e o bal
 | 3. Loja online e retirada | Site público, pagamento (Pix e cartão), pedidos e retirada | Não iniciada |
 | 4. Gestão | Painel de vendas, conferência de pagamentos, fornecedores, nota fiscal (NFC-e) | Não iniciada |
 
-Cada fase só começa depois que a anterior estiver pronta e aprovada. A nota fiscal pode vir antes da fase 4 se o contador recomendar; o cadastro já guarda os dados fiscais desde a fase 1.
+Cada fase só começa depois que a anterior estiver pronta e aprovada.
+
+> **Atenção:** por enquanto, o site principal (https://diboni-psi.vercel.app) usa o **banco de teste**. Até existir o banco de produção, **não cadastre dados reais da loja**. O banco de produção (Supabase Pro) será criado antes de a loja começar a usar o sistema de verdade; a troca é só apontar as 3 variáveis de Production da Vercel para ele (veja o manual de configuração). A nota fiscal pode vir antes da fase 4 se o contador recomendar; o cadastro já guarda os dados fiscais desde a fase 1.
 
 ## Decisões tomadas
 
@@ -33,6 +35,7 @@ Cada fase só começa depois que a anterior estiver pronta e aprovada. A nota fi
 | Regras do estoque dentro do banco de dados | Torna impossível vender a mesma unidade duas vezes, venha a venda de onde vier |
 | Inventário da fase 1 por nome ou código; câmera do celular na fase 2 | Usa a mesma tecnologia do leitor de código de barras do balcão |
 | Sem Docker no computador; testes do banco e de tela rodam no GitHub | O computador de desenvolvimento tem 8 GB de memória |
+| Site principal usa o banco de teste até a loja começar a usar de verdade | Não pagar o Supabase Pro antes de haver dados reais para proteger |
 
 ## Fase 1 em resumo
 

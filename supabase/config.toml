@@ -419,7 +419,8 @@ enabled = true
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
 # ---------------------------------------------------------------------------
-# Projeto de TESTE na nuvem (usado pelas pré-visualizações da Vercel).
+# Projeto de TESTE na nuvem (usado pelas pré-visualizações da Vercel e, até existir o
+# banco de produção, também pelo site principal diboni-psi.vercel.app).
 # Aplicar com: npx supabase config push --project-ref koptsxaddudfbkmeacpo
 # Mantém os valores da nuvem onde o local foi ajustado só para os testes.
 # Os modelos de e-mail ([auth.email.template.*]) só são aceitos na nuvem depois de
@@ -429,8 +430,9 @@ enabled = true
 project_id = "koptsxaddudfbkmeacpo"
 
 [remotes.teste.auth]
-site_url = "https://diboni-rhialles-projects.vercel.app"
+site_url = "https://diboni-psi.vercel.app"
 additional_redirect_urls = [
+  "https://diboni-psi.vercel.app/**",
   "https://diboni-rhialles-projects.vercel.app/**",
   "https://diboni-*-rhialles-projects.vercel.app/**",
   "http://localhost:3000/**",
