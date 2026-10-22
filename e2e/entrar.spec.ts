@@ -109,3 +109,41 @@ test("senha nova curta mostra a mensagem", async ({ page }) => {
   await page.getByRole("button", { name: "Salvar senha" }).click()
   await expect(page.getByText("A senha precisa ter pelo menos 8 caracteres.")).toBeVisible()
 })
+
+test("administrador com duas etapas recupera a senha", async ({ page }) => {
+  test.setTimeout(120_000)
+
+  // O mesmo código não vale duas vezes no mesmo intervalo de 30 s: espera o próximo quando preciso.
+  let segredo = ""
+  let ultimoIntervalo = -1
+  async function codigoNovo() {
+    if (Math.floor(Date.now() / 30_000) === ultimoIntervalo) {
+      await page.waitForTimeout(30_000 - (Date.now() % 30_000) + 500)
+    }
+    ultimoIntervalo = Math.floor(Date.now() / 30_000)
+    return new TOTP({ secret: Secret.fromBase32(segredo) }).generate()
+  }
+
+  await entrar(page, DONA.email, DONA.senha)
+  segredo = (await page.getByTestId("segredo-duas-etapas").textContent())!.trim()
+  await campo(page, "Código de 6 dígitos").fill(await codigoNovo())
+  await page.getByRole("button", { name: "Confirmar" }).click()
+  await expect(page.getByRole("heading", { name: "Início" })).toBeVisible()
+  await page.getByRole("button", { name: "Sair" }).click()
+  await expect(page).toHaveURL(/\/entrar/)
+
+  // Pelo link do e-mail, o administrador confirma o código antes de escolher a senha nova.
+  await abrirLinkDeRecuperacao(page, DONA.email)
+  await expect(page).toHaveURL(/\/entrar\/duas-etapas/)
+  await campo(page, "Código de 6 dígitos").fill(await codigoNovo())
+  await page.getByRole("button", { name: "Confirmar" }).click()
+  await campo(page, "Nova senha").fill("NovaDona123")
+  await page.getByRole("button", { name: "Salvar senha" }).click()
+  await expect(page.getByRole("heading", { name: "Início" })).toBeVisible()
+
+  await page.getByRole("button", { name: "Sair" }).click()
+  await entrar(page, DONA.email, "NovaDona123")
+  await campo(page, "Código de 6 dígitos").fill(await codigoNovo())
+  await page.getByRole("button", { name: "Confirmar" }).click()
+  await expect(page.getByRole("heading", { name: "Início" })).toBeVisible()
+})
