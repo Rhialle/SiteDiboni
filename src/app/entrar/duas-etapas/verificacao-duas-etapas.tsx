@@ -12,7 +12,7 @@ import { criarClienteNavegador } from "@/lib/supabase/navegador"
 
 type Fator = { id: string; cadastro?: { qrCode: string; segredo: string } }
 
-export function VerificacaoDuasEtapas() {
+export function VerificacaoDuasEtapas({ destino }: { destino: string }) {
   const id = useId()
   const [fator, setFator] = useState<Fator | null>(null)
   const [erro, setErro] = useState("")
@@ -71,7 +71,7 @@ export function VerificacaoDuasEtapas() {
       return
     }
     // A sessão já verificada está nos cookies; o servidor relê ao navegar.
-    router.replace("/inicio")
+    router.replace(destino)
     router.refresh()
   }
 
