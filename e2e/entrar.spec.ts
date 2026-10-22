@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 import { Secret, TOTP } from "otpauth"
 
+import { campo, entrar } from "./apoio/navegador"
 import {
   criarUsuarioTeste,
   limparUsuarios,
@@ -19,18 +20,6 @@ const FUNC: DadosUsuarioTeste = {
   senha: "SenhaFunc123",
   nome: "Func",
   papel: "funcionario",
-}
-
-// Com Cache Components a página anterior fica escondida no DOM: só interessa o campo visível.
-function campo(page: Page, rotulo: string) {
-  return page.getByLabel(rotulo, { exact: true }).filter({ visible: true })
-}
-
-async function entrar(page: Page, email: string, senha: string) {
-  await page.goto("/entrar")
-  await campo(page, "E-mail").fill(email)
-  await campo(page, "Senha").fill(senha)
-  await page.getByRole("button", { name: "Entrar" }).click()
 }
 
 async function abrirLinkDeRecuperacao(page: Page, email: string) {

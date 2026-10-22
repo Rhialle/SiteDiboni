@@ -72,3 +72,17 @@ export async function ultimoLinkPorEmail(para: string): Promise<string> {
   }
   throw new Error(`Nenhum e-mail com link chegou para ${para}.`)
 }
+
+export async function restaurarConfiguracoes(): Promise<void> {
+  const { error } = await admin
+    .from("configuracoes")
+    .update({ cnpj_loja: null, limite_ajuste_centavos: 5000, dias_alerta_validade: [30, 15, 7] })
+    .eq("id", 1)
+  if (error) throw error
+}
+
+export async function lerConfiguracoes() {
+  const { data, error } = await admin.from("configuracoes").select("*").eq("id", 1).single()
+  if (error) throw error
+  return data
+}
