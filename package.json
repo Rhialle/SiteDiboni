@@ -12,7 +12,8 @@
     "db:iniciar": "supabase start",
     "env:local": "node scripts/gerar-env-local.mjs",
     "db:tipos": "supabase gen types typescript --local > src/lib/supabase/tipos.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "deps:regenerar": "node scripts/regenerar-lock.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
