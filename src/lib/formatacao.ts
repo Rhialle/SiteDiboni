@@ -2,9 +2,15 @@ const FUSO = "America/Sao_Paulo"
 
 const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
 const data = new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO })
+const reais = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export function formatarMoeda(centavos: number): string {
   return moeda.format(centavos / 100)
+}
+
+// Para campos de formulário: "1.234,56", sem o "R$".
+export function formatarReais(centavos: number): string {
+  return reais.format(centavos / 100)
 }
 
 export function formatarData(valor: Date | string): string {

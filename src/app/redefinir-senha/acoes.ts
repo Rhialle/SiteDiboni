@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 
-import { MENSAGENS } from "@/lib/auth/mensagens"
+import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 export type EstadoRedefinicao = { erro: string }

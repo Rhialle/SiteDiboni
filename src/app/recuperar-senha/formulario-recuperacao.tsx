@@ -6,7 +6,7 @@ import { useActionState, useId } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { MENSAGENS } from "@/lib/auth/mensagens"
+import { MENSAGENS } from "@/lib/mensagens"
 
 import { pedirRecuperacao, type EstadoRecuperacao } from "./acoes"
 

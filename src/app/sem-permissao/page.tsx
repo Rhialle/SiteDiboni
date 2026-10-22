@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { TelaDeAcesso } from "@/components/tela-de-acesso"
-import { MENSAGENS } from "@/lib/auth/mensagens"
+import { MENSAGENS } from "@/lib/mensagens"
 
 export default function PaginaSemPermissao() {
   return (

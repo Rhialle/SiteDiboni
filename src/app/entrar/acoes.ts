@@ -2,13 +2,14 @@
 
 import { redirect } from "next/navigation"
 
-import { MENSAGENS } from "@/lib/auth/mensagens"
+import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
+import { normalizarEmail } from "@/lib/validacao/email"
 
 export type EstadoEntrar = { erro: string }
 
 export async function entrar(_estado: EstadoEntrar, formData: FormData): Promise<EstadoEntrar> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const email = normalizarEmail(String(formData.get("email") ?? ""))
   const senha = String(formData.get("senha") ?? "")
 
   const supabase = await criarClienteServidor()

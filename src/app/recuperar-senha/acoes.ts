@@ -2,6 +2,7 @@
 
 import { origemDaRequisicao } from "@/lib/origem"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
+import { normalizarEmail } from "@/lib/validacao/email"
 
 export type EstadoRecuperacao = { enviado: boolean }
 
@@ -10,7 +11,7 @@ export async function pedirRecuperacao(
   _estado: EstadoRecuperacao,
   formData: FormData,
 ): Promise<EstadoRecuperacao> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const email = normalizarEmail(String(formData.get("email") ?? ""))
   const supabase = await criarClienteServidor()
   await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${await origemDaRequisicao()}/auth/confirmar?next=/redefinir-senha`,

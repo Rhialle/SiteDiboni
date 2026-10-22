@@ -7,7 +7,7 @@ import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { MENSAGENS } from "@/lib/auth/mensagens"
+import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteNavegador } from "@/lib/supabase/navegador"
 
 type Fator = { id: string; cadastro?: { qrCode: string; segredo: string } }

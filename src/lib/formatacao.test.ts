@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatarData, formatarMoeda, reaisParaCentavos } from "./formatacao"
+import { formatarData, formatarMoeda, formatarReais, reaisParaCentavos } from "./formatacao"
 
 describe("formatarMoeda", () => {
   it("formata centavos como reais", () => {
@@ -33,5 +33,16 @@ describe("reaisParaCentavos", () => {
 
   it("recusa valor negativo", () => {
     expect(() => reaisParaCentavos("-1,00")).toThrow("Valor inválido")
+  })
+})
+
+describe("formatarReais", () => {
+  it("mostra centavos como número com vírgula, sem o símbolo", () => {
+    expect(formatarReais(8000)).toBe("80,00")
+    expect(formatarReais(123456)).toBe("1.234,56")
+  })
+
+  it("volta ao mesmo valor ao ler de novo", () => {
+    expect(reaisParaCentavos(formatarReais(123456))).toBe(123456)
   })
 })

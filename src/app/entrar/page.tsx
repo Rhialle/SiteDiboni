@@ -1,5 +1,5 @@
 import { TelaDeAcesso } from "@/components/tela-de-acesso"
-import { MENSAGENS } from "@/lib/auth/mensagens"
+import { MENSAGENS } from "@/lib/mensagens"
 
 import { FormularioEntrar } from "./formulario-entrar"
 
