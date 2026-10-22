@@ -1,0 +1,34 @@
+name: Aplicar banco na produção
+
+# Só roda pelo botão "Run workflow" na aba Actions, escolhendo o branch.
+# Primeiro repete todos os testes; só se passarem aplica as migrações no banco de produção.
+on:
+  workflow_dispatch:
+
+jobs:
+  testes:
+    uses: ./.github/workflows/ci.yml
+
+  aplicar:
+    needs: testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_REF_PRODUCAO: ${{ secrets.SUPABASE_REF_PRODUCAO }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Aplica as migrações no banco de produção
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_REF_PRODUCAO" ]; then
+            echo "::error::Segredos do Supabase de produção não configurados no GitHub."
+            exit 1
+          fi
+          # Com o token, o CLI usa um acesso temporário: não precisa da senha do banco.
+          npx supabase link --project-ref "$SUPABASE_REF_PRODUCAO"
+          npx supabase db push
