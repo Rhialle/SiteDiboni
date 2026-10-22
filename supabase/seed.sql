@@ -1,0 +1,1 @@
+-- Dados e funções de apoio usados só no banco local (testes e CI). Nunca vai para a nuvem.

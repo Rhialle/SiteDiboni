@@ -23,6 +23,19 @@ Este é o plano 1.1. Cada plano seguinte é escrito e aprovado só depois do ant
 | 1.5 Planilhas | Modelo, importação, exportação |
 | 1.6 Inventário e entrega | Inventário, manual completo, critérios de pronto da seção 2 da especificação |
 
+## Mudança durante a execução (2026-10-21): sem Docker no computador
+
+O computador de desenvolvimento tem 8 GB de memória, e o usuário escolheu não usar o Docker. A partir da Task 2, o plano muda assim:
+
+- **Testes do banco (pgTAP) e de tela (Playwright):** rodam só no GitHub Actions, que tem Docker. No computador rodam apenas `npm test`, `lint`, `typecheck` e `build`.
+- **CI antecipado:** o `ci.yml`, com o job `testes`, sai da Task 6 e é criado no fim da Task 2. Cada passo "rodar e ver falhar/passar" das Tasks 3 a 5 vira: enviar o branch e ler o resultado com `gh run watch`/`gh run view --log-failed`.
+- **Configuração local:**
+  - O computador usa o projeto `loja-teste` na nuvem. O `.env.local` (fora do git) recebe a URL e a chave publicável.
+  - A chave secreta, só se for necessária, é colada pelo próprio usuário.
+- **Tipos do banco:** `npm run db:tipos` passa a usar `supabase gen types typescript --linked`. Antes disso, o usuário faz `supabase login` e o executor faz `supabase link --project-ref <loja-teste>`, sem senha do banco.
+- **Ferramenta nova:** instalar a GitHub CLI (`gh`). O usuário faz `gh auth login` uma vez, para o executor ler os resultados do CI.
+- **Supabase local:** o `npm run db:iniciar` e o `npm run env:local` continuam existindo, mas só o CI usa.
+
 ## Restrições globais
 
 - A interface é em português do Brasil, com moeda em R$, datas no formato dd/mm/aaaa e fuso `America/Sao_Paulo`.
