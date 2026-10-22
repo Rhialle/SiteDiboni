@@ -36,3 +36,14 @@ jobs:
           name: tipos-do-banco
           path: src/lib/supabase/tipos.ts
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Testes de tela
+        run: npm run test:e2e
+      - name: Guarda o relatório dos testes de tela
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-playwright
+          path: |
+            playwright-report
+            test-results
