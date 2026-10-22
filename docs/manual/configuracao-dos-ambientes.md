@@ -34,9 +34,12 @@ Em **Settings**, depois **Secrets and variables** e depois **Actions**:
 
 | Segredo | Valor |
 |---|---|
-| `SUPABASE_ACCESS_TOKEN` | token gerado em supabase.com/dashboard/account/tokens |
+| `SUPABASE_ACCESS_TOKEN` | token com acesso **só ao projeto de teste** (supabase.com/dashboard/account/tokens) |
 | `SUPABASE_REF_TESTE` | `koptsxaddudfbkmeacpo` |
+| `SUPABASE_ACCESS_TOKEN_PRODUCAO` | outro token, com acesso **só ao projeto de produção** |
 | `SUPABASE_REF_PRODUCAO` | ref do projeto de produção |
+
+Os tokens vencem (ex.: 90 dias). Antes do vencimento, gere um novo no Supabase e substitua o segredo no GitHub; se vencer, o CI avisa que não conseguiu aplicar o banco.
 
 ## Ao instalar um pacote novo (para quem programa)
 
