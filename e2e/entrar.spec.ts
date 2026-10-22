@@ -36,6 +36,10 @@ async function entrar(page: Page, email: string, senha: string) {
 async function abrirLinkDeRecuperacao(page: Page, email: string) {
   await page.goto("/entrar")
   await page.getByRole("link", { name: "Esqueci minha senha" }).click()
+  // Espera a tela nova aparecer: até lá, o campo "E-mail" visível ainda é o da tela anterior.
+  await expect(
+    page.getByText("Informe seu e-mail e enviaremos um link para criar uma nova senha."),
+  ).toBeVisible()
   await campo(page, "E-mail").fill(email)
   await page.getByRole("button", { name: "Enviar link" }).click()
   await expect(
