@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useActionState } from "react"
+import { useActionState, useId } from "react"
 
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
@@ -13,17 +13,18 @@ import { entrar, type EstadoEntrar } from "./acoes"
 const estadoInicial: EstadoEntrar = { erro: "" }
 
 export function FormularioEntrar({ aviso }: { aviso?: string }) {
+  const id = useId()
   const [estado, acao, enviando] = useActionState(entrar, estadoInicial)
 
   return (
     <form action={acao} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Label htmlFor={`${id}-email`}>E-mail</Label>
+        <Input id={`${id}-email`} name="email" type="email" autoComplete="email" required />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="senha">Senha</Label>
-        <Input id="senha" name="senha" type="password" autoComplete="current-password" required />
+        <Label htmlFor={`${id}-senha`}>Senha</Label>
+        <Input id={`${id}-senha`} name="senha" type="password" autoComplete="current-password" required />
       </div>
       <MensagemDeErro>{estado.erro || aviso}</MensagemDeErro>
       <Button type="submit" size="lg" disabled={enviando}>

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useActionState } from "react"
+import { useActionState, useId } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { pedirRecuperacao, type EstadoRecuperacao } from "./acoes"
 const estadoInicial: EstadoRecuperacao = { enviado: false }
 
 export function FormularioRecuperacao() {
+  const id = useId()
   const [estado, acao, enviando] = useActionState(pedirRecuperacao, estadoInicial)
 
   if (estado.enviado) {
@@ -29,8 +30,8 @@ export function FormularioRecuperacao() {
   return (
     <form action={acao} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Label htmlFor={`${id}-email`}>E-mail</Label>
+        <Input id={`${id}-email`} name="email" type="email" autoComplete="email" required />
       </div>
       <Button type="submit" size="lg" disabled={enviando}>
         {enviando ? "Enviando…" : "Enviar link"}

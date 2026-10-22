@@ -21,17 +21,22 @@ const FUNC: DadosUsuarioTeste = {
   papel: "funcionario",
 }
 
+// Com Cache Components a página anterior fica escondida no DOM: só interessa o campo visível.
+function campo(page: Page, rotulo: string) {
+  return page.getByLabel(rotulo, { exact: true }).filter({ visible: true })
+}
+
 async function entrar(page: Page, email: string, senha: string) {
   await page.goto("/entrar")
-  await page.getByLabel("E-mail").fill(email)
-  await page.getByLabel("Senha").fill(senha)
+  await campo(page, "E-mail").fill(email)
+  await campo(page, "Senha").fill(senha)
   await page.getByRole("button", { name: "Entrar" }).click()
 }
 
 async function abrirLinkDeRecuperacao(page: Page, email: string) {
   await page.goto("/entrar")
   await page.getByRole("link", { name: "Esqueci minha senha" }).click()
-  await page.getByLabel("E-mail").fill(email)
+  await campo(page, "E-mail").fill(email)
   await page.getByRole("button", { name: "Enviar link" }).click()
   await expect(
     page.getByText(
@@ -68,7 +73,7 @@ test("administrador cadastra as duas etapas e entra", async ({ page }) => {
   await expect(page).toHaveURL(/\/entrar\/duas-etapas/)
 
   const segredo = (await page.getByTestId("segredo-duas-etapas").textContent())!.trim()
-  await page.getByLabel("Código de 6 dígitos").fill(
+  await campo(page, "Código de 6 dígitos").fill(
     new TOTP({ secret: Secret.fromBase32(segredo) }).generate(),
   )
   await page.getByRole("button", { name: "Confirmar" }).click()
@@ -80,7 +85,7 @@ test("administrador cadastra as duas etapas e entra", async ({ page }) => {
 test("código de duas etapas errado mostra a mensagem", async ({ page }) => {
   await entrar(page, DONA.email, DONA.senha)
   await expect(page.getByTestId("segredo-duas-etapas")).toBeVisible()
-  await page.getByLabel("Código de 6 dígitos").fill("000000")
+  await campo(page, "Código de 6 dígitos").fill("000000")
   await page.getByRole("button", { name: "Confirmar" }).click()
   await expect(
     page.getByText("Código incorreto. Confira o aplicativo e tente de novo."),
@@ -89,7 +94,7 @@ test("código de duas etapas errado mostra a mensagem", async ({ page }) => {
 
 test("recuperar senha: e-mail, link, nova senha, entrar", async ({ page }) => {
   await abrirLinkDeRecuperacao(page, FUNC.email)
-  await page.getByLabel("Nova senha").fill("NovaSenha123")
+  await campo(page, "Nova senha").fill("NovaSenha123")
   await page.getByRole("button", { name: "Salvar senha" }).click()
   await expect(page.getByRole("heading", { name: "Início" })).toBeVisible()
 
@@ -107,7 +112,7 @@ test("link inválido mostra a mensagem", async ({ page }) => {
 
 test("senha nova curta mostra a mensagem", async ({ page }) => {
   await abrirLinkDeRecuperacao(page, FUNC.email)
-  await page.getByLabel("Nova senha").fill("curta")
+  await campo(page, "Nova senha").fill("curta")
   await page.getByRole("button", { name: "Salvar senha" }).click()
   await expect(page.getByText("A senha precisa ter pelo menos 8 caracteres.")).toBeVisible()
 })

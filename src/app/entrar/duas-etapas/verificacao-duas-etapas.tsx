@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { criarClienteNavegador } from "@/lib/supabase/navegador"
 type Fator = { id: string; cadastro?: { qrCode: string; segredo: string } }
 
 export function VerificacaoDuasEtapas() {
+  const id = useId()
   const [fator, setFator] = useState<Fator | null>(null)
   const [erro, setErro] = useState("")
   const [enviando, setEnviando] = useState(false)
@@ -95,9 +96,9 @@ export function VerificacaoDuasEtapas() {
         </div>
       ) : null}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="codigo">Código de 6 dígitos</Label>
+        <Label htmlFor={`${id}-codigo`}>Código de 6 dígitos</Label>
         <Input
-          id="codigo"
+          id={`${id}-codigo`}
           name="codigo"
           inputMode="numeric"
           autoComplete="one-time-code"
