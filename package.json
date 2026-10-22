@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "db:iniciar": "supabase start",
     "env:local": "node scripts/gerar-env-local.mjs",
-    "db:tipos": "supabase gen types typescript --linked > src/lib/supabase/tipos.ts"
+    "db:tipos": "supabase gen types typescript --local > src/lib/supabase/tipos.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

@@ -20,9 +20,19 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - name: Supabase local (só banco, login e e-mails de teste)
-        run: npx supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta
+        run: npx supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor
       - run: npm run env:local
       - name: Testes do banco
         run: |
           if [ -d supabase/tests ]; then npx supabase test db; else echo "Sem testes de banco ainda."; fi
+      - name: Tipos do banco atualizados
+        run: |
+          npm run db:tipos
+          git diff --exit-code src/lib/supabase/tipos.ts || (echo "Tipos desatualizados: baixe o artefato tipos-do-banco e salve em src/lib/supabase/tipos.ts" && exit 1)
+      - name: Guarda os tipos gerados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tipos-do-banco
+          path: src/lib/supabase/tipos.ts
       - run: npm run build
