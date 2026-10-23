@@ -87,7 +87,7 @@ security invoker
 set search_path = ''
 as $$
 declare
-  fator numeric;
+  multiplicador numeric;
 begin
   if not public.eh_administrador() then
     raise exception 'Você não tem permissão para acessar esta página.';
@@ -95,15 +95,15 @@ begin
   if p_percentual is null or p_percentual <= -100 then
     raise exception '%', 'Informe o reajuste em %, por exemplo 10 ou -5.';
   end if;
-  fator := 1 + p_percentual / 100;
+  multiplicador := 1 + p_percentual / 100;
 
   update public.formas_venda f
-  set preco_centavos = round(f.preco_centavos * fator)
+  set preco_centavos = round(f.preco_centavos * multiplicador)
   from public.variacoes v
   where v.id = f.variacao_id and v.produto_id = any (p_produtos);
 
   update public.faixas_preco fp
-  set preco_centavos = round(fp.preco_centavos * fator)
+  set preco_centavos = round(fp.preco_centavos * multiplicador)
   from public.formas_venda f
   join public.variacoes v on v.id = f.variacao_id
   where f.id = fp.forma_venda_id and v.produto_id = any (p_produtos);
