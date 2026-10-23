@@ -21,7 +21,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - name: Supabase local (só banco, login e e-mails de teste)
-        run: npx supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor
+        run: npx supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor
       - run: npm run env:local
       - name: Testes do banco
         run: |
