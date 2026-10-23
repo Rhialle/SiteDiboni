@@ -38,3 +38,18 @@ export function combinacoesDaGrade(
   }
   return combinacoes.map((atributos) => ({ nome: Object.values(atributos).join(" "), atributos }))
 }
+
+function mesmosAtributos(a: Record<string, string>, b: Record<string, string>): boolean {
+  const chaves = Object.keys(a)
+  return chaves.length === Object.keys(b).length && chaves.every((chave) => a[chave] === b[chave])
+}
+
+// As combinações da grade que ainda não existem entre as variações do produto.
+export function novasCombinacoes(
+  grade: Grade,
+  existentes: Record<string, string>[],
+): { nome: string; atributos: Record<string, string> }[] {
+  return combinacoesDaGrade(grade).filter(
+    (combinacao) => !existentes.some((existente) => mesmosAtributos(combinacao.atributos, existente)),
+  )
+}

@@ -43,6 +43,13 @@ export const MENSAGENS = {
   nenhumSelecionado: "Selecione pelo menos um produto.",
   salvo: "Alterações salvas.",
   gradeSemNovidade: "Nenhuma variação nova: todas as combinações já existiam.",
+  gradeInvalida: "Escreva um atributo por linha, assim: Tamanho: 4, 6, 12",
+  precoInvalido: "Informe o preço em reais, por exemplo 6,00.",
+  quantidadeInvalida: "Informe uma quantidade inteira maior que zero.",
+  faixaMinima: "A faixa começa em pelo menos 2.",
+  medidaInvalida: "Medidas e capacidade são números inteiros maiores que zero.",
+  estoqueMinimoInvalido: "O estoque mínimo é um número inteiro, zero ou mais.",
+  formaGranelEmLista: "Forma a granel não tem faixas de preço.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {

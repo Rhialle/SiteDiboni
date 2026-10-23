@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { combinacoesDaGrade, lerGrade } from "./grade"
+import { combinacoesDaGrade, lerGrade, novasCombinacoes } from "./grade"
 
 describe("lerGrade", () => {
   it("lê um atributo por linha, com valores separados por vírgula", () => {
@@ -31,5 +31,16 @@ describe("combinacoesDaGrade", () => {
       nome: "4 marrom",
       atributos: { Tamanho: "4", Cor: "marrom" },
     })
+  })
+})
+
+describe("novasCombinacoes", () => {
+  it("deixa de fora as combinações que já existem, mesmo com atributos em outra ordem", () => {
+    const novas = novasCombinacoes({ Tamanho: ["4", "6"], Cor: ["marrom"] }, [{ Cor: "marrom", Tamanho: "4" }])
+    expect(novas).toEqual([{ nome: "6 marrom", atributos: { Tamanho: "6", Cor: "marrom" } }])
+  })
+
+  it("devolve vazio quando tudo já existe", () => {
+    expect(novasCombinacoes({ Cor: ["marrom"] }, [{ Cor: "marrom" }])).toEqual([])
   })
 })

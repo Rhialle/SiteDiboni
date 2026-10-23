@@ -322,7 +322,7 @@ isOneToOne: false
 { Args: { "p_inativo": boolean,"p_produtos": (string)[] }; Returns: number
                            },
 "buscar_produtos":
-{ Args: { "p_categoria": string,"p_controla_validade": boolean,"p_deslocamento": number,"p_etiqueta": string,"p_limite": number,"p_situacao": string,"p_termo": string,"p_tipo_venda": Database["public"]['Enums']["tipo_venda"] }; Returns: {
+{ Args: { "p_categoria"?: string,"p_controla_validade"?: boolean,"p_deslocamento"?: number,"p_etiqueta"?: string,"p_limite"?: number,"p_situacao"?: string,"p_termo"?: string,"p_tipo_venda"?: Database["public"]['Enums']["tipo_venda"] }; Returns: {
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
             }[]
                            },
