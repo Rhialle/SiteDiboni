@@ -275,3 +275,104 @@ export async function salvarPrecoPorKg(
   return concluir(produtoId, error)
 }
 
+
+// ---------------------------------------------------------------------------
+// Fotos, compatibilidades e inativação
+// ---------------------------------------------------------------------------
+
+// O navegador já enviou o arquivo para o bucket; aqui só se grava a linha (o banco limita a 8).
+export async function registrarFoto(produtoId: string, caminho: string): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  if (!caminho.startsWith(`${produtoId}/`)) return falha(MENSAGENS.acaoFalhou)
+
+  const supabase = await criarClienteServidor()
+  const { data: ultima } = await supabase
+    .from("fotos")
+    .select("ordem")
+    .eq("produto_id", produtoId)
+    .order("ordem", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const { error } = await supabase
+    .from("fotos")
+    .insert({ produto_id: produtoId, caminho, ordem: (ultima?.ordem ?? -1) + 1 })
+  return concluir(produtoId, error)
+}
+
+export async function apagarFoto(produtoId: string, fotoId: string): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  const supabase = await criarClienteServidor()
+  const { data: foto, error } = await supabase.from("fotos").delete().eq("id", fotoId).select("caminho").single()
+  if (error) return falha(mensagemDoErroDoBanco(error))
+  await supabase.storage.from("fotos-produtos").remove([foto.caminho])
+  return concluir(produtoId, null)
+}
+
+export async function moverFoto(
+  produtoId: string,
+  fotoId: string,
+  direcao: "antes" | "depois",
+): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  const supabase = await criarClienteServidor()
+  const { data: fotos, error } = await supabase
+    .from("fotos")
+    .select("id, ordem")
+    .eq("produto_id", produtoId)
+    .order("ordem")
+  if (error) return falha(mensagemDoErroDoBanco(error))
+
+  const indice = fotos.findIndex((f) => f.id === fotoId)
+  const vizinha = fotos[direcao === "antes" ? indice - 1 : indice + 1]
+  if (indice < 0 || !vizinha) return { erro: "", sucesso: "" }
+
+  // Troca as posições: depois da troca, a ordem fica 0, 1, 2… sem buracos.
+  const novaOrdem = fotos.map((f) => f.id)
+  novaOrdem[indice] = vizinha.id
+  novaOrdem[fotos.indexOf(vizinha)] = fotoId
+  for (const [ordem, id] of novaOrdem.entries()) {
+    const { error: erroOrdem } = await supabase.from("fotos").update({ ordem }).eq("id", id)
+    if (erroOrdem) return falha(mensagemDoErroDoBanco(erroOrdem))
+  }
+  return concluir(produtoId, null)
+}
+
+export async function ligarCompatibilidade(
+  produtoId: string,
+  _estado: EstadoFicha,
+  formData: FormData,
+): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  const variacaoId = texto(formData, "variacao_id")
+  const codigo = texto(formData, "codigo")
+
+  const supabase = await criarClienteServidor()
+  const { data: outra } = await supabase
+    .from("variacoes")
+    .select("id")
+    .ilike("codigo_interno", codigo)
+    .maybeSingle()
+  if (!outra) return falha(MENSAGENS.variacaoNaoEncontrada)
+  if (outra.id === variacaoId) return falha(MENSAGENS.compatibilidadeMesma)
+
+  const { error } = await supabase.from("compatibilidades").insert({
+    variacao_a_id: variacaoId,
+    variacao_b_id: outra.id,
+    descricao: texto(formData, "descricao"),
+  })
+  return concluir(produtoId, error)
+}
+
+export async function desligarCompatibilidade(produtoId: string, id: string): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  const supabase = await criarClienteServidor()
+  const { error } = await supabase.from("compatibilidades").delete().eq("id", id)
+  return concluir(produtoId, error)
+}
+
+export async function alterarInativo(produtoId: string, inativo: boolean): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  const supabase = await criarClienteServidor()
+  const { error } = await supabase.from("produtos").update({ inativo }).eq("id", produtoId)
+  return concluir(produtoId, error)
+}

@@ -7,7 +7,10 @@ import { PROPRIEDADES, ROTULO_SITUACAO, ROTULO_TIPO_VENDA } from "@/lib/catalogo
 import { mensagemPendencias } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
+import { BotaoInativar } from "./botao-inativar"
+import { Compatibilidades, type Compatibilidade } from "./compatibilidades"
 import { DadosGerais } from "./dados-gerais"
+import { Fotos } from "./fotos"
 import { FormasVenda, type FormaVenda } from "./formas-venda"
 import { Grade } from "./grade"
 import { Variacoes } from "./variacoes"
@@ -56,6 +59,49 @@ export default async function PaginaProduto({ params }: PageProps<"/produtos/[id
     faixas: [...faixas_preco].sort((a, b) => a.quantidade_minima - b.quantidade_minima),
   }))
 
+  const ids = variacoes.map((v) => v.id)
+  const [fotosR, compatR] = await Promise.all([
+    supabase.from("fotos").select("id, caminho, ordem").eq("produto_id", id).order("ordem"),
+    ids.length
+      ? supabase
+          .from("compatibilidades")
+          .select("id, descricao, variacao_a_id, variacao_b_id")
+          .or(`variacao_a_id.in.(${ids.join(",")}),variacao_b_id.in.(${ids.join(",")})`)
+      : Promise.resolve({ data: [], error: null }),
+  ])
+  if (fotosR.error) throw fotosR.error
+  if (compatR.error) throw compatR.error
+
+  const fotos = (fotosR.data ?? []).map((foto) => ({
+    id: foto.id,
+    url: supabase.storage.from("fotos-produtos").getPublicUrl(foto.caminho).data.publicUrl,
+  }))
+
+  // Para cada ligação, o lado que não é deste produto.
+  const ladosDaqui = new Map(variacoes.map((v) => [v.id, v.nome]))
+  const ligacoes = (compatR.data ?? []).map((c) => {
+    const aquiEhA = ladosDaqui.has(c.variacao_a_id)
+    return { ...c, daqui: aquiEhA ? c.variacao_a_id : c.variacao_b_id, outra: aquiEhA ? c.variacao_b_id : c.variacao_a_id }
+  })
+  const { data: outras, error: erroOutras } = ligacoes.length
+    ? await supabase
+        .from("variacoes")
+        .select("id, nome, codigo_interno, produto_id, produtos(nome)")
+        .in("id", ligacoes.map((l) => l.outra))
+    : { data: [], error: null }
+  if (erroOutras) throw erroOutras
+  const compatibilidades: Compatibilidade[] = ligacoes.flatMap((l) => {
+    const outra = (outras ?? []).find((o) => o.id === l.outra)
+    return outra
+      ? [{
+          id: l.id,
+          descricao: l.descricao,
+          daqui: ladosDaqui.get(l.daqui) ?? "",
+          outra: { produtoId: outra.produto_id, produto: outra.produtos.nome, variacao: outra.nome, codigo: outra.codigo_interno },
+        }]
+      : []
+  })
+
   const caminhos = caminhosDasCategorias(montarArvore(categoriasR.data ?? []))
   const campos: CamposDoProduto = {
     nome: produto.nome ?? "",
@@ -81,6 +127,7 @@ export default async function PaginaProduto({ params }: PageProps<"/produtos/[id
           </span>
         </div>
         <p className="text-sm text-muted-foreground">{ROTULO_TIPO_VENDA[campos.tipo_venda]}</p>
+        {podeEditar ? <BotaoInativar produtoId={id} inativo={produto.inativo ?? false} /> : null}
         {produto.situacao === "incompleto" && pendencias.length > 0 ? (
           <p className="text-sm text-amber-800 dark:text-amber-300">{mensagemPendencias(pendencias)}</p>
         ) : null}
@@ -113,12 +160,27 @@ export default async function PaginaProduto({ params }: PageProps<"/produtos/[id
       </section>
 
       <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">Fotos</h2>
+        <Fotos produtoId={id} nomeProduto={produto.nome ?? ""} fotos={fotos} podeEditar={podeEditar} />
+      </section>
+
+      <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">{porPeso ? "Preço por kg" : "Formas de venda"}</h2>
         <FormasVenda
           produtoId={id}
           porPeso={porPeso}
           variacoes={variacoes.filter((v) => v.ativa)}
           formas={formas}
+          podeEditar={podeEditar}
+        />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">Compatibilidades</h2>
+        <Compatibilidades
+          produtoId={id}
+          variacoes={variacoes.filter((v) => v.ativa)}
+          compatibilidades={compatibilidades}
           podeEditar={podeEditar}
         />
       </section>
