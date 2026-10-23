@@ -49,7 +49,7 @@ select throws_ok($$delete from variacoes where nome = 'Azul'$$, '42501', null, '
 -- Histórico
 update produtos set nome = 'Forminha de papel nº 4' where id = (select id from ids where nome = 'forminha');
 select results_eq(
-  $select campo, valor_antigo, valor_novo from historico_cadastro where tabela = 'produtos' and campo = 'nome'$,
+  $$select campo, valor_antigo, valor_novo from historico_cadastro where tabela = 'produtos' and campo = 'nome'$$,
   $$values ('nome', 'Forminha nº 4', 'Forminha de papel nº 4')$$,
   'mudança no produto fica no histórico');
 
