@@ -153,17 +153,21 @@ export async function alterarVariacaoAtiva(
   return concluir(produtoId, error)
 }
 
+// Devolve o texto da grade para ele continuar no campo depois de gerar (o React limpa o formulário).
+export type EstadoGrade = EstadoFicha & { texto: string }
+
 export async function gerarGrade(
   produtoId: string,
-  _estado: EstadoFicha,
+  _estado: EstadoGrade,
   formData: FormData,
-): Promise<EstadoFicha> {
+): Promise<EstadoGrade> {
   await exigirAdministrador()
+  const textoDaGrade = texto(formData, "grade")
   let grade
   try {
-    grade = lerGrade(texto(formData, "grade"))
+    grade = lerGrade(textoDaGrade)
   } catch {
-    return falha(MENSAGENS.gradeInvalida)
+    return { ...falha(MENSAGENS.gradeInvalida), texto: textoDaGrade }
   }
 
   const supabase = await criarClienteServidor()
@@ -171,18 +175,18 @@ export async function gerarGrade(
     .from("variacoes")
     .select("atributos")
     .eq("produto_id", produtoId)
-  if (erroLeitura) return falha(mensagemDoErroDoBanco(erroLeitura))
+  if (erroLeitura) return { ...falha(mensagemDoErroDoBanco(erroLeitura)), texto: textoDaGrade }
 
   const novas = novasCombinacoes(
     grade,
     (existentes ?? []).map((v) => v.atributos as Record<string, string>),
   )
-  if (novas.length === 0) return { erro: "", sucesso: mensagemGradeCriada(0) }
+  if (novas.length === 0) return { erro: "", sucesso: mensagemGradeCriada(0), texto: textoDaGrade }
 
   const { error } = await supabase
     .from("variacoes")
     .insert(novas.map((n) => ({ produto_id: produtoId, nome: n.nome, atributos: n.atributos })))
-  return concluir(produtoId, error, mensagemGradeCriada(novas.length))
+  return { ...concluir(produtoId, error, mensagemGradeCriada(novas.length)), texto: textoDaGrade }
 }
 
 // ---------------------------------------------------------------------------

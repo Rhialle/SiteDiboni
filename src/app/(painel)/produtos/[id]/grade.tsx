@@ -6,11 +6,11 @@ import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
-import { gerarGrade, type EstadoFicha } from "./acoes"
+import { gerarGrade, type EstadoGrade } from "./acoes"
 
 export function Grade({ produtoId }: { produtoId: string }) {
   const id = useId()
-  const [estado, acao, enviando] = useActionState(gerarGrade.bind(null, produtoId), { erro: "", sucesso: "" } as EstadoFicha)
+  const [estado, acao, enviando] = useActionState(gerarGrade.bind(null, produtoId), { erro: "", sucesso: "", texto: "" } as EstadoGrade)
 
   return (
     <form action={acao} className="flex max-w-md flex-col gap-2">
@@ -20,6 +20,7 @@ export function Grade({ produtoId }: { produtoId: string }) {
         name="grade"
         rows={3}
         required
+        defaultValue={estado.texto}
         placeholder={"Tamanho: 4, 6, 12\nCor: marrom, branca"}
         className="rounded-lg border border-input bg-transparent px-2.5 py-1 font-mono text-sm"
       />
