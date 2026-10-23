@@ -86,3 +86,77 @@ export async function lerConfiguracoes() {
   if (error) throw error
   return data
 }
+
+// Apaga todo o catálogo (filhos antes dos pais) e as fotos do bucket.
+export async function limparCatalogo(): Promise<void> {
+  const tudo = <T extends string>(tabela: T) => admin.from(tabela as never).delete().not("id" as never, "is", null)
+  for (const tabela of ["faixas_preco", "formas_venda", "compatibilidades", "fotos", "variacoes"] as const) {
+    const { error } = await tudo(tabela)
+    if (error) throw error
+  }
+  for (const tabela of ["produto_categorias", "produto_etiquetas"] as const) {
+    const { error } = await admin.from(tabela).delete().not("produto_id", "is", null)
+    if (error) throw error
+  }
+  for (const tabela of ["produtos", "etiquetas"] as const) {
+    const { error } = await tudo(tabela)
+    if (error) throw error
+  }
+  // Categorias apontam para a mãe com RESTRICT: apaga das folhas para a raiz.
+  for (let rodada = 0; rodada < 10; rodada++) {
+    const { data: categorias } = await admin.from("categorias").select("id, categoria_pai_id")
+    if (!categorias?.length) break
+    const maes = new Set(categorias.map((c) => c.categoria_pai_id).filter(Boolean))
+    const folhas = categorias.filter((c) => !maes.has(c.id)).map((c) => c.id)
+    const { error } = await admin.from("categorias").delete().in("id", folhas)
+    if (error) throw error
+  }
+  const { data: pastas } = await admin.storage.from("fotos-produtos").list("", { limit: 1000 })
+  for (const pasta of pastas ?? []) {
+    const { data: arquivos } = await admin.storage.from("fotos-produtos").list(pasta.name, { limit: 1000 })
+    const caminhos = (arquivos ?? []).map((a) => `${pasta.name}/${a.name}`)
+    if (caminhos.length) await admin.storage.from("fotos-produtos").remove(caminhos)
+  }
+}
+
+export async function criarCategoriaTeste(nome: string, paiId: string | null = null): Promise<string> {
+  const { data, error } = await admin
+    .from("categorias")
+    .insert({ nome, categoria_pai_id: paiId })
+    .select("id")
+    .single()
+  if (error) throw error
+  return data.id
+}
+
+// Cria direto nas tabelas (o cliente de serviço não passa pela checagem de administrador de criar_produto).
+export async function criarProdutoTeste(dados: {
+  nome: string
+  tipo_venda?: "unidade" | "peso"
+  categorias?: string[]
+  variacao?: { nome?: string; codigo_barras?: string }
+}): Promise<{ produtoId: string; variacaoId: string }> {
+  const { data: produto, error } = await admin
+    .from("produtos")
+    .insert({ nome: dados.nome, tipo_venda: dados.tipo_venda ?? "unidade" })
+    .select("id")
+    .single()
+  if (error) throw error
+  const { data: variacao, error: erroVariacao } = await admin
+    .from("variacoes")
+    .insert({
+      produto_id: produto.id,
+      nome: dados.variacao?.nome ?? "Padrão",
+      codigo_barras: dados.variacao?.codigo_barras ?? null,
+    })
+    .select("id")
+    .single()
+  if (erroVariacao) throw erroVariacao
+  if (dados.categorias?.length) {
+    const { error: erroCategorias } = await admin
+      .from("produto_categorias")
+      .insert(dados.categorias.map((categoria_id) => ({ produto_id: produto.id, categoria_id })))
+    if (erroCategorias) throw erroCategorias
+  }
+  return { produtoId: produto.id, variacaoId: variacao.id }
+}
