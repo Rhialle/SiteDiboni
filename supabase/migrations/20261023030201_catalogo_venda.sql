@@ -80,12 +80,19 @@ language plpgsql
 set search_path = ''
 as $$
 declare
-  v_forma uuid := case when tg_table_name = 'faixas_preco' then new.forma_venda_id else new.id end;
+  v_forma uuid;
   v_preco integer;
   v_granel boolean;
   anterior integer;
   faixa record;
 begin
+  -- Em IFs separados: no gatilho de formas_venda, "new" não tem forma_venda_id.
+  if tg_table_name = 'faixas_preco' then
+    v_forma := new.forma_venda_id;
+  else
+    v_forma := new.id;
+  end if;
+
   select preco_centavos, peso_variavel into v_preco, v_granel from public.formas_venda where id = v_forma;
   if not found then
     return null;
