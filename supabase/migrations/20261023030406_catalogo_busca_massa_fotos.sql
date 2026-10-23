@@ -6,15 +6,16 @@ create extension if not exists unaccent with schema extensions;
 -- Busca da lista de produtos
 -- ---------------------------------------------------------------------------
 
+-- Todos os filtros são opcionais (nulo = sem filtro).
 create function public.buscar_produtos(
-  p_termo text,
-  p_categoria uuid,
-  p_situacao text,
-  p_tipo_venda public.tipo_venda,
-  p_controla_validade boolean,
-  p_etiqueta uuid,
-  p_limite integer,
-  p_deslocamento integer
+  p_termo text default null,
+  p_categoria uuid default null,
+  p_situacao text default null,
+  p_tipo_venda public.tipo_venda default null,
+  p_controla_validade boolean default null,
+  p_etiqueta uuid default null,
+  p_limite integer default 50,
+  p_deslocamento integer default 0
 )
 returns table (
   id uuid,

@@ -26,16 +26,6 @@ jobs:
       - name: Testes do banco
         run: |
           if [ -d supabase/tests ]; then npx supabase test db; else echo "Sem testes de banco ainda."; fi
-      - name: Tipos do banco atualizados
-        run: |
-          npm run db:tipos
-          git diff --exit-code src/lib/supabase/tipos.ts || (echo "Tipos desatualizados: baixe o artefato tipos-do-banco e salve em src/lib/supabase/tipos.ts" && exit 1)
-      - name: Guarda os tipos gerados
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tipos-do-banco
-          path: src/lib/supabase/tipos.ts
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Testes de tela
@@ -48,6 +38,17 @@ jobs:
           path: |
             playwright-report
             test-results
+      - name: Tipos do banco atualizados
+        if: success() || failure()
+        run: |
+          npm run db:tipos
+          git diff --exit-code src/lib/supabase/tipos.ts || (echo "Tipos desatualizados: baixe o artefato tipos-do-banco e salve em src/lib/supabase/tipos.ts" && exit 1)
+      - name: Guarda os tipos gerados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tipos-do-banco
+          path: src/lib/supabase/tipos.ts
 
   # Depois dos testes, leva as migrações para o banco de TESTE na nuvem (usado pelas pré-visualizações).
   banco-teste:
