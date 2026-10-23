@@ -201,3 +201,10 @@ export async function codigoInternoDe(variacaoId: string): Promise<string> {
   if (error) throw error
   return data.codigo_interno
 }
+
+export async function criarFaixaTeste(formaId: string, quantidadeMinima: number, precoCentavos: number): Promise<void> {
+  const { error } = await admin
+    .from("faixas_preco")
+    .insert({ forma_venda_id: formaId, quantidade_minima: quantidadeMinima, preco_centavos: precoCentavos })
+  if (error) throw error
+}
