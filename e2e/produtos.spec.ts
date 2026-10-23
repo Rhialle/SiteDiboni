@@ -229,7 +229,7 @@ test("foto de 6 MB e PDF mostram as mensagens e não entram na lista", async ({ 
   await expect(page.getByText("A foto precisa ter até 5 MB.")).toBeVisible()
   await campo(page, "Adicionar foto").setInputFiles(arquivo("nota.pdf", "application/pdf"))
   await expect(page.getByText("Use uma foto em JPG, PNG ou WebP.")).toBeVisible()
-  await expect(page.getByRole("img", { name: /^Foto d+ de Caixa$/ })).toHaveCount(0)
+  await expect(page.getByRole("img", { name: /^Foto \d+ de Caixa$/ })).toHaveCount(0)
 })
 
 test("9ª foto mostra a mensagem", async ({ page }) => {
@@ -238,7 +238,7 @@ test("9ª foto mostra a mensagem", async ({ page }) => {
   await abrirFicha(page, produtoId)
   await campo(page, "Adicionar foto").setInputFiles(arquivo("nona.jpg", "image/jpeg"))
   await expect(page.getByText("Cada produto pode ter até 8 fotos.")).toBeVisible()
-  await expect(page.getByRole("img", { name: /^Foto d+ de Caixa$/ })).toHaveCount(8)
+  await expect(page.getByRole("img", { name: /^Foto \d+ de Caixa$/ })).toHaveCount(8)
 })
 
 test("compatibilidade tampa ↔ pote aparece nas duas fichas; repetir mostra a mensagem", async ({ page }) => {
