@@ -173,3 +173,31 @@ export async function criarFormaTeste(
   if (error) throw error
   return (data as { id: string }).id
 }
+
+export async function prepararProdutoCompleto(dados: { nome: string; categoria: string }) {
+  const { data: categoria, error: erroCategoria } = await admin
+    .from("categorias")
+    .insert({ nome: dados.categoria })
+    .select("id")
+    .single()
+  if (erroCategoria) throw erroCategoria
+  const produto = await criarProdutoTeste({ nome: dados.nome, categorias: [categoria.id] })
+  const { error: erroNcm } = await admin.from("produtos").update({ ncm: "48191000" }).eq("id", produto.produtoId)
+  if (erroNcm) throw erroNcm
+  await criarFormaTeste(produto.variacaoId, { nome: "Unidade", fator: 1, preco_centavos: 250 })
+  return produto
+}
+
+// Linhas em "fotos" (sem arquivo de verdade no bucket), para testar limites e situação.
+export async function criarFotosTeste(produtoId: string, quantidade: number): Promise<void> {
+  const { error } = await admin.from("fotos").insert(
+    Array.from({ length: quantidade }, (_, i) => ({ produto_id: produtoId, caminho: `${produtoId}/teste-${i}.jpg`, ordem: i })),
+  )
+  if (error) throw error
+}
+
+export async function codigoInternoDe(variacaoId: string): Promise<string> {
+  const { data, error } = await admin.from("variacoes").select("codigo_interno").eq("id", variacaoId).single()
+  if (error) throw error
+  return data.codigo_interno
+}

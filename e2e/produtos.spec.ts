@@ -2,11 +2,14 @@ import { expect, test, type Page } from "@playwright/test"
 
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
+  codigoInternoDe,
   criarFormaTeste,
+  criarFotosTeste,
   criarProdutoTeste,
   criarUsuarioTeste,
   limparCatalogo,
   limparUsuarios,
+  prepararProdutoCompleto,
   type DadosUsuarioTeste,
 } from "./apoio/supabase"
 
@@ -183,4 +186,75 @@ test("funcionária abre a ficha e não vê nenhum botão de salvar ou gerar", as
   await abrirFicha(page, produtoId, FUNC)
   await expect(page.getByRole("heading", { name: "Forminha" })).toBeVisible()
   await expect(page.getByRole("button", { name: /Salvar|Gerar|Adicionar/ })).toHaveCount(0)
+})
+
+// --- Fotos, compatibilidades e situação ---
+
+const MB = 1024 * 1024
+function arquivo(nome: string, mimeType: string, tamanho = 1024) {
+  return { name: nome, mimeType, buffer: Buffer.alloc(tamanho, 1) }
+}
+const selo = (page: Page, texto: string) => page.locator("header").getByText(texto, { exact: true })
+
+test("produto completo fica Ativo; apagar a foto volta a Incompleto", async ({ page }) => {
+  const { produtoId } = await prepararProdutoCompleto({ nome: "Caixa", categoria: "Bolos" })
+  await abrirFicha(page, produtoId)
+  await expect(selo(page, "Incompleto")).toBeVisible()
+  await expect(page.getByText("Para ficar ativo falta: foto.")).toBeVisible()
+
+  await campo(page, "Adicionar foto").setInputFiles(arquivo("caixa.jpg", "image/jpeg"))
+  await expect(page.getByRole("img", { name: "Foto 1 de Caixa" })).toBeVisible()
+  await expect(selo(page, "Ativo")).toBeVisible()
+
+  await page.getByRole("button", { name: "Apagar foto 1" }).click()
+  await expect(selo(page, "Incompleto")).toBeVisible()
+  await expect(page.getByRole("img", { name: "Foto 1 de Caixa" })).toHaveCount(0)
+})
+
+test("Inativar prevalece mesmo completo; Reativar volta a Ativo", async ({ page }) => {
+  const { produtoId } = await prepararProdutoCompleto({ nome: "Caixa", categoria: "Bolos" })
+  await criarFotosTeste(produtoId, 1)
+  await abrirFicha(page, produtoId)
+  await expect(selo(page, "Ativo")).toBeVisible()
+  await page.getByRole("button", { name: "Inativar produto" }).click()
+  await expect(selo(page, "Inativo")).toBeVisible()
+  await page.getByRole("button", { name: "Reativar produto" }).click()
+  await expect(selo(page, "Ativo")).toBeVisible()
+})
+
+test("foto de 6 MB e PDF mostram as mensagens e não entram na lista", async ({ page }) => {
+  const { produtoId } = await criarProdutoTeste({ nome: "Caixa" })
+  await abrirFicha(page, produtoId)
+  await campo(page, "Adicionar foto").setInputFiles(arquivo("grande.jpg", "image/jpeg", 6 * MB))
+  await expect(page.getByText("A foto precisa ter até 5 MB.")).toBeVisible()
+  await campo(page, "Adicionar foto").setInputFiles(arquivo("nota.pdf", "application/pdf"))
+  await expect(page.getByText("Use uma foto em JPG, PNG ou WebP.")).toBeVisible()
+  await expect(page.getByRole("img", { name: /^Foto d+ de Caixa$/ })).toHaveCount(0)
+})
+
+test("9ª foto mostra a mensagem", async ({ page }) => {
+  const { produtoId } = await criarProdutoTeste({ nome: "Caixa" })
+  await criarFotosTeste(produtoId, 8)
+  await abrirFicha(page, produtoId)
+  await campo(page, "Adicionar foto").setInputFiles(arquivo("nona.jpg", "image/jpeg"))
+  await expect(page.getByText("Cada produto pode ter até 8 fotos.")).toBeVisible()
+  await expect(page.getByRole("img", { name: /^Foto d+ de Caixa$/ })).toHaveCount(8)
+})
+
+test("compatibilidade tampa ↔ pote aparece nas duas fichas; repetir mostra a mensagem", async ({ page }) => {
+  const tampa = await criarProdutoTeste({ nome: "Tampa" })
+  const pote = await criarProdutoTeste({ nome: "Pote" })
+  await abrirFicha(page, tampa.produtoId)
+  await campo(page, "Código interno da outra variação").fill(await codigoInternoDe(pote.variacaoId))
+  await campo(page, "Descrição da ligação").fill("tampa serve no pote")
+  await page.getByRole("button", { name: "Ligar variações" }).click()
+  const lista = page.getByRole("list", { name: "Compatibilidades" })
+  await expect(lista).toContainText("Pote")
+  await expect(lista).toContainText("tampa serve no pote")
+
+  await page.goto(`/produtos/${pote.produtoId}`)
+  await expect(page.getByRole("list", { name: "Compatibilidades" })).toContainText("Tampa")
+  await campo(page, "Código interno da outra variação").fill(await codigoInternoDe(tampa.variacaoId))
+  await page.getByRole("button", { name: "Ligar variações" }).click()
+  await expect(page.getByText("Estas variações já estão ligadas.")).toBeVisible()
 })
