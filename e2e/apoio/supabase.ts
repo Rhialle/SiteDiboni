@@ -160,3 +160,16 @@ export async function criarProdutoTeste(dados: {
   }
   return { produtoId: produto.id, variacaoId: variacao.id }
 }
+
+export async function criarFormaTeste(
+  variacaoId: string,
+  forma: { nome: string; fator: number; preco_centavos: number; peso_variavel?: boolean },
+): Promise<string> {
+  const { data, error } = await admin
+    .from("formas_venda" as never)
+    .insert({ variacao_id: variacaoId, peso_variavel: false, ...forma } as never)
+    .select("id")
+    .single()
+  if (error) throw error
+  return (data as { id: string }).id
+}
