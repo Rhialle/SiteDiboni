@@ -50,6 +50,7 @@ export const MENSAGENS = {
   medidaInvalida: "Medidas e capacidade são números inteiros maiores que zero.",
   estoqueMinimoInvalido: "O estoque mínimo é um número inteiro, zero ou mais.",
   formaGranelEmLista: "Forma a granel não tem faixas de preço.",
+  variacaoNaoEncontrada: "Nenhuma variação com este código interno.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
