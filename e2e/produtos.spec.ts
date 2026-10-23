@@ -48,7 +48,8 @@ test("administrador cria produto e cai na ficha com código interno e situação
   await expect(page).toHaveURL(/\/produtos\/[0-9a-f-]{36}$/)
   await expect(page.getByRole("heading", { name: "Caixa para bolo" })).toBeVisible()
   await expect(page.getByText(/^P\d{6}$/)).toBeVisible()
-  await expect(page.getByText("Incompleto", { exact: true })).toBeVisible()
+  // O selo fica no cabeçalho da ficha (a palavra também é uma opção do filtro da lista).
+  await expect(page.locator("main header").getByText("Incompleto", { exact: true })).toBeVisible()
   await expect(
     page.getByText("Para ficar ativo falta: variação ativa com forma de venda, categoria, foto, NCM."),
   ).toBeVisible()
