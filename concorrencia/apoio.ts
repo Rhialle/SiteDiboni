@@ -30,6 +30,15 @@ export async function abrirAba(): Promise<Client> {
   return conexao
 }
 
+// Uma transação do dono do banco, para chamar as funções internas (como a saída FEFO da venda).
+export async function abrirTransacao(): Promise<Client> {
+  const conexao = await conectarComoDono()
+  abertas.push(conexao)
+  pids.set(conexao, (await conexao.query("select pg_backend_pid() as pid")).rows[0].pid)
+  await conexao.query("begin")
+  return conexao
+}
+
 // Fecha as abas do teste; a transação que ficou aberta é desfeita junto.
 export async function fecharAbas(): Promise<void> {
   await Promise.all(abertas.splice(0).map((conexao) => conexao.end()))
