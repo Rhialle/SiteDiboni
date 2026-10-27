@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useActionState, useId, useState, useTransition } from "react"
 
 import { MensagemDeErro } from "@/components/tela-de-acesso"
@@ -62,7 +63,12 @@ export function Variacoes({
           <tbody>
             {variacoes.map((v) => (
               <tr key={v.id} className="border-t align-top">
-                <td className="px-3 py-2 font-medium">{v.nome}</td>
+                <td className="px-3 py-2">
+                  <span className="font-medium">{v.nome}</span>
+                  <Link href={`/estoque/${v.id}`} className="block text-xs text-muted-foreground underline-offset-4 hover:underline">
+                    Ver estoque
+                  </Link>
+                </td>
                 <td className="px-3 py-2 font-mono">{v.codigo_interno}</td>
                 <td className="px-3 py-2 font-mono">{v.codigo_barras ?? "—"}</td>
                 <td className="px-3 py-2">{medidas(v)}</td>

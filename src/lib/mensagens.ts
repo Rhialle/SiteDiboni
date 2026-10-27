@@ -1,3 +1,5 @@
+import { formatarData } from "@/lib/formatacao"
+
 // Textos fixos da interface (plano 1.1, "Textos fixos da interface").
 export const MENSAGENS = {
   credenciais: "E-mail ou senha incorretos.",
@@ -54,6 +56,17 @@ export const MENSAGENS = {
   estoqueMinimoInvalido: "O estoque mínimo é um número inteiro, zero ou mais.",
   formaGranelEmLista: "Forma a granel não tem faixas de preço.",
   variacaoNaoEncontrada: "Nenhuma variação com este código interno.",
+  pesoInvalido: "Informe o peso em kg com até 3 casas, por exemplo 1,250.",
+  custoObrigatorio: "Informe o custo (brinde ou amostra entra com 0,00).",
+  custoInvalido: "Informe o custo em reais, por exemplo 12,00.",
+  entradaRegistrada: "Entrada registrada.",
+  movimentacaoRegistrada: "Movimentação registrada.",
+  virouSolicitacao: "Acima do seu limite: virou uma solicitação para o administrador aprovar.",
+  estornoRegistrado: "Estorno registrado.",
+  jaEstornada: "Esta movimentação já foi estornada.",
+  nenhumAviso: "Nenhum aviso.",
+  tipoPerdaInvalido: "Escolha o tipo: perda, quebra ou ajuste.",
+  unidadeMudou: "A unidade escolhida em “Em” não vale mais. Recarregue a página e confira.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -70,4 +83,34 @@ export function mensagemGradeCriada(variacoes: number): string {
 
 export function mensagemPendencias(itens: string[]): string {
   return `Para ficar ativo falta: ${itens.join(", ")}.`
+}
+
+export type ContagensDoInicio = {
+  vencendo: number
+  faixa_maior: number
+  vencidos: number
+  abaixo_minimo: number
+  solicitacoes_pendentes: number
+  conferencia_em: string | null
+  conferencia_divergencias: number | null
+}
+
+// Avisos do Início: um por contagem maior que zero. A conferência só aparece quando achou diferença.
+export function avisosDoInicio(c: ContagensDoInicio): { texto: string; link: string | null }[] {
+  const avisos: { texto: string; link: string | null }[] = []
+  if (c.vencendo > 0) avisos.push({ texto: `${c.vencendo} lote(s) vencem em até ${c.faixa_maior} dias`, link: "/alertas" })
+  if (c.vencidos > 0) avisos.push({ texto: `${c.vencidos} lote(s) vencidos com saldo`, link: "/alertas" })
+  if (c.abaixo_minimo > 0) {
+    avisos.push({ texto: `${c.abaixo_minimo} variação(ões) abaixo do estoque mínimo`, link: "/alertas" })
+  }
+  if (c.solicitacoes_pendentes > 0) {
+    avisos.push({ texto: `${c.solicitacoes_pendentes} solicitação(ões) pendente(s)`, link: "/estoque/solicitacoes" })
+  }
+  if (c.conferencia_em && c.conferencia_divergencias) {
+    avisos.push({
+      texto: `A conferência de ${formatarData(c.conferencia_em)} achou ${c.conferencia_divergencias} diferença(s) entre saldo e movimentações.`,
+      link: null,
+    })
+  }
+  return avisos
 }

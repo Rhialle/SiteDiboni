@@ -7,6 +7,7 @@ const POR_RESTRICAO: Record<string, string> = {
   variacoes_codigo_barras_key: MENSAGENS.codigoBarrasRepetido,
   variacoes_codigo_interno_key: MENSAGENS.codigoInternoRepetido,
   variacoes_atributos_por_produto: MENSAGENS.variacaoRepetida,
+  movimentacoes_estorno_de_key: MENSAGENS.jaEstornada,
   faixas_preco_quantidade_key: MENSAGENS.faixaRepetida,
   compatibilidades_par_key: MENSAGENS.compatibilidadeRepetida,
   produto_categorias_categoria_id_fkey: MENSAGENS.categoriaEmUso,

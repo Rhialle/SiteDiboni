@@ -11,7 +11,7 @@ O princípio que guia tudo: **um estoque só, compartilhado entre o site e o bal
 
 | Fase | O que entrega | Situação |
 |---|---|---|
-| 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 (login, usuários, configurações) e 1.2 (catálogo de produtos) prontos; próximo: 1.3 (estoque) |
+| 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 (login, usuários, configurações), 1.2 (catálogo de produtos) e 1.3 (estoque) prontos; próximo: 1.4 (notas de entrada) |
 | 2. Balcão | Vendas no balcão saindo do mesmo estoque; contagem oficial da loja inteira | Não iniciada |
 | 3. Loja online e retirada | Site público, pagamento (Pix e cartão), pedidos e retirada | Não iniciada |
 | 4. Gestão | Painel de vendas, conferência de pagamentos, fornecedores, nota fiscal (NFC-e) | Não iniciada |
@@ -74,6 +74,7 @@ Especificação completa: [docs/superpowers/specs/2026-10-21-fase-1-base-design.
 - [Cadastrar um produto](docs/manual/cadastrar-produto.md) (variações, grade, formas de venda, fotos, compatibilidades e situação)
 - [Categorias e materiais](docs/manual/categorias-e-materiais.md)
 - [Buscar, filtrar e editar em massa](docs/manual/edicao-em-massa.md)
+- [Estoque](docs/manual/estoque.md) (saldo e lotes, entrada manual, perdas e ajustes, solicitações, extrato e estorno, alertas e conferência diária)
 
 ## Como rodar no computador (para quem programa)
 

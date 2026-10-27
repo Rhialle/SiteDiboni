@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js"
 
 import type { Database } from "../../src/lib/supabase/tipos"
 
+import { limparEstoque } from "./banco"
+
 process.loadEnvFile(".env.local")
 
 const CAIXA_DE_EMAILS = "http://127.0.0.1:54324"
@@ -87,8 +89,9 @@ export async function lerConfiguracoes() {
   return data
 }
 
-// Apaga todo o catálogo (filhos antes dos pais) e as fotos do bucket.
+// Apaga o estoque e todo o catálogo (filhos antes dos pais) e as fotos do bucket.
 export async function limparCatalogo(): Promise<void> {
+  await limparEstoque()
   const tudo = <T extends string>(tabela: T) => admin.from(tabela as never).delete().not("id" as never, "is", null)
   for (const tabela of ["faixas_preco", "formas_venda", "compatibilidades", "fotos", "variacoes"] as const) {
     const { error } = await tudo(tabela)
@@ -133,12 +136,17 @@ export async function criarCategoriaTeste(nome: string, paiId: string | null = n
 export async function criarProdutoTeste(dados: {
   nome: string
   tipo_venda?: "unidade" | "peso"
+  controla_validade?: boolean
   categorias?: string[]
   variacao?: { nome?: string; codigo_barras?: string; codigo_interno?: string }
 }): Promise<{ produtoId: string; variacaoId: string }> {
   const { data: produto, error } = await admin
     .from("produtos")
-    .insert({ nome: dados.nome, tipo_venda: dados.tipo_venda ?? "unidade" })
+    .insert({
+      nome: dados.nome,
+      tipo_venda: dados.tipo_venda ?? "unidade",
+      controla_validade: dados.controla_validade ?? false,
+    })
     .select("id")
     .single()
   if (error) throw error
@@ -207,6 +215,38 @@ export async function criarFaixaTeste(formaId: string, quantidadeMinima: number,
   const { error } = await admin
     .from("faixas_preco")
     .insert({ forma_venda_id: formaId, quantidade_minima: quantidadeMinima, preco_centavos: precoCentavos })
+  if (error) throw error
+}
+
+// Data AAAA-MM-DD em São Paulo, daqui a tantos dias (negativo = no passado).
+export function dataDaqui(dias: number): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(
+    new Date(Date.now() + dias * 24 * 60 * 60 * 1000),
+  )
+}
+
+// Entrada direta pela função interna do estoque (o cliente de serviço pode chamá-la).
+// Aceita validade no passado, para testar lote vencido.
+export async function criarEstoqueTeste(
+  variacaoId: string,
+  dados: { quantidade: number; custo: number; usuarioId: string; validade?: string; codigo?: string },
+): Promise<number> {
+  const { data, error } = await admin.rpc("entrar_no_estoque", {
+    p_variacao: variacaoId,
+    p_quantidade: dados.quantidade,
+    p_custo_unitario: dados.custo,
+    p_validade: (dados.validade ?? null) as string,
+    p_codigo_lote: (dados.codigo ?? null) as string,
+    p_tipo: "entrada_manual",
+    p_motivo: "estoque de teste",
+    p_usuario: dados.usuarioId,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function definirEstoqueMinimo(variacaoId: string, minimo: number): Promise<void> {
+  const { error } = await admin.from("variacoes").update({ estoque_minimo: minimo }).eq("id", variacaoId)
   if (error) throw error
 }
 
