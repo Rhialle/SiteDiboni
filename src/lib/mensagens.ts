@@ -19,8 +19,55 @@ export const MENSAGENS = {
   limiteInvalido: "Informe o limite em reais, por exemplo 50,00.",
   diasInvalidos: "Informe os dias como números inteiros maiores que zero, separados por vírgula.",
   configuracoesSalvas: "Configurações salvas.",
+  categoriaRepetida: "Já existe uma categoria com este nome aqui.",
+  categoriaEmUso: "Esta categoria tem subcategorias ou produtos e não pode ser apagada.",
+  categoriaCiclo: "Uma categoria não pode ficar dentro dela mesma.",
+  materialRepetido: "Este material já existe.",
+  materialEmUso: "Este material está em produtos e não pode ser apagado.",
+  codigoBarrasInvalido: "Código de barras inválido.",
+  codigoBarrasRepetido: "Este código de barras já está em outra variação.",
+  codigoInternoRepetido: "Este código interno já está em outra variação.",
+  ncmInvalido: "O NCM precisa ter 8 dígitos.",
+  cestInvalido: "O CEST precisa ter 7 dígitos.",
+  faixaForaDeOrdem:
+    "O preço de cada faixa precisa ser menor que o preço normal e que o da faixa anterior.",
+  faixaRepetida: "Já existe uma faixa com esta quantidade mínima.",
+  tipoVendaConflito: "Não dá para mudar o tipo de venda: há formas de venda que não combinam com ele.",
+  granelSoPeso: "Só produto vendido por peso tem forma a granel.",
+  pesoSoGranel: "Produto vendido por peso só tem forma a granel.",
+  itemNaoExiste: "Algum item escolhido não existe mais. Recarregue a página e tente de novo.",
+  variacaoRepetida: "Já existe uma variação com estes atributos.",
+  fotoGrande: "A foto precisa ter até 5 MB.",
+  fotoFormato: "Use uma foto em JPG, PNG ou WebP.",
+  fotoLimite: "Cada produto pode ter até 8 fotos.",
+  compatibilidadeRepetida: "Estas variações já estão ligadas.",
+  compatibilidadeMesma: "Escolha uma variação diferente.",
+  percentualInvalido: "Informe o reajuste em %, por exemplo 10 ou -5.",
+  nenhumSelecionado: "Selecione pelo menos um produto.",
+  salvo: "Alterações salvas.",
+  gradeSemNovidade: "Nenhuma variação nova: todas as combinações já existiam.",
+  gradeInvalida: "Escreva um atributo por linha, assim: Tamanho: 4, 6, 12",
+  precoInvalido: "Informe o preço em reais, por exemplo 6,00.",
+  quantidadeInvalida: "Informe uma quantidade inteira maior que zero.",
+  faixaMinima: "A faixa começa em pelo menos 2.",
+  medidaInvalida: "Medidas e capacidade são números inteiros maiores que zero.",
+  estoqueMinimoInvalido: "O estoque mínimo é um número inteiro, zero ou mais.",
+  formaGranelEmLista: "Forma a granel não tem faixas de preço.",
+  variacaoNaoEncontrada: "Nenhuma variação com este código interno.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
   return `Convite enviado para ${email}.`
+}
+
+export function mensagemReajuste(produtos: number): string {
+  return `Reajuste aplicado em ${produtos} produto(s).`
+}
+
+export function mensagemGradeCriada(variacoes: number): string {
+  return variacoes === 0 ? MENSAGENS.gradeSemNovidade : `${variacoes} variação(ões) criada(s).`
+}
+
+export function mensagemPendencias(itens: string[]): string {
+  return `Para ficar ativo falta: ${itens.join(", ")}.`
 }
