@@ -4,6 +4,7 @@ import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
   codigoInternoDe,
   criarEstoqueTeste,
+  criarFormaTeste,
   criarProdutoTeste,
   criarUsuarioTeste,
   dataDaqui,
@@ -98,6 +99,81 @@ test("administrador vê o custo médio; funcionária não vê nenhum custo", asy
   await page.goto(`/estoque/${forminha.variacaoId}`)
   await expect(page.getByText("Saldo: 300 un")).toBeVisible()
   await expect(page.getByText(/custo/i)).toHaveCount(0)
+})
+
+// --- Entrada manual (só administrador) ---
+
+// A página da variação tem dois formulários com campos de mesmo nome: cada um fica na sua seção.
+const secao = (page: Page, titulo: string) => page.getByRole("region", { name: titulo })
+const campoEm = (page: Page, titulo: string, rotulo: string) =>
+  secao(page, titulo).getByLabel(rotulo, { exact: true }).filter({ visible: true })
+
+async function darEntrada(
+  page: Page,
+  dados: { quantidade: string; em?: string; custo: string; validade?: string; lote?: string; motivo?: string },
+) {
+  await campoEm(page, "Entrada manual", "Quantidade").fill(dados.quantidade)
+  if (dados.em) await campoEm(page, "Entrada manual", "Em").selectOption({ label: dados.em })
+  await campoEm(page, "Entrada manual", "Custo (R$)").fill(dados.custo)
+  if (dados.validade) await campoEm(page, "Entrada manual", "Validade").fill(dados.validade)
+  if (dados.lote) await campoEm(page, "Entrada manual", "Lote (opcional)").fill(dados.lote)
+  await campoEm(page, "Entrada manual", "Motivo").fill(dados.motivo ?? "compra no atacado")
+  await secao(page, "Entrada manual").getByRole("button", { name: "Registrar entrada" }).click()
+}
+
+test("administrador dá entrada de 3 Caixas com 100 a R$ 12,00 a caixa: lote ENT de hoje com 300 un e custo médio R$ 0,12", async ({ page }) => {
+  const copo = await criarProdutoTeste({ nome: "Copo", controla_validade: true })
+  await criarFormaTeste(copo.variacaoId, { nome: "Caixa com 100", fator: 100, preco_centavos: 1500 })
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/estoque/${copo.variacaoId}`)
+
+  await darEntrada(page, { quantidade: "3", em: "Caixa com 100", custo: "12,00", validade: dataDaqui(90) })
+  await expect(secao(page, "Entrada manual").getByText("Entrada registrada.")).toBeVisible()
+  const lote = page.getByRole("table", { name: "Lotes" }).locator("tbody tr")
+  await expect(lote).toHaveCount(1)
+  await expect(lote).toContainText(`ENT-${dataDaqui(0)}`)
+  await expect(lote).toContainText("300 un")
+  await expect(page.getByText("Custo médio: R$ 0,12")).toBeVisible()
+})
+
+test("entrada sem custo mostra a mensagem e não muda o saldo", async ({ page }) => {
+  const { forminha } = await prepararEstoque()
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/estoque/${forminha.variacaoId}`)
+
+  await darEntrada(page, { quantidade: "10", custo: "" })
+  await expect(page.getByText("Informe o custo (brinde ou amostra entra com 0,00).")).toBeVisible()
+  await expect(page.getByText("Saldo: 300 un")).toBeVisible()
+})
+
+test("produto com validade sem a data mostra a mensagem", async ({ page }) => {
+  const copo = await criarProdutoTeste({ nome: "Copo", controla_validade: true })
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/estoque/${copo.variacaoId}`)
+
+  await darEntrada(page, { quantidade: "10", custo: "0,10" })
+  await expect(page.getByText("Informe a validade: este produto controla validade.")).toBeVisible()
+})
+
+test("granulado: 1,250 kg entra como 1.250 g", async ({ page }) => {
+  const granulado = await criarProdutoTeste({ nome: "Granulado", tipo_venda: "peso", controla_validade: true })
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/estoque/${granulado.variacaoId}`)
+
+  await darEntrada(page, { quantidade: "1,250", em: "kg", custo: "32,00", validade: dataDaqui(30), lote: "L-77" })
+  await expect(secao(page, "Entrada manual").getByText("Entrada registrada.")).toBeVisible()
+  const lote = page.getByRole("table", { name: "Lotes" }).locator("tbody tr")
+  await expect(lote).toContainText("L-77")
+  await expect(lote).toContainText("1.250 g")
+  await expect(page.getByText("Custo médio: R$ 0,032")).toBeVisible()
+})
+
+test("funcionária não vê o formulário de entrada manual", async ({ page }) => {
+  const { forminha } = await prepararEstoque()
+  await entrarComoFuncionaria(page)
+  await page.goto(`/estoque/${forminha.variacaoId}`)
+  await expect(page.getByText("Saldo: 300 un")).toBeVisible()
+  await expect(secao(page, "Entrada manual")).toHaveCount(0)
 })
 
 test("produto sem controle de validade mostra só o saldo, sem a tabela de lotes", async ({ page }) => {
