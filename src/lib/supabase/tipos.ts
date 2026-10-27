@@ -499,6 +499,9 @@ isOneToOne: false
 "eh_usuario_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"entrar_no_estoque":
+{ Args: { "p_codigo_lote": string,"p_custo_unitario": number,"p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string,"p_validade": string,"p_variacao": string }; Returns: number
+                           },
 "gerar_codigo_lote":
 { Args: { "p_prefixo": string,"p_variacao": string }; Returns: string
                            },
@@ -528,6 +531,9 @@ isOneToOne: false
                            },
 "reajustar_precos":
 { Args: { "p_percentual": number,"p_produtos": (string)[] }; Returns: number
+                           },
+"registrar_entrada_manual":
+{ Args: { "p_codigo_lote"?: string,"p_custo_unitario": number,"p_motivo": string,"p_quantidade": number,"p_validade"?: string,"p_variacao": string }; Returns: number
                            },
 "travar_saldos":
 { Args: { "p_variacoes": (string)[] }; Returns: undefined
