@@ -173,6 +173,12 @@ isOneToOne: false
       foreignKeyName: "fotos_produto_id_fkey"
       columns: ["produto_id"]
 isOneToOne: false
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["produto_id"]
+    },{
+      foreignKeyName: "fotos_produto_id_fkey"
+      columns: ["produto_id"]
+isOneToOne: false
       referencedRelation: "produtos"
       referencedColumns: ["id"]
     },{
@@ -239,6 +245,12 @@ isOneToOne: false
       foreignKeyName: "movimentacoes_estorno_de_fkey"
       columns: ["estorno_de"]
 isOneToOne: true
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_estorno_de_fkey"
+      columns: ["estorno_de"]
+isOneToOne: true
       referencedRelation: "movimentacoes"
       referencedColumns: ["id"]
     },{
@@ -271,6 +283,12 @@ isOneToOne: false
       foreignKeyName: "movimentacoes_custos_movimentacao_id_fkey"
       columns: ["movimentacao_id"]
 isOneToOne: true
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_custos_movimentacao_id_fkey"
+      columns: ["movimentacao_id"]
+isOneToOne: true
       referencedRelation: "movimentacoes"
       referencedColumns: ["id"]
     }
@@ -293,6 +311,12 @@ isOneToOne: true
 isOneToOne: false
       referencedRelation: "categorias"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "produto_categorias_produto_id_fkey"
+      columns: ["produto_id"]
+isOneToOne: false
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["produto_id"]
     },{
       foreignKeyName: "produto_categorias_produto_id_fkey"
       columns: ["produto_id"]
@@ -325,6 +349,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "etiquetas"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "produto_etiquetas_produto_id_fkey"
+      columns: ["produto_id"]
+isOneToOne: false
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["produto_id"]
     },{
       foreignKeyName: "produto_etiquetas_produto_id_fkey"
       columns: ["produto_id"]
@@ -435,6 +465,12 @@ isOneToOne: false
       foreignKeyName: "variacoes_produto_id_fkey"
       columns: ["produto_id"]
 isOneToOne: false
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["produto_id"]
+    },{
+      foreignKeyName: "variacoes_produto_id_fkey"
+      columns: ["produto_id"]
+isOneToOne: false
       referencedRelation: "produtos"
       referencedColumns: ["id"]
     },{
@@ -462,7 +498,39 @@ isOneToOne: false
                 }
           }
           Views: {
-            "produtos_com_situacao": {
+            "extrato_movimentacoes": {
+                  Row: {
+                    "aprovado_por_nome": string | null,"codigo_interno": string | null,"criado_em": string | null,"estornada": boolean | null,"estorno_de": number | null,"id": number | null,"lote": string | null,"lote_id": string | null,"motivo": string | null,"origem": string | null,"origem_id": string | null,"produto": string | null,"produto_id": string | null,"quantidade": number | null,"tipo": Database["public"]['Enums']["tipo_movimentacao"] | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"] | null,"usuario": string | null,"validade": string | null,"variacao": string | null,"variacao_id": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "movimentacoes_estorno_de_fkey"
+      columns: ["estorno_de"]
+isOneToOne: true
+      referencedRelation: "extrato_movimentacoes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_estorno_de_fkey"
+      columns: ["estorno_de"]
+isOneToOne: true
+      referencedRelation: "movimentacoes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_lote_id_fkey"
+      columns: ["lote_id"]
+isOneToOne: false
+      referencedRelation: "lotes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"produtos_com_situacao": {
                   Row: {
                     "apto_alimento": boolean | null,"apto_forno": boolean | null,"apto_freezer": boolean | null,"apto_microondas": boolean | null,"atualizado_em": string | null,"cest": string | null,"controla_validade": boolean | null,"criado_em": string | null,"descricao": string | null,"id": string | null,"inativo": boolean | null,"ncm": string | null,"nome": string | null,"origem_fiscal": number | null,"pendencias": (string)[] | null,"situacao": string | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"] | null
                   }
@@ -493,6 +561,9 @@ isOneToOne: false
 "criar_produto":
 { Args: { "dados": Json }; Returns: string
                            },
+"decidir_solicitacao":
+{ Args: { "p_aprovar": boolean,"p_solicitacao": number }; Returns: undefined
+                           },
 "eh_administrador":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -501,6 +572,9 @@ isOneToOne: false
                            },
 "entrar_no_estoque":
 { Args: { "p_codigo_lote": string,"p_custo_unitario": number,"p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string,"p_validade": string,"p_variacao": string }; Returns: number
+                           },
+"estornar_movimentacao":
+{ Args: { "p_motivo": string,"p_movimentacao": number }; Returns: number
                            },
 "gerar_codigo_lote":
 { Args: { "p_prefixo": string,"p_variacao": string }; Returns: string
@@ -535,8 +609,14 @@ isOneToOne: false
 "registrar_entrada_manual":
 { Args: { "p_codigo_lote"?: string,"p_custo_unitario": number,"p_motivo": string,"p_quantidade": number,"p_validade"?: string,"p_variacao": string }; Returns: number
                            },
+"registrar_perda_ou_ajuste":
+{ Args: { "p_lote": string,"p_motivo": string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_variacao": string }; Returns: string
+                           },
 "travar_saldos":
 { Args: { "p_variacoes": (string)[] }; Returns: undefined
+                           },
+"validar_perda_ou_ajuste":
+{ Args: { "p_lote": string,"p_motivo": string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_variacao": string }; Returns: string
                            },
 "variacao_por_codigo":
 { Args: { "p_codigo": string }; Returns: string
