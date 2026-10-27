@@ -13,6 +13,13 @@ insert into ids select 'granulado', criar_produto('{"nome":"Granulado","tipo_ven
 insert into ids select 'caixa', criar_produto('{"nome":"Caixa","tipo_venda":"unidade"}');
 insert into ids select 'var_' || i.nome, v.id from ids i join variacoes v on v.produto_id = i.id;
 
+-- Criada ainda como administradora: a view temporária pertence a quem a cria.
+create temp view saldo_de as
+select i.nome, coalesce(sum(s.quantidade), 0)::bigint as total
+from ids i left join saldos s on s.variacao_id = i.id
+where i.nome like 'var_%'
+group by i.nome;
+
 -- Forminha: 3.000 un a 0,05 (custo médio 0,05). Limite padrão: 5000 centavos.
 select registrar_entrada_manual((select id from ids where nome = 'var_forminha'), 3000, 0.05, 'estoque inicial');
 
@@ -36,12 +43,6 @@ select movimentar_lote(lote_geral((select id from ids where nome = 'var_caixa'))
 insert into solicitacoes_ajuste (variacao_id, lote_id, tipo, quantidade, motivo, solicitado_por)
 values ((select id from ids where nome = 'var_caixa'), lote_geral((select id from ids where nome = 'var_caixa')),
   'perda_avaria', -1, 'de outra pessoa', '00000000-0000-0000-0000-00000000000c');
-
-create temp view saldo_de as
-select i.nome, coalesce(sum(s.quantidade), 0)::bigint as total
-from ids i left join saldos s on s.variacao_id = i.id
-where i.nome like 'var_%'
-group by i.nome;
 
 -- Administradora: sem limite, com as regras de cada tipo
 select tests.entrar_como('00000000-0000-0000-0000-00000000000a', 'aal2');
