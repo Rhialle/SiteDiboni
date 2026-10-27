@@ -7,6 +7,7 @@ import { diaEmSaoPaulo, formatarCusto, formatarDia } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { EntradaManual } from "./entrada-manual"
+import { PerdaOuAjuste } from "./perda-ajuste"
 
 // Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
 export const instant = false
@@ -99,6 +100,14 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
           </div>
         )
       ) : null}
+
+      <PerdaOuAjuste
+        variacaoId={variacao.id}
+        unidades={unidades}
+        lotes={lotes.map((lote) => ({ id: lote.id, codigo: lote.codigo, vencido: vencido(lote.validade) }))}
+        controlaValidade={produto.controla_validade}
+        porPeso={tipo === "peso"}
+      />
 
       {administrador ? (
         <EntradaManual variacaoId={variacao.id} unidades={unidades} controlaValidade={produto.controla_validade} />

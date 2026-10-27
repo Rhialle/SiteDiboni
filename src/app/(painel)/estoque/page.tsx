@@ -41,9 +41,16 @@ export default async function PaginaEstoque({ searchParams }: PageProps<"/estoqu
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Estoque</h1>
-        <p className="text-sm text-muted-foreground">{total} variação(ões)</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold">Estoque</h1>
+          <p className="text-sm text-muted-foreground">{total} variação(ões)</p>
+        </div>
+        <nav className="flex gap-4 text-sm">
+          <Link href="/estoque/solicitacoes" className="underline-offset-4 hover:underline">
+            Solicitações
+          </Link>
+        </nav>
       </div>
 
       {/* Formulário GET: a busca fica na URL. */}

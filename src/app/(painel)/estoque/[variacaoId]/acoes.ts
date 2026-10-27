@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache"
 
-import { exigirAdministrador } from "@/lib/auth/sessao"
+import { exigirAdministrador, exigirUsuario } from "@/lib/auth/sessao"
 import { mensagemDoErroDoBanco } from "@/lib/catalogo/erros"
 import { custoUnitarioBase, paraUnidadeBase, unidadesDeDigitacao, type UnidadeDeDigitacao } from "@/lib/estoque/quantidade"
 import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
+import type { Database } from "@/lib/supabase/tipos"
 
 // Devolve o que foi digitado quando há erro (o React limpa o formulário depois da ação).
 export type EstadoEstoque = { erro: string; sucesso: string; valores: Record<string, string> | null }
@@ -59,4 +60,48 @@ export async function registrarEntrada(
 
   revalidatePath(`/estoque/${variacaoId}`)
   return { erro: "", sucesso: MENSAGENS.entradaRegistrada, valores: null }
+}
+
+type TipoMovimentacao = Database["public"]["Enums"]["tipo_movimentacao"]
+
+// Opção da tela → tipo no banco e sentido (as perdas e a saída tiram do estoque).
+const TIPOS: Record<string, [TipoMovimentacao, 1 | -1]> = {
+  perda_avaria: ["perda_avaria", -1],
+  perda_vencimento: ["perda_vencimento", -1],
+  quebra_pesagem: ["quebra_pesagem", -1],
+  ajuste_entrou: ["ajuste_manual", 1],
+  ajuste_saiu: ["ajuste_manual", -1],
+}
+
+export async function registrarPerdaOuAjuste(
+  variacaoId: string,
+  _estado: EstadoEstoque,
+  formData: FormData,
+): Promise<EstadoEstoque> {
+  await exigirUsuario()
+  const valores = lerCampos(formData, ["lote", "tipo", "quantidade", "em", "motivo"])
+  const falha = (erro: string): EstadoEstoque => ({ erro, sucesso: "", valores })
+
+  const supabase = await criarClienteServidor()
+  const unidade = await unidadeEscolhida(supabase, variacaoId, valores.em)
+  if (!unidade) return falha(MENSAGENS.acaoFalhou)
+  const quantidade = paraUnidadeBase(valores.quantidade, unidade.fator, unidade.casas)
+  if (quantidade === null) return falha(unidade.casas === 3 ? MENSAGENS.pesoInvalido : MENSAGENS.quantidadeInvalida)
+  const escolha = TIPOS[valores.tipo]
+  if (!escolha) return falha(MENSAGENS.tipoPerdaInvalido)
+
+  const [tipo, sentido] = escolha
+  const { data, error } = await supabase.rpc("registrar_perda_ou_ajuste", {
+    p_variacao: variacaoId,
+    // Sem lote: o banco usa o lote único do produto sem validade (e recusa nos outros).
+    p_lote: (valores.lote || null) as string,
+    p_tipo: tipo,
+    p_quantidade: sentido * quantidade,
+    p_motivo: valores.motivo,
+  })
+  if (error) return falha(mensagemDoErroDoBanco(error))
+
+  revalidatePath(`/estoque/${variacaoId}`)
+  const sucesso = data === "solicitacao" ? MENSAGENS.virouSolicitacao : MENSAGENS.movimentacaoRegistrada
+  return { erro: "", sucesso, valores: null }
 }

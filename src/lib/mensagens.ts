@@ -63,6 +63,7 @@ export const MENSAGENS = {
   estornoRegistrado: "Estorno registrado.",
   jaEstornada: "Esta movimentação já foi estornada.",
   nenhumAviso: "Nenhum aviso.",
+  tipoPerdaInvalido: "Escolha o tipo: perda, quebra ou ajuste.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
