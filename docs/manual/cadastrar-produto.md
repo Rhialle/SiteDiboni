@@ -14,7 +14,7 @@ Só o administrador cadastra e muda produtos. O funcionário vê tudo, mas sem b
    - **Categorias** e **Materiais**.
 3. Em **Primeira variação**:
    - **Nome da variação** (vazio = "Padrão");
-   - **Código interno** (vazio = o sistema gera, como `P000001`);
+   - **Código interno** (vazio = o sistema gera, como `P000001`). O código é guardado em letras maiúsculas e sem espaços nas pontas: `tp-01` vira `TP-01`, e não pode haver outro igual;
    - **Código de barras**, se tiver. O sistema confere o dígito verificador.
 4. Clique em **Criar produto**. Você cai na ficha do produto.
 
@@ -69,6 +69,6 @@ Trocar o tipo de venda só é possível quando as formas combinam com o novo tip
 
 Para dizer que "esta tampa serve neste pote":
 
-1. Na ficha da tampa, em **Compatibilidades**, digite o **Código interno da outra variação** (o do pote) e uma **Descrição da ligação**.
+1. Na ficha da tampa, em **Compatibilidades**, digite o **Código interno da outra variação** (o do pote) e uma **Descrição da ligação**. O código precisa ser o completo (maiúsculas ou minúsculas tanto faz); um pedaço do código não acha nada.
 2. Clique em **Ligar variações**. A ligação aparece nas duas fichas.
 3. **Desligar** desfaz a ligação.
