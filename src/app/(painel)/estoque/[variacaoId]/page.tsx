@@ -2,9 +2,11 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { exigirUsuario } from "@/lib/auth/sessao"
-import { formatarQuantidade } from "@/lib/estoque/quantidade"
+import { formatarQuantidade, unidadesDeDigitacao } from "@/lib/estoque/quantidade"
 import { diaEmSaoPaulo, formatarCusto, formatarDia } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
+
+import { EntradaManual } from "./entrada-manual"
 
 // Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
 export const instant = false
@@ -15,13 +17,14 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
   const { variacaoId } = await params
 
   const supabase = await criarClienteServidor()
-  const [variacaoR, saldosR, custoR] = await Promise.all([
+  const [variacaoR, saldosR, formasR, custoR] = await Promise.all([
     supabase
       .from("variacoes")
       .select("id, nome, codigo_interno, estoque_minimo, produtos(id, nome, tipo_venda, controla_validade)")
       .eq("id", variacaoId)
       .maybeSingle(),
     supabase.from("saldos").select("quantidade, lotes(id, codigo, validade)").eq("variacao_id", variacaoId).gt("quantidade", 0),
+    supabase.from("formas_venda").select("id, nome, fator, peso_variavel, ativa").eq("variacao_id", variacaoId),
     // Custo só para o administrador (a tabela também só abre para ele).
     administrador
       ? supabase.from("custos_variacao").select("custo_medio").eq("variacao_id", variacaoId).maybeSingle()
@@ -43,6 +46,7 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
   const total = lotes.reduce((soma, l) => soma + l.quantidade, 0)
   const disponivel = lotes.filter((l) => !vencido(l.validade)).reduce((soma, l) => soma + l.quantidade, 0)
   const custo = custoR?.data?.custo_medio
+  const unidades = unidadesDeDigitacao(tipo, formasR.data ?? [])
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,6 +98,10 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
             </table>
           </div>
         )
+      ) : null}
+
+      {administrador ? (
+        <EntradaManual variacaoId={variacao.id} unidades={unidades} controlaValidade={produto.controla_validade} />
       ) : null}
 
       <nav className="flex flex-wrap gap-4 text-sm">

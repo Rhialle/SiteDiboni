@@ -40,6 +40,15 @@ describe("mensagemDoErroDoBanco", () => {
     ).toBe("Algum item escolhido não existe mais. Recarregue a página e tente de novo.")
   })
 
+  it("traduz o segundo estorno da mesma movimentação", () => {
+    expect(
+      mensagemDoErroDoBanco({
+        code: "23505",
+        message: 'duplicate key value violates unique constraint "movimentacoes_estorno_de_key"',
+      }),
+    ).toBe("Esta movimentação já foi estornada.")
+  })
+
   it("traduz combinação de atributos repetida no mesmo produto", () => {
     expect(
       mensagemDoErroDoBanco({

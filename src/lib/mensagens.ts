@@ -54,6 +54,15 @@ export const MENSAGENS = {
   estoqueMinimoInvalido: "O estoque mínimo é um número inteiro, zero ou mais.",
   formaGranelEmLista: "Forma a granel não tem faixas de preço.",
   variacaoNaoEncontrada: "Nenhuma variação com este código interno.",
+  pesoInvalido: "Informe o peso em kg com até 3 casas, por exemplo 1,250.",
+  custoObrigatorio: "Informe o custo (brinde ou amostra entra com 0,00).",
+  custoInvalido: "Informe o custo em reais, por exemplo 12,00.",
+  entradaRegistrada: "Entrada registrada.",
+  movimentacaoRegistrada: "Movimentação registrada.",
+  virouSolicitacao: "Acima do seu limite: virou uma solicitação para o administrador aprovar.",
+  estornoRegistrado: "Estorno registrado.",
+  jaEstornada: "Esta movimentação já foi estornada.",
+  nenhumAviso: "Nenhum aviso.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
