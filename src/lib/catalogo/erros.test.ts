@@ -30,6 +30,25 @@ describe("mensagemDoErroDoBanco", () => {
     ).toBe("Esta categoria tem subcategorias ou produtos e não pode ser apagada.")
   })
 
+  it("avisa quando um item escolhido sumiu antes de gravar", () => {
+    expect(
+      mensagemDoErroDoBanco({
+        code: "23503",
+        message:
+          'insert or update on table "produto_categorias" violates foreign key constraint "produto_categorias_categoria_id_fkey"',
+      }),
+    ).toBe("Algum item escolhido não existe mais. Recarregue a página e tente de novo.")
+  })
+
+  it("traduz combinação de atributos repetida no mesmo produto", () => {
+    expect(
+      mensagemDoErroDoBanco({
+        code: "23505",
+        message: 'duplicate key value violates unique constraint "variacoes_atributos_por_produto"',
+      }),
+    ).toBe("Já existe uma variação com estes atributos.")
+  })
+
   it("repassa a mensagem das regras do banco", () => {
     expect(mensagemDoErroDoBanco({ code: "P0001", message: "Cada produto pode ter até 8 fotos." })).toBe(
       "Cada produto pode ter até 8 fotos.",

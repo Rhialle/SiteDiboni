@@ -2,13 +2,17 @@ import { expect, test, type Page } from "@playwright/test"
 
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
+  apagarCategoriaTeste,
   codigoInternoDe,
+  criarCategoriaTeste,
   criarFormaTeste,
   criarFotosTeste,
   criarProdutoTeste,
   criarUsuarioTeste,
+  formasDoProduto,
   limparCatalogo,
   limparUsuarios,
+  nomeDoProduto,
   prepararProdutoCompleto,
   type DadosUsuarioTeste,
 } from "./apoio/supabase"
@@ -172,6 +176,38 @@ test("trocar para Por peso com forma Pacote com 100 é recusado", async ({ page 
   ).toBeVisible()
 })
 
+test("salvar a ficha com uma categoria que foi apagada não muda nada", async ({ page }) => {
+  const temporaria = await criarCategoriaTeste("Temporária")
+  const { produtoId } = await criarProdutoTeste({ nome: "Forminha" })
+  await abrirFicha(page, produtoId)
+  await campo(page, "Nome").fill("Forminha nº 4")
+  await page.getByRole("checkbox", { name: "Temporária" }).check()
+  await apagarCategoriaTeste(temporaria)
+
+  await page.getByRole("button", { name: "Salvar dados" }).click()
+  await expect(
+    page.getByText("Algum item escolhido não existe mais. Recarregue a página e tente de novo."),
+  ).toBeVisible()
+  expect(await nomeDoProduto(produtoId)).toBe("Forminha")
+})
+
+test("outra aba mudou para Por peso: a forma por unidade desta aba é recusada", async ({ page, context }) => {
+  const { produtoId } = await criarProdutoTeste({ nome: "Granulado" })
+  await abrirFicha(page, produtoId)
+  const outraAba = await context.newPage()
+  await outraAba.goto(`/produtos/${produtoId}`)
+  await campo(outraAba, "Tipo de venda").selectOption("peso")
+  await outraAba.getByRole("button", { name: "Salvar dados" }).click()
+  await expect(outraAba.getByText("Alterações salvas.")).toBeVisible()
+
+  await campo(page, "Nome da forma").fill("Pacote com 100")
+  await campo(page, "Quantidade na forma").fill("100")
+  await campo(page, "Preço (R$)").fill("6,00")
+  await page.getByRole("button", { name: "Adicionar forma" }).click()
+  await expect(page.getByText("Produto vendido por peso só tem forma a granel.")).toBeVisible()
+  expect(await formasDoProduto(produtoId)).toEqual([])
+})
+
 test("código de barras repetido em outra variação mostra a mensagem", async ({ page }) => {
   await criarProdutoTeste({ nome: "Caixa", variacao: { codigo_barras: "4006381333931" } })
   const { produtoId } = await criarProdutoTeste({ nome: "Tampa" })
@@ -258,4 +294,27 @@ test("compatibilidade tampa ↔ pote aparece nas duas fichas; repetir mostra a m
   await campo(page, "Código interno da outra variação").fill(await codigoInternoDe(tampa.variacaoId))
   await page.getByRole("button", { name: "Ligar variações" }).click()
   await expect(page.getByText("Estas variações já estão ligadas.")).toBeVisible()
+})
+
+test("compatibilidade procura o código exato: _ e % não são curingas; maiúsculas não importam", async ({ page }) => {
+  const pote = await criarProdutoTeste({ nome: "Pote" })
+  await criarProdutoTeste({ nome: "Tampa A", variacao: { codigo_interno: "TAMPA_A" } })
+  await criarProdutoTeste({ nome: "Tampa X", variacao: { codigo_interno: "TAMPAXA" } })
+  await abrirFicha(page, pote.produtoId)
+  const lista = page.getByRole("list", { name: "Compatibilidades" })
+  const ligar = async (codigo: string) => {
+    await campo(page, "Código interno da outra variação").fill(codigo)
+    await page.getByRole("button", { name: "Ligar variações" }).click()
+  }
+
+  await ligar("%XA")
+  await expect(page.getByText("Nenhuma variação com este código interno.")).toBeVisible()
+  await expect(lista).not.toContainText("Tampa X")
+
+  await ligar("TAMPA_A")
+  await expect(lista).toContainText("Tampa A")
+  await expect(lista).not.toContainText("Tampa X")
+
+  await ligar("tampaxa")
+  await expect(lista).toContainText("Tampa X")
 })

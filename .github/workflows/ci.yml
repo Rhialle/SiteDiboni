@@ -17,18 +17,34 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Daqui em diante cada verificação roda mesmo se uma anterior falhou (o job continua vermelho),
+      # para uma rodada só mostrar todas as falhas.
       - run: npm run lint
+        if: ${{ !cancelled() }}
       - run: npm run typecheck
+        if: ${{ !cancelled() }}
       - run: npm test
+        if: ${{ !cancelled() }}
       - name: Supabase local (só banco, login e e-mails de teste)
+        id: supabase
+        if: ${{ !cancelled() }}
         run: npx supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor
       - run: npm run env:local
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
       - name: Testes do banco
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
         run: |
           if [ -d supabase/tests ]; then npx supabase test db; else echo "Sem testes de banco ainda."; fi
+      - name: Testes de concorrência (duas conexões ao mesmo tempo)
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
+        run: npm run test:concorrencia
       - run: npm run build
+        id: build
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
       - run: npx playwright install --with-deps chromium
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
       - name: Testes de tela
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: npm run test:e2e
       - name: Guarda o relatório dos testes de tela
         if: failure()

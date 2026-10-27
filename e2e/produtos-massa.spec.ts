@@ -5,10 +5,12 @@ import {
   criarCategoriaTeste,
   criarFaixaTeste,
   criarFormaTeste,
+  criarProdutosEmLote,
   criarProdutoTeste,
   criarUsuarioTeste,
   limparCatalogo,
   limparUsuarios,
+  nomesDosProdutosInativos,
   type DadosUsuarioTeste,
 } from "./apoio/supabase"
 
@@ -103,6 +105,41 @@ test("sem selecionar nada, a barra mostra a mensagem", async ({ page }) => {
   await campo(page, "Reajuste (%)").fill("10")
   await page.getByRole("button", { name: "Aplicar reajuste" }).click()
   await expect(page.getByText("Selecione pelo menos um produto.")).toBeVisible()
+})
+
+test("a seleção vale só para a página e a busca que estão na tela", async ({ page }) => {
+  // 100 produtos: as duas páginas têm 50 linhas.
+  await criarProdutosEmLote(Array.from({ length: 100 }, (_, i) => `Produto ${String(i + 1).padStart(3, "0")}`))
+  await abrirProdutos(page)
+  const selecionados = (quantos: number) => page.getByText(`${quantos} selecionado(s)`).filter({ visible: true })
+  const todos = page.getByRole("checkbox", { name: "Selecionar todos" })
+
+  await todos.check()
+  await expect(selecionados(50)).toBeVisible()
+
+  await page.getByRole("link", { name: "Próxima" }).click()
+  await expect(page.getByRole("navigation", { name: "Páginas" })).toContainText("Página 2 de 2")
+  await expect(linha(page, "Produto 051")).toBeVisible()
+  await expect(selecionados(0)).toBeVisible()
+  await expect(todos).not.toBeChecked()
+  await page.getByRole("button", { name: "Inativar", exact: true }).click()
+  await expect(page.getByText("Selecione pelo menos um produto.")).toBeVisible()
+  expect(await nomesDosProdutosInativos()).toEqual([])
+
+  await selecionar(page, "Produto 051")
+  await page.getByRole("button", { name: "Inativar", exact: true }).click()
+  await expect(linha(page, "Produto 051")).toContainText("Inativo")
+  expect(await nomesDosProdutosInativos()).toEqual(["Produto 051"])
+
+  // Uma busca nova começa com nada marcado, mesmo que o produto marcado continue na lista.
+  await selecionar(page, "Produto 052")
+  await expect(selecionados(1)).toBeVisible()
+  await campo(page, "Buscar").fill("Produto 05")
+  await page.getByRole("button", { name: "Buscar" }).click()
+  await expect(linha(page, "Produto 059")).toBeVisible()
+  await expect(linha(page, "Produto 060")).toHaveCount(0)
+  await expect(selecionados(0)).toBeVisible()
+  await expect(page.getByRole("checkbox", { name: "Selecionar Produto 052" })).not.toBeChecked()
 })
 
 test("incluir categoria e inativar em massa aparecem nos filtros", async ({ page }) => {

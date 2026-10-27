@@ -134,7 +134,7 @@ export async function criarProdutoTeste(dados: {
   nome: string
   tipo_venda?: "unidade" | "peso"
   categorias?: string[]
-  variacao?: { nome?: string; codigo_barras?: string }
+  variacao?: { nome?: string; codigo_barras?: string; codigo_interno?: string }
 }): Promise<{ produtoId: string; variacaoId: string }> {
   const { data: produto, error } = await admin
     .from("produtos")
@@ -148,6 +148,7 @@ export async function criarProdutoTeste(dados: {
       produto_id: produto.id,
       nome: dados.variacao?.nome ?? "Padrão",
       codigo_barras: dados.variacao?.codigo_barras ?? null,
+      ...(dados.variacao?.codigo_interno ? { codigo_interno: dados.variacao.codigo_interno } : {}),
     })
     .select("id")
     .single()
@@ -207,4 +208,38 @@ export async function criarFaixaTeste(formaId: string, quantidadeMinima: number,
     .from("faixas_preco")
     .insert({ forma_venda_id: formaId, quantidade_minima: quantidadeMinima, preco_centavos: precoCentavos })
   if (error) throw error
+}
+
+// Muitos produtos de uma vez (sem variação), para testar a paginação da lista.
+export async function criarProdutosEmLote(nomes: string[]): Promise<void> {
+  const { error } = await admin.from("produtos").insert(nomes.map((nome) => ({ nome, tipo_venda: "unidade" as const })))
+  if (error) throw error
+}
+
+export async function nomesDosProdutosInativos(): Promise<string[]> {
+  const { data, error } = await admin.from("produtos").select("nome").eq("inativo", true).order("nome")
+  if (error) throw error
+  return data.map((p) => p.nome)
+}
+
+export async function nomeDoProduto(produtoId: string): Promise<string> {
+  const { data, error } = await admin.from("produtos").select("nome").eq("id", produtoId).single()
+  if (error) throw error
+  return data.nome
+}
+
+export async function apagarCategoriaTeste(categoriaId: string): Promise<void> {
+  const { error } = await admin.from("categorias").delete().eq("id", categoriaId)
+  if (error) throw error
+}
+
+export async function formasDoProduto(produtoId: string): Promise<string[]> {
+  const { data: variacoes, error } = await admin.from("variacoes").select("id").eq("produto_id", produtoId)
+  if (error) throw error
+  const { data: formas, error: erroFormas } = await admin
+    .from("formas_venda")
+    .select("nome")
+    .in("variacao_id", variacoes.map((v) => v.id))
+  if (erroFormas) throw erroFormas
+  return formas.map((f) => f.nome)
 }
