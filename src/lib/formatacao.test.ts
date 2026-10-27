@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatarData, formatarMoeda, formatarReais, reaisParaCentavos } from "./formatacao"
+import { formatarCusto, formatarData, formatarMoeda, formatarReais, reaisParaCentavos } from "./formatacao"
 
 describe("formatarMoeda", () => {
   it("formata centavos como reais", () => {
@@ -33,6 +33,15 @@ describe("reaisParaCentavos", () => {
 
   it("recusa valor negativo", () => {
     expect(() => reaisParaCentavos("-1,00")).toThrow("Valor inválido")
+  })
+})
+
+describe("formatarCusto", () => {
+  it("mostra de 2 a 6 casas, sem zeros sobrando", () => {
+    // O Intl põe um espaço que não quebra linha entre "R$" e o número.
+    expect(formatarCusto("0.050000")).toBe("R$ 0,05")
+    expect(formatarCusto("0.012500")).toBe("R$ 0,0125")
+    expect(formatarCusto(1.5)).toBe("R$ 1,50")
   })
 })
 
