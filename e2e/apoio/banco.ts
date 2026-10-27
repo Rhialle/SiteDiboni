@@ -30,12 +30,26 @@ export async function criarSolicitacaoTeste(dados: {
   quantidade: number
   motivo: string
   solicitadoPor: string
+  diasAtras?: number
 }): Promise<void> {
   await comoDono((conexao) =>
     conexao.query(
-      `insert into public.solicitacoes_ajuste (variacao_id, lote_id, tipo, quantidade, motivo, solicitado_por)
-       values ($1, public.lote_geral($1), 'perda_avaria', $2, $3, $4)`,
-      [dados.variacaoId, dados.quantidade, dados.motivo, dados.solicitadoPor],
+      `insert into public.solicitacoes_ajuste (variacao_id, lote_id, tipo, quantidade, motivo, solicitado_por, solicitado_em)
+       values ($1, public.lote_geral($1), 'perda_avaria', $2, $3, $4, now() - make_interval(days => $5))`,
+      [dados.variacaoId, dados.quantidade, dados.motivo, dados.solicitadoPor, dados.diasAtras ?? 0],
+    ),
+  )
+}
+
+// Muitas solicitações já recusadas, mais recentes que qualquer pendente criada com diasAtras.
+export async function criarSolicitacoesDecididasTeste(variacaoId: string, quantas: number, pessoa: string): Promise<void> {
+  await comoDono((conexao) =>
+    conexao.query(
+      `insert into public.solicitacoes_ajuste
+         (variacao_id, lote_id, tipo, quantidade, motivo, solicitado_por, situacao, decidido_por, decidido_em)
+       select $1, public.lote_geral($1), 'perda_avaria', -1, 'decidida ' || n, $3, 'recusada', $3, now()
+       from generate_series(1, $2) as n`,
+      [variacaoId, quantas, pessoa],
     ),
   )
 }

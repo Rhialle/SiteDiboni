@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
-import { criarSolicitacaoTeste, movimentarTeste } from "./apoio/banco"
+import { criarSolicitacaoTeste, criarSolicitacoesDecididasTeste, movimentarTeste } from "./apoio/banco"
 import {
   criarEstoqueTeste,
   criarProdutoTeste,
@@ -101,6 +101,19 @@ test("administrador aprova a solicitação: o saldo cai; recusa outra: não muda
 
   await page.goto(`/estoque/${forminha.variacaoId}`)
   await expect(page.getByText("Saldo: 500 un")).toBeVisible()
+})
+
+test("pendente antiga continua na lista mesmo com muitas decididas depois dela", async ({ page }) => {
+  const forminha = await forminhaComEstoque()
+  await criarSolicitacaoTeste({
+    variacaoId: forminha.variacaoId, quantidade: -1500, motivo: "pendente antiga", solicitadoPor: funcId, diasAtras: 30,
+  })
+  await criarSolicitacoesDecididasTeste(forminha.variacaoId, 210, funcId)
+  await entrarComoAdministrador(page, DONA)
+  await page.goto("/estoque/solicitacoes")
+
+  await expect(linha(page, "pendente antiga")).toContainText("Pendente")
+  await expect(linha(page, "pendente antiga").getByRole("button", { name: "Aprovar" })).toBeVisible()
 })
 
 test("funcionária vê só as próprias solicitações, sem os botões de decidir", async ({ page }) => {
