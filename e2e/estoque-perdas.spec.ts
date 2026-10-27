@@ -9,6 +9,7 @@ import {
   dataDaqui,
   limparCatalogo,
   limparUsuarios,
+  restaurarConfiguracoes,
   type DadosUsuarioTeste,
 } from "./apoio/supabase"
 
@@ -31,6 +32,8 @@ let funcId: string
 test.beforeEach(async () => {
   await limparUsuarios()
   await limparCatalogo()
+  // O teste de Configurações muda o limite da funcionária; aqui vale o padrão (R$ 50,00).
+  await restaurarConfiguracoes()
   donaId = await criarUsuarioTeste(DONA)
   funcId = await criarUsuarioTeste(FUNC)
 })
