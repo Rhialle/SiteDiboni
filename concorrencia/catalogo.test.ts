@@ -61,7 +61,9 @@ describe("faixas de preço na mesma forma de venda", () => {
     return rows
   }
 
-  it("10+ a 5,40 e 20+ a 5,50 gravadas ao mesmo tempo: a segunda a confirmar é recusada", async () => {
+  // Este caso já passava antes da correção (a segunda confere depois que a primeira confirmou);
+  // fica como guarda. O próximo é o que reproduz a corrida: as duas conferindo ao mesmo tempo.
+  it("10+ a 5,40 e 20+ a 5,50 em duas abas: a última a confirmar é recusada", async () => {
     const forma = await formaDe600()
     const a = await abrirAba()
     const b = await abrirAba()

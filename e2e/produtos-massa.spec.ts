@@ -111,7 +111,9 @@ test("a seleção vale só para a página e a busca que estão na tela", async (
   // 100 produtos: as duas páginas têm 50 linhas.
   await criarProdutosEmLote(Array.from({ length: 100 }, (_, i) => `Produto ${String(i + 1).padStart(3, "0")}`))
   await abrirProdutos(page)
-  const selecionados = (quantos: number) => page.getByText(`${quantos} selecionado(s)`).filter({ visible: true })
+  // Texto exato: "0 selecionado(s)" também é um pedaço de "50 selecionado(s)".
+  const selecionados = (quantos: number) =>
+    page.getByText(`${quantos} selecionado(s)`, { exact: true }).filter({ visible: true })
   const todos = page.getByRole("checkbox", { name: "Selecionar todos" })
 
   await todos.check()
