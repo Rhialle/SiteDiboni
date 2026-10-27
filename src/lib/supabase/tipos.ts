@@ -612,6 +612,11 @@ isOneToOne: false
 "registrar_perda_ou_ajuste":
 { Args: { "p_lote": string,"p_motivo": string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_variacao": string }; Returns: string
                            },
+"retirar_fefo":
+{ Args: { "p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string,"p_variacao": string }; Returns: {
+              "lote_id": string,"quantidade": number
+            }[]
+                           },
 "travar_saldos":
 { Args: { "p_variacoes": (string)[] }; Returns: undefined
                            },
