@@ -1,3 +1,5 @@
+import { formatarData } from "@/lib/formatacao"
+
 // Textos fixos da interface (plano 1.1, "Textos fixos da interface").
 export const MENSAGENS = {
   credenciais: "E-mail ou senha incorretos.",
@@ -80,4 +82,34 @@ export function mensagemGradeCriada(variacoes: number): string {
 
 export function mensagemPendencias(itens: string[]): string {
   return `Para ficar ativo falta: ${itens.join(", ")}.`
+}
+
+export type ContagensDoInicio = {
+  vencendo: number
+  faixa_maior: number
+  vencidos: number
+  abaixo_minimo: number
+  solicitacoes_pendentes: number
+  conferencia_em: string | null
+  conferencia_divergencias: number | null
+}
+
+// Avisos do Início: um por contagem maior que zero. A conferência só aparece quando achou diferença.
+export function avisosDoInicio(c: ContagensDoInicio): { texto: string; link: string | null }[] {
+  const avisos: { texto: string; link: string | null }[] = []
+  if (c.vencendo > 0) avisos.push({ texto: `${c.vencendo} lote(s) vencem em até ${c.faixa_maior} dias`, link: "/alertas" })
+  if (c.vencidos > 0) avisos.push({ texto: `${c.vencidos} lote(s) vencidos com saldo`, link: "/alertas" })
+  if (c.abaixo_minimo > 0) {
+    avisos.push({ texto: `${c.abaixo_minimo} variação(ões) abaixo do estoque mínimo`, link: "/alertas" })
+  }
+  if (c.solicitacoes_pendentes > 0) {
+    avisos.push({ texto: `${c.solicitacoes_pendentes} solicitação(ões) pendente(s)`, link: "/estoque/solicitacoes" })
+  }
+  if (c.conferencia_em && c.conferencia_divergencias) {
+    avisos.push({
+      texto: `A conferência de ${formatarData(c.conferencia_em)} achou ${c.conferencia_divergencias} diferença(s) entre saldo e movimentações.`,
+      link: null,
+    })
+  }
+  return avisos
 }
