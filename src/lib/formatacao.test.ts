@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest"
 
-import { formatarCusto, formatarData, formatarMoeda, formatarReais, reaisParaCentavos } from "./formatacao"
+import {
+  diaEmSaoPaulo,
+  formatarCusto,
+  formatarData,
+  formatarDia,
+  formatarMoeda,
+  formatarReais,
+  reaisParaCentavos,
+} from "./formatacao"
 
 describe("formatarMoeda", () => {
   it("formata centavos como reais", () => {
@@ -33,6 +41,20 @@ describe("reaisParaCentavos", () => {
 
   it("recusa valor negativo", () => {
     expect(() => reaisParaCentavos("-1,00")).toThrow("Valor inválido")
+  })
+})
+
+describe("diaEmSaoPaulo", () => {
+  it("devolve a data AAAA-MM-DD no fuso de São Paulo", () => {
+    expect(diaEmSaoPaulo(new Date("2026-10-28T02:00:00Z"))).toBe("2026-10-27")
+    expect(diaEmSaoPaulo(new Date("2026-10-28T03:00:00Z"))).toBe("2026-10-28")
+  })
+})
+
+describe("formatarDia", () => {
+  it("troca AAAA-MM-DD por dd/mm/aaaa sem passar por fuso", () => {
+    expect(formatarDia("2026-12-26")).toBe("26/12/2026")
+    expect(formatarDia("2027-01-01")).toBe("01/01/2027")
   })
 })
 

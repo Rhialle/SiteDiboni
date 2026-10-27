@@ -19,6 +19,20 @@ export function formatarReais(centavos: number): string {
   return reais.format(centavos / 100)
 }
 
+const diaIso = new Intl.DateTimeFormat("en-CA", { timeZone: FUSO })
+
+// A data de hoje (ou de um momento) em São Paulo, no formato AAAA-MM-DD das validades.
+export function diaEmSaoPaulo(momento: Date = new Date()): string {
+  return diaIso.format(momento)
+}
+
+// Data sem hora, como a validade ("2026-12-26" → "26/12/2026"). Não vira Date: meia-noite em UTC
+// cairia no dia anterior em São Paulo.
+export function formatarDia(data: string): string {
+  const [ano, mes, dia] = data.split("-")
+  return `${dia}/${mes}/${ano}`
+}
+
 // Custo por unidade base (numeric com 6 casas no banco): "0.012500" → "R$ 0,0125".
 export function formatarCusto(valor: string | number): string {
   return custo.format(Number(valor))
