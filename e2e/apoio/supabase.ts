@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js"
 
 import type { Database } from "../../src/lib/supabase/tipos"
 
+import { limparEstoque } from "./banco"
+
 process.loadEnvFile(".env.local")
 
 const CAIXA_DE_EMAILS = "http://127.0.0.1:54324"
@@ -87,8 +89,9 @@ export async function lerConfiguracoes() {
   return data
 }
 
-// Apaga todo o catálogo (filhos antes dos pais) e as fotos do bucket.
+// Apaga o estoque e todo o catálogo (filhos antes dos pais) e as fotos do bucket.
 export async function limparCatalogo(): Promise<void> {
+  await limparEstoque()
   const tudo = <T extends string>(tabela: T) => admin.from(tabela as never).delete().not("id" as never, "is", null)
   for (const tabela of ["faixas_preco", "formas_venda", "compatibilidades", "fotos", "variacoes"] as const) {
     const { error } = await tudo(tabela)

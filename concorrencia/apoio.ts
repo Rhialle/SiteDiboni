@@ -86,9 +86,12 @@ export async function removerAdministradora(dono: Client): Promise<void> {
   await dono.query("delete from auth.users where id = $1", [ADMINISTRADORA])
 }
 
-// Apaga todo o catálogo (filhos antes dos pais), como os testes de tela fazem.
+// Apaga o estoque e todo o catálogo (filhos antes dos pais), como os testes de tela fazem.
+// O estoque sai com truncate, que não passa pelo gatilho que impede apagar movimentações.
 export async function limparCatalogo(dono: Client): Promise<void> {
   await dono.query(`
+    truncate public.movimentacoes_custos, public.movimentacoes, public.solicitacoes_ajuste, public.saldos,
+      public.lotes, public.custos_variacao, public.verificacoes_integridade restart identity cascade;
     delete from public.faixas_preco;
     delete from public.formas_venda;
     delete from public.fotos;
