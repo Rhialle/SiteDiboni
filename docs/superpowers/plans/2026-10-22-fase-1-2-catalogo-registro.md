@@ -57,3 +57,40 @@ Task 8: complete (commits 83a1bf4..4e25af5, tests: npm test →              at 
 Task 9: complete (commits 83a1bf4..4e25af5, tests: npm test →              at least ~1.15s faster with isolate: false — reuses workers across files instead of one per file)
 Task 10: complete (commits 83a1bf4..4e25af5, tests: npm test →              at least ~1.16s faster with isolate: false — reuses workers across files instead of one per file)
 ```
+
+## Revisão independente e correções (2026-10-26)
+
+Uma revisão independente do commit 46c7afa pediu correções antes de juntar ao `main`: 1 achado P1 e 6 P2. Os 7 foram conferidos no código e confirmados. Dois deles já estavam acima como "minor (deferred)": o salvamento da ficha em chamadas separadas e o `ilike` na compatibilidade. A revisão acertou ao tratá-los como correção obrigatória.
+
+| # | Achado | Correção | Teste que reproduz |
+|---|---|---|---|
+| 1 (P1) | Seleção em massa sobrevivia à troca de página e de busca; "Selecionar todos" comparava só a quantidade | A tabela recomeça a cada página/busca (key) e só considera os produtos da tela; "todos" confere produto a produto | Tela: 100 produtos, página 2 com 50 linhas |
+| 2 | Ficha gravava o produto e depois categorias e materiais, sem ser tudo ou nada; erros de leitura eram ignorados | `atualizar_produto` grava tudo numa transação; um item apagado nesse meio-tempo mostra mensagem própria | Banco (material inexistente não muda nada) e tela (categoria apagada antes de salvar) |
+| 3 | Forma por unidade em produto por peso era aceita, também com duas abas | O gatilho recusa e trava o produto (FOR SHARE) | Banco, duas conexões nas duas ordens, e tela com duas abas |
+| 4 | Grade podia duplicar combinações com dois cliques | Índice único `variacoes_atributos_por_produto` (atributos não vazios) e `gerar_grade` com `on conflict do nothing` | Banco e duas conexões |
+| 5 | Faixas conferidas sem trava: duas transações passavam sem ver uma à outra | `conferir_faixas` trava a forma (FOR NO KEY UPDATE, que não bloqueia a chave estrangeira das faixas) | Duas conexões conferindo ao mesmo tempo; o reajuste em massa com desfazer continua verde |
+| 6 | Limite de 8 fotos sem trava e sem cobrir a troca de produto | O gatilho trava o produto antes de contar e vale também para `update of produto_id` | Duas conexões (7 fotos + 2 ao mesmo tempo) e banco (mover foto) |
+| 7 | Compatibilidade buscava com `ilike` (`_` e `%` como curinga); erro virava "não encontrada" | Código interno guardado em maiúsculas e sem espaços nas pontas; `variacao_por_codigo` compara o código exato; erro de busca tem mensagem própria | Banco e tela (`%XA`, `TAMPA_A`, `tampaxa`) |
+
+- **Migração nova:** `20261026221500_catalogo_correcoes_revisao.sql`. As anteriores já estavam no banco de teste.
+- **Conferência antes das regras de unicidade:** a migração começa conferindo se há combinações de atributos repetidas ou códigos que ficariam iguais em maiúsculas. Se houver, para com a lista e não apaga nada. No banco de teste (consulta só de leitura antes da migração): 0 produtos e 0 variações, nada a reconciliar.
+- **Testes de concorrência:** `npm run test:concorrencia` (pasta `concorrencia/`). Cada "aba" é uma conexão `pg` com a sua transação no banco local do CI. O teste espera o comando da segunda aba terminar ou ficar parado na trava da primeira antes de confirmar a primeira. Só assim o teste prova a corrida.
+- **CI:** cada verificação roda mesmo se uma anterior falhou (o job continua vermelho), para uma rodada mostrar todas as falhas.
+
+Evidência:
+- **Run 40430762954 (vermelho esperado):**
+  - unitários: 2 falhas (mensagens novas);
+  - banco: 10 falhas no arquivo 09, que parou em `gerar_grade` inexistente;
+  - concorrência: 6 de 7 falharam porque a segunda aba conseguiu gravar;
+  - tela: 4 falhas, entre elas "Selecionar todos" ainda marcado na página 2.
+- **O que o vermelho ensinou:**
+  - O primeiro teste de faixas já passava sem a correção (a segunda aba confere depois que a primeira confirmou). Ficou como guarda e o nome diz isso. O segundo, com as duas conferindo ao mesmo tempo, é o que reproduz a corrida.
+  - O teste da seleção achava "0 selecionado(s)" dentro de "50 selecionado(s)". Passou a exigir o texto exato.
+- **Run 40431633180 (verde):**
+  - unitários: 56;
+  - banco: 123 (26 novos);
+  - concorrência: 7;
+  - tela: 49 (4 novos);
+  - os tipos gerados batem com os escritos à mão;
+  - `banco-teste` aplicou a migração nova na nuvem de teste.
+- **Commits:** 0cdae74 (testes), 69d8e54 (ajuste de dois testes), b460aeb (correções) e 3a811b9 (manual).
