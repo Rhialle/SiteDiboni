@@ -15,21 +15,24 @@ export default async function PaginaSolicitacoes() {
   const administrador = usuario.papel === "administrador"
 
   const supabase = await criarClienteServidor()
-  const [solicitacoesR, usuariosR] = await Promise.all([
+  const colunas =
+    "id, tipo, quantidade, motivo, situacao, solicitado_em, solicitado_por, lotes(codigo, validade), variacoes(nome, produtos(nome, tipo_venda))"
+  // Todas as pendentes, por mais antigas que sejam; das decididas, só as 100 mais recentes.
+  const [pendentesR, decididasR, usuariosR] = await Promise.all([
+    supabase.from("solicitacoes_ajuste").select(colunas).eq("situacao", "pendente").order("solicitado_em", { ascending: false }),
     supabase
       .from("solicitacoes_ajuste")
-      .select("id, tipo, quantidade, motivo, situacao, solicitado_em, solicitado_por, lotes(codigo, validade), variacoes(nome, produtos(nome, tipo_venda))")
+      .select(colunas)
+      .neq("situacao", "pendente")
       .order("solicitado_em", { ascending: false })
-      .limit(200),
+      .limit(100),
     supabase.from("usuarios").select("id, nome"),
   ])
-  if (solicitacoesR.error) throw solicitacoesR.error
+  if (pendentesR.error) throw pendentesR.error
+  if (decididasR.error) throw decididasR.error
 
   const nomes = new Map((usuariosR.data ?? []).map((u) => [u.id, u.nome]))
-  // Pendentes primeiro; dentro de cada grupo, as mais recentes antes.
-  const solicitacoes = [...(solicitacoesR.data ?? [])].sort(
-    (a, b) => Number(b.situacao === "pendente") - Number(a.situacao === "pendente"),
-  )
+  const solicitacoes = [...(pendentesR.data ?? []), ...(decididasR.data ?? [])]
 
   return (
     <div className="flex flex-col gap-6">
