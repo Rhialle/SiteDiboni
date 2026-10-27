@@ -59,6 +59,21 @@ export async function movimentarTeste(dados: {
   )
 }
 
+// Roda agora a conferência que o pg_cron roda todo dia às 03:00.
+export async function rodarConferencia(): Promise<void> {
+  await comoDono((conexao) => conexao.query("select public.conferir_integridade_estoque()"))
+}
+
+// Mexe no saldo do lote GERAL sem movimentação, para a conferência achar uma diferença.
+export async function alterarSaldoDireto(variacaoId: string, diferenca: number): Promise<void> {
+  await comoDono((conexao) =>
+    conexao.query("update public.saldos set quantidade = quantidade + $2 where lote_id = public.lote_geral($1)", [
+      variacaoId,
+      diferenca,
+    ]),
+  )
+}
+
 // O truncate não passa pelo gatilho que impede apagar movimentações.
 export async function limparEstoque(): Promise<void> {
   await comoDono((conexao) => conexao.query(`truncate ${TABELAS_DO_ESTOQUE} restart identity cascade`))

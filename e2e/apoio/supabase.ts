@@ -245,6 +245,11 @@ export async function criarEstoqueTeste(
   return data
 }
 
+export async function definirEstoqueMinimo(variacaoId: string, minimo: number): Promise<void> {
+  const { error } = await admin.from("variacoes").update({ estoque_minimo: minimo }).eq("id", variacaoId)
+  if (error) throw error
+}
+
 // Muitos produtos de uma vez (sem variação), para testar a paginação da lista.
 export async function criarProdutosEmLote(nomes: string[]): Promise<void> {
   const { error } = await admin.from("produtos").insert(nomes.map((nome) => ({ nome, tipo_venda: "unidade" as const })))
