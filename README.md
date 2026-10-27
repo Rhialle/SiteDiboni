@@ -11,7 +11,7 @@ O princípio que guia tudo: **um estoque só, compartilhado entre o site e o bal
 
 | Fase | O que entrega | Situação |
 |---|---|---|
-| 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 (login, usuários, configurações) pronto; 1.2 (catálogo) em revisão |
+| 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 (login, usuários, configurações) e 1.2 (catálogo de produtos) prontos; próximo: 1.3 (estoque) |
 | 2. Balcão | Vendas no balcão saindo do mesmo estoque; contagem oficial da loja inteira | Não iniciada |
 | 3. Loja online e retirada | Site público, pagamento (Pix e cartão), pedidos e retirada | Não iniciada |
 | 4. Gestão | Painel de vendas, conferência de pagamentos, fornecedores, nota fiscal (NFC-e) | Não iniciada |
