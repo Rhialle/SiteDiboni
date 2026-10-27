@@ -47,6 +47,9 @@ export default async function PaginaEstoque({ searchParams }: PageProps<"/estoqu
           <p className="text-sm text-muted-foreground">{total} variação(ões)</p>
         </div>
         <nav className="flex gap-4 text-sm">
+          <Link href="/estoque/movimentacoes" className="underline-offset-4 hover:underline">
+            Movimentações
+          </Link>
           <Link href="/estoque/solicitacoes" className="underline-offset-4 hover:underline">
             Solicitações
           </Link>

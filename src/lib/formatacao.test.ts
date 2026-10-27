@@ -4,6 +4,7 @@ import {
   diaEmSaoPaulo,
   formatarCusto,
   formatarData,
+  formatarDataHora,
   formatarDia,
   formatarMoeda,
   formatarReais,
@@ -41,6 +42,13 @@ describe("reaisParaCentavos", () => {
 
   it("recusa valor negativo", () => {
     expect(() => reaisParaCentavos("-1,00")).toThrow("Valor inválido")
+  })
+})
+
+describe("formatarDataHora", () => {
+  it("mostra data e hora de São Paulo", () => {
+    expect(formatarDataHora("2026-10-27T15:04:00Z")).toBe("27/10/2026 12:04")
+    expect(formatarDataHora("2026-10-28T02:30:00Z")).toBe("27/10/2026 23:30")
   })
 })
 

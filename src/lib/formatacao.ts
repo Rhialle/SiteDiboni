@@ -20,6 +20,13 @@ export function formatarReais(centavos: number): string {
 }
 
 const diaIso = new Intl.DateTimeFormat("en-CA", { timeZone: FUSO })
+const hora = new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO, hour: "2-digit", minute: "2-digit" })
+
+// "27/10/2026 12:04", no fuso de São Paulo (para o extrato).
+export function formatarDataHora(valor: string): string {
+  const momento = new Date(valor)
+  return `${data.format(momento)} ${hora.format(momento)}`
+}
 
 // A data de hoje (ou de um momento) em São Paulo, no formato AAAA-MM-DD das validades.
 export function diaEmSaoPaulo(momento: Date = new Date()): string {
