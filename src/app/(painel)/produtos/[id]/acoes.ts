@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 
 import { exigirAdministrador } from "@/lib/auth/sessao"
 import { mensagemDoErroDoBanco } from "@/lib/catalogo/erros"
-import { lerGrade, novasCombinacoes } from "@/lib/catalogo/grade"
+import { combinacoesDaGrade, lerGrade } from "@/lib/catalogo/grade"
 import { gtinValido } from "@/lib/catalogo/gtin"
 import {
   colunasDoProduto,
@@ -64,39 +64,13 @@ export async function salvarDadosGerais(
   const problema = problemaDosCamposDoProduto(campos)
   if (problema) return { erro: problema, sucesso: "", valores: campos }
 
+  // Dados, categorias e materiais numa chamada só: se algo falha, nada muda.
   const supabase = await criarClienteServidor()
-  const { error } = await supabase.from("produtos").update(colunasDoProduto(campos)).eq("id", produtoId)
+  const { error } = await supabase.rpc("atualizar_produto", {
+    p_produto: produtoId,
+    dados: { ...colunasDoProduto(campos), categorias: campos.categorias, etiquetas: campos.etiquetas },
+  })
   if (error) return { erro: mensagemDoErroDoBanco(error), sucesso: "", valores: campos }
-
-  // Categorias e materiais: tira os desmarcados e põe os novos.
-  const [{ data: categoriasAtuais }, { data: materiaisAtuais }] = await Promise.all([
-    supabase.from("produto_categorias").select("categoria_id").eq("produto_id", produtoId),
-    supabase.from("produto_etiquetas").select("etiqueta_id").eq("produto_id", produtoId),
-  ])
-  const categoriasAntes = (categoriasAtuais ?? []).map((c) => c.categoria_id)
-  const materiaisAntes = (materiaisAtuais ?? []).map((m) => m.etiqueta_id)
-
-  const tirarCategorias = categoriasAntes.filter((c) => !campos.categorias.includes(c))
-  const porCategorias = campos.categorias.filter((c) => !categoriasAntes.includes(c))
-  const tirarMateriais = materiaisAntes.filter((m) => !campos.etiquetas.includes(m))
-  const porMateriais = campos.etiquetas.filter((m) => !materiaisAntes.includes(m))
-  const operacoes = [
-    tirarCategorias.length
-      ? supabase.from("produto_categorias").delete().eq("produto_id", produtoId).in("categoria_id", tirarCategorias)
-      : null,
-    porCategorias.length
-      ? supabase.from("produto_categorias").insert(porCategorias.map((categoria_id) => ({ produto_id: produtoId, categoria_id })))
-      : null,
-    tirarMateriais.length
-      ? supabase.from("produto_etiquetas").delete().eq("produto_id", produtoId).in("etiqueta_id", tirarMateriais)
-      : null,
-    porMateriais.length
-      ? supabase.from("produto_etiquetas").insert(porMateriais.map((etiqueta_id) => ({ produto_id: produtoId, etiqueta_id })))
-      : null,
-  ].filter((operacao) => operacao !== null)
-  for (const resultado of await Promise.all(operacoes)) {
-    if (resultado.error) return { erro: mensagemDoErroDoBanco(resultado.error), sucesso: "", valores: campos }
-  }
 
   revalidatePath(`/produtos/${produtoId}`)
   return { erro: "", sucesso: MENSAGENS.salvo, valores: null }
@@ -170,23 +144,13 @@ export async function gerarGrade(
     return { ...falha(MENSAGENS.gradeInvalida), texto: textoDaGrade }
   }
 
+  // O banco cria só as combinações que ainda não existem (repetir ou clicar duas vezes não duplica).
   const supabase = await criarClienteServidor()
-  const { data: existentes, error: erroLeitura } = await supabase
-    .from("variacoes")
-    .select("atributos")
-    .eq("produto_id", produtoId)
-  if (erroLeitura) return { ...falha(mensagemDoErroDoBanco(erroLeitura)), texto: textoDaGrade }
-
-  const novas = novasCombinacoes(
-    grade,
-    (existentes ?? []).map((v) => v.atributos as Record<string, string>),
-  )
-  if (novas.length === 0) return { erro: "", sucesso: mensagemGradeCriada(0), texto: textoDaGrade }
-
-  const { error } = await supabase
-    .from("variacoes")
-    .insert(novas.map((n) => ({ produto_id: produtoId, nome: n.nome, atributos: n.atributos })))
-  return { ...concluir(produtoId, error, mensagemGradeCriada(novas.length)), texto: textoDaGrade }
+  const { data: criadas, error } = await supabase.rpc("gerar_grade", {
+    p_produto: produtoId,
+    p_variacoes: combinacoesDaGrade(grade),
+  })
+  return { ...concluir(produtoId, error, mensagemGradeCriada(criadas ?? 0)), texto: textoDaGrade }
 }
 
 // ---------------------------------------------------------------------------
@@ -350,18 +314,16 @@ export async function ligarCompatibilidade(
   const variacaoId = texto(formData, "variacao_id")
   const codigo = texto(formData, "codigo")
 
+  // Código exato (sem curingas), sem diferenciar maiúsculas; erro na busca não vira "não encontrada".
   const supabase = await criarClienteServidor()
-  const { data: outra } = await supabase
-    .from("variacoes")
-    .select("id")
-    .ilike("codigo_interno", codigo)
-    .maybeSingle()
-  if (!outra) return falha(MENSAGENS.variacaoNaoEncontrada)
-  if (outra.id === variacaoId) return falha(MENSAGENS.compatibilidadeMesma)
+  const { data: outraId, error: erroBusca } = await supabase.rpc("variacao_por_codigo", { p_codigo: codigo })
+  if (erroBusca) return falha(mensagemDoErroDoBanco(erroBusca))
+  if (!outraId) return falha(MENSAGENS.variacaoNaoEncontrada)
+  if (outraId === variacaoId) return falha(MENSAGENS.compatibilidadeMesma)
 
   const { error } = await supabase.from("compatibilidades").insert({
     variacao_a_id: variacaoId,
-    variacao_b_id: outra.id,
+    variacao_b_id: outraId,
     descricao: texto(formData, "descricao"),
   })
   return concluir(produtoId, error)

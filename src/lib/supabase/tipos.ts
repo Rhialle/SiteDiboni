@@ -321,6 +321,9 @@ isOneToOne: false
 "alterar_inativo_em_massa":
 { Args: { "p_inativo": boolean,"p_produtos": (string)[] }; Returns: number
                            },
+"atualizar_produto":
+{ Args: { "dados": Json,"p_produto": string }; Returns: undefined
+                           },
 "buscar_produtos":
 { Args: { "p_categoria"?: string,"p_controla_validade"?: boolean,"p_deslocamento"?: number,"p_etiqueta"?: string,"p_limite"?: number,"p_situacao"?: string,"p_termo"?: string,"p_tipo_venda"?: Database["public"]['Enums']["tipo_venda"] }; Returns: {
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
@@ -338,8 +341,14 @@ isOneToOne: false
 "eh_usuario_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"gerar_grade":
+{ Args: { "p_produto": string,"p_variacoes": Json }; Returns: number
+                           },
 "gtin_valido":
 { Args: { "codigo": string }; Returns: boolean
+                           },
+"normalizar_codigo_interno":
+{ Args: { "codigo": string }; Returns: string
                            },
 "papel_atual":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["papel_usuario"]
@@ -349,6 +358,9 @@ isOneToOne: false
                            },
 "reajustar_precos":
 { Args: { "p_percentual": number,"p_produtos": (string)[] }; Returns: number
+                           },
+"variacao_por_codigo":
+{ Args: { "p_codigo": string }; Returns: string
                            }
           }
           Enums: {

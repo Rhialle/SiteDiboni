@@ -69,7 +69,13 @@ export default async function PaginaProdutos({ searchParams }: PageProps<"/produ
       </div>
 
       <FiltrosProdutos filtros={filtros} categorias={categorias} materiais={materiaisR.data ?? []} />
-      <TabelaProdutos produtos={produtos} podeEditar={usuario.papel === "administrador"} categorias={categorias} />
+      {/* A key muda com a página e a busca: a tabela recomeça com nada selecionado. */}
+      <TabelaProdutos
+        key={endereco(pagina)}
+        produtos={produtos}
+        podeEditar={usuario.papel === "administrador"}
+        categorias={categorias}
+      />
 
       {paginas > 1 ? (
         <nav aria-label="Páginas" className="flex items-center gap-3 text-sm">

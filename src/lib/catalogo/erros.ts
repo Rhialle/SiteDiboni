@@ -6,6 +6,7 @@ const POR_RESTRICAO: Record<string, string> = {
   etiquetas_nome_key: MENSAGENS.materialRepetido,
   variacoes_codigo_barras_key: MENSAGENS.codigoBarrasRepetido,
   variacoes_codigo_interno_key: MENSAGENS.codigoInternoRepetido,
+  variacoes_atributos_por_produto: MENSAGENS.variacaoRepetida,
   faixas_preco_quantidade_key: MENSAGENS.faixaRepetida,
   compatibilidades_par_key: MENSAGENS.compatibilidadeRepetida,
   produto_categorias_categoria_id_fkey: MENSAGENS.categoriaEmUso,
@@ -16,6 +17,8 @@ const POR_RESTRICAO: Record<string, string> = {
 export function mensagemDoErroDoBanco(erro: { code?: string; message: string }): string {
   // P0001 é uma regra do próprio banco, que já fala com a pessoa.
   if (erro.code === "P0001") return erro.message
+  // Gravando algo que aponta para um item apagado nesse meio-tempo (ex.: categoria apagada em outra aba).
+  if (erro.code === "23503" && erro.message.startsWith("insert or update on table")) return MENSAGENS.itemNaoExiste
   if (erro.code === "23505" || erro.code === "23503") {
     const restricao = Object.keys(POR_RESTRICAO).find((nome) => erro.message.includes(`"${nome}"`))
     if (restricao) return POR_RESTRICAO[restricao]

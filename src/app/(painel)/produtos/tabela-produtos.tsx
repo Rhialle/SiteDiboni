@@ -32,11 +32,14 @@ export function TabelaProdutos({
   podeEditar: boolean
   categorias: { id: string; caminho: string }[]
 }) {
-  const [selecionados, setSelecionados] = useState<string[]>([])
-  const todos = produtos.length > 0 && selecionados.length === produtos.length
+  const [marcados, setMarcados] = useState<string[]>([])
+  // Só vale o que está na tela: um produto que saiu da lista não recebe a ação em massa.
+  // (Trocar de página ou de busca já começa uma seleção nova: veja a "key" em page.tsx.)
+  const selecionados = marcados.filter((id) => produtos.some((produto) => produto.id === id))
+  const todos = produtos.length > 0 && produtos.every((produto) => selecionados.includes(produto.id))
 
   const alternar = (id: string) =>
-    setSelecionados((atual) => (atual.includes(id) ? atual.filter((s) => s !== id) : [...atual, id]))
+    setMarcados(selecionados.includes(id) ? selecionados.filter((s) => s !== id) : [...selecionados, id])
 
   if (produtos.length === 0) {
     return <p className="text-sm text-muted-foreground">Nenhum produto encontrado.</p>
@@ -45,7 +48,7 @@ export function TabelaProdutos({
   return (
     <div className="flex flex-col gap-3">
       {podeEditar ? (
-        <BarraAcoesMassa selecionados={selecionados} categorias={categorias} aoConcluir={() => setSelecionados([])} />
+        <BarraAcoesMassa selecionados={selecionados} categorias={categorias} aoConcluir={() => setMarcados([])} />
       ) : null}
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-left text-sm">
@@ -57,7 +60,7 @@ export function TabelaProdutos({
                     type="checkbox"
                     aria-label="Selecionar todos"
                     checked={todos}
-                    onChange={() => setSelecionados(todos ? [] : produtos.map((p) => p.id))}
+                    onChange={() => setMarcados(todos ? [] : produtos.map((p) => p.id))}
                   />
                 </th>
               ) : null}
