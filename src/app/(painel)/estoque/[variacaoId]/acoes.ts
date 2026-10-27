@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache"
 
 import { exigirAdministrador, exigirUsuario } from "@/lib/auth/sessao"
 import { mensagemDoErroDoBanco } from "@/lib/catalogo/erros"
-import { custoUnitarioBase, paraUnidadeBase, unidadesDeDigitacao, type UnidadeDeDigitacao } from "@/lib/estoque/quantidade"
+import {
+  custoUnitarioBase,
+  escolherUnidade,
+  paraUnidadeBase,
+  unidadesDeDigitacao,
+  type UnidadeDeDigitacao,
+} from "@/lib/estoque/quantidade"
 import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 import type { Database } from "@/lib/supabase/tipos"
@@ -25,8 +31,7 @@ async function unidadeEscolhida(supabase: Supabase, variacaoId: string, valor: s
     supabase.from("formas_venda").select("id, nome, fator, peso_variavel, ativa").eq("variacao_id", variacaoId),
   ])
   if (!variacao) return null
-  const unidades = unidadesDeDigitacao(variacao.produtos.tipo_venda, formas ?? [])
-  return unidades.find((unidade) => unidade.valor === valor) ?? unidades[0]
+  return escolherUnidade(unidadesDeDigitacao(variacao.produtos.tipo_venda, formas ?? []), valor)
 }
 
 export async function registrarEntrada(
@@ -40,7 +45,7 @@ export async function registrarEntrada(
 
   const supabase = await criarClienteServidor()
   const unidade = await unidadeEscolhida(supabase, variacaoId, valores.em)
-  if (!unidade) return falha(MENSAGENS.acaoFalhou)
+  if (!unidade) return falha(MENSAGENS.unidadeMudou)
 
   const quantidade = paraUnidadeBase(valores.quantidade, unidade.fator, unidade.casas)
   if (quantidade === null) return falha(unidade.casas === 3 ? MENSAGENS.pesoInvalido : MENSAGENS.quantidadeInvalida)
@@ -84,7 +89,7 @@ export async function registrarPerdaOuAjuste(
 
   const supabase = await criarClienteServidor()
   const unidade = await unidadeEscolhida(supabase, variacaoId, valores.em)
-  if (!unidade) return falha(MENSAGENS.acaoFalhou)
+  if (!unidade) return falha(MENSAGENS.unidadeMudou)
   const quantidade = paraUnidadeBase(valores.quantidade, unidade.fator, unidade.casas)
   if (quantidade === null) return falha(unidade.casas === 3 ? MENSAGENS.pesoInvalido : MENSAGENS.quantidadeInvalida)
   const escolha = TIPOS[valores.tipo]

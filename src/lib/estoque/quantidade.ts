@@ -49,6 +49,13 @@ export function unidadesDeDigitacao(tipoVenda: TipoVenda, formas: Forma[]): Unid
   ]
 }
 
+// A unidade escolhida no formulário; vazio vale a primeira. Uma escolha que não existe mais (forma
+// inativada em outra aba) devolve null: cair em "unidade(s)" gravaria a quantidade e o custo errados.
+export function escolherUnidade(unidades: UnidadeDeDigitacao[], valor: string): UnidadeDeDigitacao | null {
+  if (valor === "") return unidades[0] ?? null
+  return unidades.find((unidade) => unidade.valor === valor) ?? null
+}
+
 export function formatarQuantidade(base: number, tipoVenda: TipoVenda): string {
   return `${inteiro.format(base)} ${tipoVenda === "peso" ? "g" : "un"}`
 }

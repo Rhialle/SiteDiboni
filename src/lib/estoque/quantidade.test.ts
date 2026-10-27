@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { custoUnitarioBase, formatarQuantidade, paraUnidadeBase, unidadesDeDigitacao } from "./quantidade"
+import {
+  custoUnitarioBase,
+  escolherUnidade,
+  formatarQuantidade,
+  paraUnidadeBase,
+  unidadesDeDigitacao,
+} from "./quantidade"
 
 describe("paraUnidadeBase", () => {
   it("multiplica pelo fator da forma de venda", () => {
@@ -56,6 +62,21 @@ describe("unidadesDeDigitacao", () => {
       { valor: "g", rotulo: "g", fator: 1, casas: 0 },
       { valor: "kg", rotulo: "kg", fator: 1000, casas: 3 },
     ])
+  })
+})
+
+describe("escolherUnidade", () => {
+  const unidades = unidadesDeDigitacao("unidade", [
+    { id: "f1", nome: "Caixa com 100", fator: 100, peso_variavel: false, ativa: true },
+  ])
+
+  it("acha a unidade escolhida; vazio vale a primeira", () => {
+    expect(escolherUnidade(unidades, "forma:f1")?.fator).toBe(100)
+    expect(escolherUnidade(unidades, "")?.valor).toBe("un")
+  })
+
+  it("escolha que não existe mais (forma inativada em outra aba) não vira unidade", () => {
+    expect(escolherUnidade(unidades, "forma:f2")).toBeNull()
   })
 })
 

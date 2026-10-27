@@ -66,6 +66,7 @@ export const MENSAGENS = {
   jaEstornada: "Esta movimentação já foi estornada.",
   nenhumAviso: "Nenhum aviso.",
   tipoPerdaInvalido: "Escolha o tipo: perda, quebra ou ajuste.",
+  unidadeMudou: "A unidade escolhida em “Em” não vale mais. Recarregue a página e confira.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
