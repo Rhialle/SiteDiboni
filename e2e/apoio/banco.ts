@@ -40,6 +40,25 @@ export async function criarSolicitacaoTeste(dados: {
   )
 }
 
+// Uma movimentação direta no lote GERAL da variação (perda, ajuste...), em nome de quem for informado.
+export async function movimentarTeste(dados: {
+  variacaoId: string
+  tipo: string
+  quantidade: number
+  motivo: string
+  usuarioId: string
+}): Promise<void> {
+  await comoDono((conexao) =>
+    conexao.query("select public.movimentar_lote(public.lote_geral($1), $2, $3, $4, $5)", [
+      dados.variacaoId,
+      dados.tipo,
+      dados.quantidade,
+      dados.motivo,
+      dados.usuarioId,
+    ]),
+  )
+}
+
 // O truncate não passa pelo gatilho que impede apagar movimentações.
 export async function limparEstoque(): Promise<void> {
   await comoDono((conexao) => conexao.query(`truncate ${TABELAS_DO_ESTOQUE} restart identity cascade`))
