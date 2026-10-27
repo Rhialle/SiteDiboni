@@ -541,7 +541,12 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "alterar_categoria_em_massa":
+            "alertas_estoque":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "codigo_interno": string,"dias_para_vencer": number,"estoque_minimo": number,"faixa_dias": number,"lote": string,"lote_id": string,"produto": string,"produto_id": string,"saldo": number,"tipo": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"validade": string,"variacao": string,"variacao_id": string
+            }[]
+                           },
+"alterar_categoria_em_massa":
 { Args: { "p_categoria": string,"p_incluir": boolean,"p_produtos": (string)[] }; Returns: number
                            },
 "alterar_inativo_em_massa":
@@ -550,6 +555,16 @@ isOneToOne: false
 "atualizar_produto":
 { Args: { "dados": Json,"p_produto": string }; Returns: undefined
                            },
+"avisos_inicio":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
+            }[]
+                           },
+"buscar_estoque":
+{ Args: { "p_deslocamento"?: number,"p_limite"?: number,"p_so_com_saldo"?: boolean,"p_termo"?: string }; Returns: {
+              "codigo_interno": string,"controla_validade": boolean,"estoque_minimo": number,"produto": string,"produto_id": string,"proxima_validade": string,"saldo_disponivel": number,"saldo_total": number,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacao": string,"variacao_id": string
+            }[]
+                           },
 "buscar_produtos":
 { Args: { "p_categoria"?: string,"p_controla_validade"?: boolean,"p_deslocamento"?: number,"p_etiqueta"?: string,"p_limite"?: number,"p_situacao"?: string,"p_termo"?: string,"p_tipo_venda"?: Database["public"]['Enums']["tipo_venda"] }; Returns: {
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
@@ -557,6 +572,9 @@ isOneToOne: false
                            },
 "cnpj_valido":
 { Args: { "cnpj": string }; Returns: boolean
+                           },
+"conferir_integridade_estoque":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "criar_produto":
 { Args: { "dados": Json }; Returns: string
