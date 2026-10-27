@@ -83,6 +83,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"custos_variacao": {
+                  Row: {
+                    "atualizado_em": string,"custo_medio": number,"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "atualizado_em"?: string,"custo_medio": number,"variacao_id": string
+                  }
+                  Update: {
+                    "atualizado_em"?: string,"custo_medio"?: number,"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "custos_variacao_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: true
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"etiquetas": {
                   Row: {
                     "id": string,"nome": string
@@ -183,6 +203,78 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"lotes": {
+                  Row: {
+                    "codigo": string,"criado_em": string,"id": string,"validade": string | null,"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "codigo": string,"criado_em"?: string,"id"?: string,"validade"?: string | null,"variacao_id": string
+                  }
+                  Update: {
+                    "codigo"?: string,"criado_em"?: string,"id"?: string,"validade"?: string | null,"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "lotes_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"movimentacoes": {
+                  Row: {
+                    "aprovado_por": string | null,"criado_em": string,"estorno_de": number | null,"id": number,"lote_id": string,"motivo": string,"origem": string | null,"origem_id": string | null,"quantidade": number,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"usuario_id": string,"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aprovado_por"?: string | null,"criado_em"?: string,"estorno_de"?: number | null,"id"?: never,"lote_id": string,"motivo"?: string,"origem"?: string | null,"origem_id"?: string | null,"quantidade": number,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"usuario_id": string,"variacao_id": string
+                  }
+                  Update: {
+                    "aprovado_por"?: string | null,"criado_em"?: string,"estorno_de"?: number | null,"id"?: never,"lote_id"?: string,"motivo"?: string,"origem"?: string | null,"origem_id"?: string | null,"quantidade"?: number,"tipo"?: Database["public"]['Enums']["tipo_movimentacao"],"usuario_id"?: string,"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "movimentacoes_estorno_de_fkey"
+      columns: ["estorno_de"]
+isOneToOne: true
+      referencedRelation: "movimentacoes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_lote_id_fkey"
+      columns: ["lote_id"]
+isOneToOne: false
+      referencedRelation: "lotes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimentacoes_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"movimentacoes_custos": {
+                  Row: {
+                    "custo_unitario": number,"movimentacao_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "custo_unitario": number,"movimentacao_id": number
+                  }
+                  Update: {
+                    "custo_unitario"?: number,"movimentacao_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "movimentacoes_custos_movimentacao_id_fkey"
+      columns: ["movimentacao_id"]
+isOneToOne: true
+      referencedRelation: "movimentacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"produto_categorias": {
                   Row: {
                     "categoria_id": string,"produto_id": string
@@ -261,6 +353,58 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"saldos": {
+                  Row: {
+                    "lote_id": string,"quantidade": number,"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "lote_id": string,"quantidade"?: number,"variacao_id": string
+                  }
+                  Update: {
+                    "lote_id"?: string,"quantidade"?: number,"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "saldos_lote_id_fkey"
+      columns: ["lote_id"]
+isOneToOne: true
+      referencedRelation: "lotes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "saldos_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"solicitacoes_ajuste": {
+                  Row: {
+                    "decidido_em": string | null,"decidido_por": string | null,"id": number,"lote_id": string,"motivo": string,"quantidade": number,"situacao": Database["public"]['Enums']["situacao_solicitacao"],"solicitado_em": string,"solicitado_por": string,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "decidido_em"?: string | null,"decidido_por"?: string | null,"id"?: never,"lote_id": string,"motivo": string,"quantidade": number,"situacao"?: Database["public"]['Enums']["situacao_solicitacao"],"solicitado_em"?: string,"solicitado_por": string,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"variacao_id": string
+                  }
+                  Update: {
+                    "decidido_em"?: string | null,"decidido_por"?: string | null,"id"?: never,"lote_id"?: string,"motivo"?: string,"quantidade"?: number,"situacao"?: Database["public"]['Enums']["situacao_solicitacao"],"solicitado_em"?: string,"solicitado_por"?: string,"tipo"?: Database["public"]['Enums']["tipo_movimentacao"],"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "solicitacoes_ajuste_lote_id_fkey"
+      columns: ["lote_id"]
+isOneToOne: false
+      referencedRelation: "lotes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "solicitacoes_ajuste_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"usuarios": {
                   Row: {
                     "ativo": boolean,"criado_em": string,"email": string,"id": string,"nome": string,"papel": Database["public"]['Enums']["papel_usuario"]
@@ -300,6 +444,20 @@ isOneToOne: false
       referencedRelation: "produtos_com_situacao"
       referencedColumns: ["id"]
     }
+                  ]
+                },"verificacoes_integridade": {
+                  Row: {
+                    "divergencias": NonNullable<Json>,"executada_em": string,"id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "divergencias"?: NonNullable<Json>,"executada_em"?: string,"id"?: never
+                  }
+                  Update: {
+                    "divergencias"?: NonNullable<Json>,"executada_em"?: string,"id"?: never
+                  }
+                  Relationships: [
+                    
                   ]
                 }
           }
@@ -341,11 +499,23 @@ isOneToOne: false
 "eh_usuario_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"gerar_codigo_lote":
+{ Args: { "p_prefixo": string,"p_variacao": string }; Returns: string
+                           },
 "gerar_grade":
 { Args: { "p_produto": string,"p_variacoes": Json }; Returns: number
                            },
 "gtin_valido":
 { Args: { "codigo": string }; Returns: boolean
+                           },
+"hoje_sp":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"lote_geral":
+{ Args: { "p_variacao": string }; Returns: string
+                           },
+"movimentar_lote":
+{ Args: { "p_aprovado_por"?: string,"p_estorno_de"?: number,"p_lote": string,"p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string }; Returns: number
                            },
 "normalizar_codigo_interno":
 { Args: { "codigo": string }; Returns: string
@@ -359,12 +529,15 @@ isOneToOne: false
 "reajustar_precos":
 { Args: { "p_percentual": number,"p_produtos": (string)[] }; Returns: number
                            },
+"travar_saldos":
+{ Args: { "p_variacoes": (string)[] }; Returns: undefined
+                           },
 "variacao_por_codigo":
 { Args: { "p_codigo": string }; Returns: string
                            }
           }
           Enums: {
-            "papel_usuario": "administrador"|"funcionario","tipo_venda": "unidade"|"peso"
+            "papel_usuario": "administrador"|"funcionario","situacao_solicitacao": "pendente"|"aprovada"|"recusada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno","tipo_venda": "unidade"|"peso"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -484,7 +657,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "papel_usuario": ["administrador", "funcionario"],"tipo_venda": ["unidade", "peso"]
+            "papel_usuario": ["administrador", "funcionario"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno"],"tipo_venda": ["unidade", "peso"]
           }
         }
 } as const
