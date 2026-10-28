@@ -45,6 +45,9 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
       - name: Testes de tela
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        # Como no site de teste com o modo de teste ligado (botões de entrada sem senha).
+        env:
+          ENTRADA_DE_TESTE: "1"
         run: npm run test:e2e
       - name: Guarda o relatório dos testes de tela
         if: failure()
