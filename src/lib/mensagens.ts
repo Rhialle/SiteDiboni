@@ -69,6 +69,7 @@ export const MENSAGENS = {
   unidadeMudou: "A unidade escolhida em “Em” não vale mais. Recarregue a página e confira.",
   xmlGrande: "O arquivo precisa ter até 4 MB.",
   xmlDemais: "Escolha até 50 arquivos por vez.",
+  xmlNenhum: "Escolha pelo menos um arquivo XML.",
   notaRepetida: "Esta nota já foi importada.",
   fatorInvalido: "Informe o fator como número inteiro maior que zero.",
   codigoNaoEncontrado: "Nenhuma variação com este código interno ou de barras.",

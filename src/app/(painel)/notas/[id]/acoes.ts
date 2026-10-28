@@ -172,9 +172,13 @@ export async function salvarRecebimento(
   const quantidades = formData.getAll("lote_quantidade").map(String)
   const lotes: { codigo: string; validade: string; quantidade: number }[] = []
   for (const [i, texto] of quantidades.entries()) {
+    const codigo = (codigos[i] ?? "").trim()
+    const validade = (validades[i] ?? "").trim()
+    // Linha acrescentada e deixada em branco: não é lote.
+    if (!codigo && !validade && !texto.trim()) continue
     const quantidade = paraUnidadeBase(texto, fator, 4)
     if (quantidade === null) return falha(mensagemLoteInvalido(i + 1, item.unidade))
-    lotes.push({ codigo: (codigos[i] ?? "").trim(), validade: (validades[i] ?? "").trim(), quantidade })
+    lotes.push({ codigo, validade, quantidade })
   }
 
   const { error } = await supabase.rpc("salvar_recebimento_item", {

@@ -27,6 +27,10 @@ export function ImportarNotas() {
     const arquivos = [...(new FormData(formulario).getAll("arquivos") as File[])].filter((a) => a.size > 0)
     setErro("")
     setResultados([])
+    if (arquivos.length === 0) {
+      setErro(MENSAGENS.xmlNenhum)
+      return
+    }
     if (arquivos.length > MAXIMO_ARQUIVOS) {
       setErro(MENSAGENS.xmlDemais)
       return

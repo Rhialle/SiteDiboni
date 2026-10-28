@@ -31,6 +31,7 @@ Cada arquivo ganha uma linha com o resultado. Um arquivo com problema não atrap
 | **Esta nota já foi importada em 20/10/2026 por Maria.** | A mesma nota (mesma chave de acesso) já está no sistema. |
 | **O arquivo precisa ter até 4 MB.** | Arquivo grande demais. Nota de verdade tem poucos KB: confira se é o arquivo certo. |
 | **Escolha até 50 arquivos por vez.** | Escolha menos arquivos e importe em partes. |
+| **Escolha pelo menos um arquivo XML.** | Você clicou em **Importar notas** sem escolher arquivo. |
 
 Ao lado de cada nota importada há o link **Abrir a nota**.
 
@@ -64,7 +65,7 @@ Embaixo da tabela, cada item novo tem uma caixa **Item N: descrição** com duas
 
 O produto nasce **incompleto** (sem categoria, sem forma de venda e sem preço). Ele já funciona no estoque; complete o cadastro em **Produtos** quando puder. O nome do produto, na tabela da nota, é um link para a ficha dele.
 
-**Trocar a ligação:** enquanto a nota não foi confirmada, um item já ligado tem **Trocar a ligação** embaixo do nome do produto. Use quando o sistema ligou sozinho com o fator errado (por exemplo, a caixa do fornecedor passou de 12 para 24 unidades). A troca vale também para as próximas notas.
+**Trocar a ligação:** enquanto a nota não foi confirmada, um item já ligado tem **Trocar a ligação** embaixo do nome do produto. Use quando o sistema ligou sozinho com o fator errado (por exemplo, a caixa do fornecedor passou de 12 para 24 unidades). A troca vale também para as próximas notas. Ao trocar, o **Recebido** e os lotes daquele item voltam a ser os da nota: confira de novo.
 
 Quando todos os itens estão ligados, a nota passa para **Em revisão**.
 
