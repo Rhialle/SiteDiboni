@@ -26,9 +26,29 @@ Em **Settings** e depois **Environment Variables**:
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | chave publicável do teste | chave publicável da produção |
 | `SUPABASE_SECRET_KEY` | chave secreta do teste | chave secreta da produção |
 
-**Por enquanto, Production usa os mesmos valores do teste**, até existir o banco de produção. Quando ele for criado: aplique o banco nele ("Aplicar banco na produção"), crie o seu usuário nele, troque as 3 variáveis de Production para os valores dele e publique de novo.
+**Por enquanto, Production usa os mesmos valores do teste**, até existir o banco de produção. Quando ele for criado:
+
+1. desligue o modo de teste (abaixo);
+2. aplique o banco nele ("Aplicar banco na produção");
+3. crie o seu usuário nele;
+4. troque as 3 variáveis de Production para os valores dele e publique de novo.
 
 As chaves ficam no Supabase, em **Project Settings** e depois **API Keys**. Depois de mudar variáveis, é preciso publicar de novo (**Deployments**, depois **Redeploy**).
+
+### Modo de teste (entrada sem senha)
+
+Com a variável `ENTRADA_DE_TESTE` valendo `1`:
+
+- a tela **Entrar** ganha os botões **Administrador de teste** e **Funcionária de teste**, que entram sem senha e sem código, em contas de teste (`admin.teste@diboni.test` e `funcionaria.teste@diboni.test`);
+- o painel mostra uma faixa avisando que o modo está ligado.
+
+Qualquer pessoa que souber o endereço entra como administrador. Por isso:
+
+- com o modo ligado, **não cadastre dados reais da loja** (nem notas fiscais reais);
+- **desligue antes de a loja usar de verdade**: apague a variável (ou troque para `0`) em Production e Preview e publique de novo (**Redeploy**). Os botões somem;
+- **nunca** ligue o modo depois que Production estiver apontando para o banco de produção.
+
+Para ligar: em **Environment Variables**, crie `ENTRADA_DE_TESTE` com o valor `1`, marque **Production** e **Preview**, salve e publique de novo.
 
 ## GitHub
 

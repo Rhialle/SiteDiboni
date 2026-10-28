@@ -18,6 +18,8 @@ O princípio que guia tudo: **um estoque só, compartilhado entre o site e o bal
 
 Cada fase só começa depois que a anterior estiver pronta e aprovada. A nota fiscal pode vir antes da fase 4 se o contador recomendar; o cadastro já guarda os dados fiscais desde a fase 1.
 
+> **Modo de teste:** enquanto a variável `ENTRADA_DE_TESTE=1` estiver na Vercel, a tela de entrar tem botões que entram **sem senha** como administrador ou funcionária de teste. Qualquer pessoa com o endereço entra. Desligue antes de a loja usar de verdade (veja o manual de configuração).
+
 > **Atenção:** por enquanto, o site principal (https://diboni-psi.vercel.app) usa o **banco de teste**. Até existir o banco de produção, **não cadastre dados reais da loja**. O banco de produção (Supabase Pro) será criado antes de a loja começar a usar o sistema de verdade; a troca é só apontar as 3 variáveis de Production da Vercel para ele (veja o manual de configuração).
 
 ## Decisões tomadas
