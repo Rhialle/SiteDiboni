@@ -10,6 +10,8 @@ const POR_RESTRICAO: Record<string, string> = {
   movimentacoes_estorno_de_key: MENSAGENS.jaEstornada,
   faixas_preco_quantidade_key: MENSAGENS.faixaRepetida,
   compatibilidades_par_key: MENSAGENS.compatibilidadeRepetida,
+  // Duas pessoas importando a mesma nota ao mesmo tempo: a segunda esbarra no índice único.
+  notas_entrada_chave_key: MENSAGENS.notaRepetida,
   produto_categorias_categoria_id_fkey: MENSAGENS.categoriaEmUso,
   categorias_categoria_pai_id_fkey: MENSAGENS.categoriaEmUso,
   produto_etiquetas_etiqueta_id_fkey: MENSAGENS.materialEmUso,

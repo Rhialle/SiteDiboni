@@ -67,6 +67,9 @@ export const MENSAGENS = {
   nenhumAviso: "Nenhum aviso.",
   tipoPerdaInvalido: "Escolha o tipo: perda, quebra ou ajuste.",
   unidadeMudou: "A unidade escolhida em “Em” não vale mais. Recarregue a página e confira.",
+  xmlGrande: "O arquivo precisa ter até 4 MB.",
+  xmlDemais: "Escolha até 50 arquivos por vez.",
+  notaRepetida: "Esta nota já foi importada.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -79,6 +82,13 @@ export function mensagemReajuste(produtos: number): string {
 
 export function mensagemGradeCriada(variacoes: number): string {
   return variacoes === 0 ? MENSAGENS.gradeSemNovidade : `${variacoes} variação(ões) criada(s).`
+}
+
+export function mensagemNotaImportada(numero: string, fornecedor: string, semLigacao: number): string {
+  const inicio = `Nota ${numero} de ${fornecedor}: importada`
+  return semLigacao === 0
+    ? `${inicio}, pronta para revisar.`
+    : `${inicio}, aguardando o administrador ligar ${semLigacao} item(ns).`
 }
 
 export function mensagemPendencias(itens: string[]): string {
