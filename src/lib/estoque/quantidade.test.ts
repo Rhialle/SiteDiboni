@@ -19,6 +19,12 @@ describe("paraUnidadeBase", () => {
     expect(paraUnidadeBase("0,5", 1000, 3)).toBe(500)
   })
 
+  it("aceita até 4 casas, como a quantidade da nota (2,5 CX × 100)", () => {
+    expect(paraUnidadeBase("2,5", 100, 4)).toBe(250)
+    expect(paraUnidadeBase("0,3333", 3, 4)).toBeNull()
+    expect(paraUnidadeBase("1,25005", 1000, 4)).toBeNull()
+  })
+
   it("recusa casas demais, fração onde não cabe, zero e texto", () => {
     expect(paraUnidadeBase("1,2505", 1000, 3)).toBeNull()
     expect(paraUnidadeBase("2,5", 1, 0)).toBeNull()

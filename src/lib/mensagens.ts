@@ -75,6 +75,10 @@ export const MENSAGENS = {
   itemLigado: "Item ligado.",
   produtoCriadoELigado: "Produto criado e item ligado. Complete o cadastro dele em Produtos.",
   produtoCriadoSemLigacao: "O produto foi criado mesmo assim: ligue o item pelo código interno, sem criar de novo.",
+  itemSemLigacao: "Este item ainda não está ligado: o administrador precisa ligá-lo.",
+  recebimentoSalvo: "Recebimento salvo.",
+  notaConfirmada: "Nota confirmada: o estoque foi atualizado.",
+  notaDescartada: "Nota descartada.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -103,6 +107,15 @@ export function mensagemFatorNaoInteiro(
   fator: number,
 ): string {
   return `Item ${item.numero} (${item.descricao}): ${quantidade} ${item.unidade} × ${fator} não dá quantidade inteira. Confira o fator.`
+}
+
+// O recebido e os lotes são digitados na unidade da nota; vezes o fator precisa dar inteiro (R6).
+export function mensagemRecebidoInvalido(unidade: string): string {
+  return `Informe o recebido em ${unidade}, com até 4 casas (vezes o fator precisa dar quantidade inteira).`
+}
+
+export function mensagemLoteInvalido(lote: number, unidade: string): string {
+  return `Lote ${lote}: informe a quantidade em ${unidade}, maior que zero e com até 4 casas (vezes o fator precisa dar quantidade inteira).`
 }
 
 export function mensagemPendencias(itens: string[]): string {

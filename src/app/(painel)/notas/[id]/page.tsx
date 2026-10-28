@@ -11,9 +11,15 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import { formatarCnpj } from "@/lib/validacao/cnpj"
 
 import { CriarProdutoDoItem, LigarItem } from "./ligar-item"
+import { AcoesDaNota, Recebimento } from "./recebimento"
 
 // Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
 export const instant = false
+
+// Unidades base de volta para a unidade da nota (2500 un ÷ 1000 = "2,5" CX), para os campos.
+function naUnidadeDaNota(base: number, fator: number): string {
+  return quantidadeDaNota((base / fator).toFixed(4))
+}
 
 export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
   const usuario = await exigirUsuario()
@@ -30,7 +36,7 @@ export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
     supabase
       .from("notas_entrada_itens")
       .select(
-        "id, numero_item, codigo_fornecedor, descricao, codigo_barras, ncm, unidade, quantidade_nota, rastro, fator, variacoes(id, nome, codigo_interno, produtos(id, nome, tipo_venda))",
+        "id, numero_item, codigo_fornecedor, descricao, codigo_barras, ncm, unidade, quantidade_nota, rastro, fator, quantidade_base_recebida, notas_entrada_item_lotes(codigo_lote, validade, quantidade_base), variacoes(id, nome, codigo_interno, produtos(id, nome, tipo_venda, controla_validade))",
       )
       .eq("nota_id", id)
       .order("numero_item"),
@@ -45,6 +51,9 @@ export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
   const aberta = nota.situacao === "em_revisao" || nota.situacao === "aguardando_administrador"
   const nomes = new Map((usuariosR.data ?? []).map((u) => [u.id, u.nome]))
   const semLigacao = itens.filter((item) => !item.variacoes)
+  const ligados = itens.flatMap((item) =>
+    item.variacoes && item.fator ? [{ ...item, variacao: item.variacoes, fator: item.fator }] : [],
+  )
 
   // Valores só para o administrador (a tabela também só abre para ele). A sugestão de ligação é a
   // variação com o mesmo código de barras do XML.
@@ -98,6 +107,7 @@ export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
               <th className="px-3 py-2 font-medium">Descrição</th>
               <th className="px-3 py-2 font-medium">Quantidade</th>
               <th className="px-3 py-2 font-medium">Ligação</th>
+              <th className="px-3 py-2 font-medium">Recebido</th>
               {administrador ? (
                 <>
                   <th className="px-3 py-2 font-medium">Custo total</th>
@@ -133,6 +143,11 @@ export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
                         <span className="text-xs text-muted-foreground">
                           1 {item.unidade} = {formatarQuantidade(item.fator, variacao.produtos.tipo_venda)}
                         </span>
+                        {nota.situacao === "confirmada" ? (
+                          <Link href={`/estoque/${variacao.id}`} className="text-xs underline-offset-4 hover:underline">
+                            Ver estoque
+                          </Link>
+                        ) : null}
                         {administrador && aberta ? (
                           <details className="text-xs">
                             <summary className="cursor-pointer text-muted-foreground">Trocar a ligação</summary>
@@ -153,6 +168,11 @@ export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
                     ) : (
                       <span className="text-muted-foreground">Aguardando o administrador ligar este item</span>
                     )}
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap tabular-nums">
+                    {variacao && item.quantidade_base_recebida !== null
+                      ? formatarQuantidade(item.quantidade_base_recebida, variacao.produtos.tipo_venda)
+                      : "—"}
                   </td>
                   {administrador ? (
                     <>
@@ -215,6 +235,46 @@ export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
             )
           })
         : null}
+
+      {aberta && ligados.length > 0 ? (
+        <section aria-labelledby="recebimento-titulo" className="vidro flex flex-col gap-4 rounded-3xl p-5">
+          <div className="flex flex-col gap-1">
+            <h2 id="recebimento-titulo" className="text-xl font-semibold">
+              Recebimento
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Confira o que chegou. Se veio menos, mude o Recebido (na unidade da nota) e salve antes de confirmar.
+            </p>
+          </div>
+          {ligados.map((item) => (
+            <div key={item.id} className="flex flex-col gap-2 border-t pt-4 first-of-type:border-t-0 first-of-type:pt-0">
+              <h3 className="font-semibold">
+                Item {item.numero_item}: {item.variacao.produtos.nome} – {item.variacao.nome}
+              </h3>
+              {/* Trocar a ligação muda o fator: os campos recomeçam com as quantidades novas. */}
+              <Recebimento
+                key={`${item.variacao.id}-${item.fator}`}
+                notaId={nota.id}
+                itemId={item.id}
+                numero={item.numero_item}
+                unidade={item.unidade}
+                recebido={naUnidadeDaNota(item.quantidade_base_recebida ?? 0, item.fator)}
+                controlaValidade={item.variacao.produtos.controla_validade}
+                lotes={[...item.notas_entrada_item_lotes]
+                  .sort((a, b) => (a.validade ?? "9999-12-31").localeCompare(b.validade ?? "9999-12-31"))
+                  .map((lote) => ({
+                    codigo: lote.codigo_lote ?? "",
+                    validade: lote.validade ?? "",
+                    quantidade: naUnidadeDaNota(lote.quantidade_base, item.fator),
+                  }))}
+              />
+            </div>
+          ))}
+        </section>
+      ) : null}
+
+      {/* Fica sempre na página: a mensagem de confirmada ou descartada continua à vista. */}
+      <AcoesDaNota notaId={nota.id} emRevisao={nota.situacao === "em_revisao"} aberta={aberta} />
 
       <nav className="flex flex-wrap gap-2">
         <Link href="/notas" className="link-pilula">

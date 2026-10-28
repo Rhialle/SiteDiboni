@@ -2,11 +2,17 @@
 
 import { revalidatePath } from "next/cache"
 
-import { exigirAdministrador } from "@/lib/auth/sessao"
+import { exigirAdministrador, exigirUsuario } from "@/lib/auth/sessao"
 import { mensagemDoErroDoBanco } from "@/lib/catalogo/erros"
 import { gtinValido } from "@/lib/catalogo/gtin"
 import { colunasDoProduto, problemaDosCamposDoProduto, type CamposDoProduto } from "@/lib/catalogo/produto-form"
-import { MENSAGENS, mensagemFatorNaoInteiro } from "@/lib/mensagens"
+import { paraUnidadeBase } from "@/lib/estoque/quantidade"
+import {
+  MENSAGENS,
+  mensagemFatorNaoInteiro,
+  mensagemLoteInvalido,
+  mensagemRecebidoInvalido,
+} from "@/lib/mensagens"
 import { daInteiro, lerFator, quantidadeDaNota } from "@/lib/notas/fator"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
@@ -132,4 +138,74 @@ export async function criarProdutoDoItem(
   revalidarNota(notaId)
   revalidatePath("/produtos")
   return { erro: "", sucesso: MENSAGENS.produtoCriadoELigado, valores: null }
+}
+
+// "0" vale (o item não chegou); o resto segue a conversão do estoque, com até 4 casas como na nota.
+function recebidoParaBase(texto: string, fator: number): number | null {
+  if (/^0+(,0+)?$/.test(texto.trim())) return 0
+  return paraUnidadeBase(texto, fator, 4)
+}
+
+export async function salvarRecebimento(
+  notaId: string,
+  itemId: string,
+  _estado: EstadoLigacao,
+  formData: FormData,
+): Promise<EstadoLigacao> {
+  await exigirUsuario()
+  const falha = (erro: string): EstadoLigacao => ({ erro, sucesso: "", valores: null })
+
+  const supabase = await criarClienteServidor()
+  const { data: item } = await supabase
+    .from("notas_entrada_itens")
+    .select("numero_item, descricao, unidade, fator")
+    .eq("id", itemId)
+    .maybeSingle()
+  if (!item?.fator) return falha(MENSAGENS.itemSemLigacao)
+  const fator = item.fator
+
+  const recebido = recebidoParaBase(String(formData.get("recebido") ?? ""), fator)
+  if (recebido === null) return falha(mensagemRecebidoInvalido(item.unidade))
+
+  const codigos = formData.getAll("lote_codigo").map(String)
+  const validades = formData.getAll("lote_validade").map(String)
+  const quantidades = formData.getAll("lote_quantidade").map(String)
+  const lotes: { codigo: string; validade: string; quantidade: number }[] = []
+  for (const [i, texto] of quantidades.entries()) {
+    const quantidade = paraUnidadeBase(texto, fator, 4)
+    if (quantidade === null) return falha(mensagemLoteInvalido(i + 1, item.unidade))
+    lotes.push({ codigo: (codigos[i] ?? "").trim(), validade: (validades[i] ?? "").trim(), quantidade })
+  }
+
+  const { error } = await supabase.rpc("salvar_recebimento_item", {
+    p_item: itemId,
+    p_quantidade_recebida: recebido,
+    p_lotes: lotes,
+  })
+  if (error) return falha(mensagemDoErroDoBanco(error))
+
+  revalidarNota(notaId)
+  return { erro: "", sucesso: MENSAGENS.recebimentoSalvo, valores: null }
+}
+
+type ResultadoDaNota = { erro: string; sucesso: string }
+
+export async function confirmarNota(notaId: string): Promise<ResultadoDaNota> {
+  await exigirUsuario()
+  const supabase = await criarClienteServidor()
+  const { error } = await supabase.rpc("confirmar_nota", { p_nota: notaId })
+  if (error) return { erro: mensagemDoErroDoBanco(error), sucesso: "" }
+  revalidarNota(notaId)
+  for (const caminho of ["/estoque", "/alertas", "/inicio"]) revalidatePath(caminho)
+  return { erro: "", sucesso: MENSAGENS.notaConfirmada }
+}
+
+export async function descartarNota(notaId: string): Promise<ResultadoDaNota> {
+  await exigirUsuario()
+  const supabase = await criarClienteServidor()
+  const { error } = await supabase.rpc("descartar_nota", { p_nota: notaId })
+  if (error) return { erro: mensagemDoErroDoBanco(error), sucesso: "" }
+  revalidarNota(notaId)
+  revalidatePath("/inicio")
+  return { erro: "", sucesso: MENSAGENS.notaDescartada }
 }
