@@ -705,11 +705,20 @@ isOneToOne: false
 "conferir_integridade_estoque":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
+"conferir_lotes_item":
+{ Args: { "p_item": string }; Returns: undefined
+                           },
+"confirmar_nota":
+{ Args: { "p_nota": string }; Returns: undefined
+                           },
 "criar_produto":
 { Args: { "dados": Json }; Returns: string
                            },
 "decidir_solicitacao":
 { Args: { "p_aprovar": boolean,"p_solicitacao": number }; Returns: undefined
+                           },
+"descartar_nota":
+{ Args: { "p_nota": string }; Returns: undefined
                            },
 "eh_administrador":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -737,6 +746,9 @@ isOneToOne: false
                            },
 "importar_nota":
 { Args: { "dados": Json }; Returns: string
+                           },
+"ligar_item_nota":
+{ Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
                            },
 "lote_geral":
 { Args: { "p_variacao": string }; Returns: string
@@ -770,6 +782,30 @@ isOneToOne: false
               "lote_id": string,"quantidade": number
             }[]
                            },
+"salvar_recebimento_item":
+{ Args: { "p_item": string,"p_lotes": Json,"p_quantidade_recebida": number }; Returns: undefined
+                           },
+"travar_nota_aberta":
+{ Args: { "p_nota": string }; Returns: {
+              "caminho_xml": string,
+"chave_acesso": string,
+"confirmada_em": string | null,
+"confirmada_por": string | null,
+"emitida_em": string,
+"fornecedor_id": string,
+"id": string,
+"importada_em": string,
+"importada_por": string,
+"numero": string,
+"serie": string,
+"situacao": Database["public"]['Enums']["situacao_nota"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "notas_entrada"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "travar_saldos":
 { Args: { "p_variacoes": (string)[] }; Returns: undefined
                            },
