@@ -678,6 +678,9 @@ isOneToOne: false
 "alterar_inativo_em_massa":
 { Args: { "p_inativo": boolean,"p_produtos": (string)[] }; Returns: number
                            },
+"aplicar_ligacao_item":
+{ Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
+                           },
 "atualizar_produto":
 { Args: { "dados": Json,"p_produto": string }; Returns: undefined
                            },
@@ -732,6 +735,9 @@ isOneToOne: false
 "hoje_sp":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"importar_nota":
+{ Args: { "dados": Json }; Returns: string
+                           },
 "lote_geral":
 { Args: { "p_variacao": string }; Returns: string
                            },
@@ -746,6 +752,9 @@ isOneToOne: false
                            },
 "proximo_codigo_interno":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"quantidade_para_mensagem":
+{ Args: { "p_quantidade": number }; Returns: string
                            },
 "reajustar_precos":
 { Args: { "p_percentual": number,"p_produtos": (string)[] }; Returns: number
