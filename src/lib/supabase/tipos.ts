@@ -173,6 +173,12 @@ isOneToOne: false
       foreignKeyName: "fornecedor_itens_fornecedor_id_fkey"
       columns: ["fornecedor_id"]
 isOneToOne: false
+      referencedRelation: "divergencias_fornecedor"
+      referencedColumns: ["fornecedor_id"]
+    },{
+      foreignKeyName: "fornecedor_itens_fornecedor_id_fkey"
+      columns: ["fornecedor_id"]
+isOneToOne: false
       referencedRelation: "fornecedores"
       referencedColumns: ["id"]
     },{
@@ -349,6 +355,12 @@ isOneToOne: true
       foreignKeyName: "notas_entrada_fornecedor_id_fkey"
       columns: ["fornecedor_id"]
 isOneToOne: false
+      referencedRelation: "divergencias_fornecedor"
+      referencedColumns: ["fornecedor_id"]
+    },{
+      foreignKeyName: "notas_entrada_fornecedor_id_fkey"
+      columns: ["fornecedor_id"]
+isOneToOne: false
       referencedRelation: "fornecedores"
       referencedColumns: ["id"]
     }
@@ -386,6 +398,12 @@ isOneToOne: false
                   }
                   Relationships: [
                     {
+      foreignKeyName: "notas_entrada_itens_nota_id_fkey"
+      columns: ["nota_id"]
+isOneToOne: false
+      referencedRelation: "divergencias_fornecedor"
+      referencedColumns: ["nota_id"]
+    },{
       foreignKeyName: "notas_entrada_itens_nota_id_fkey"
       columns: ["nota_id"]
 isOneToOne: false
@@ -624,7 +642,15 @@ isOneToOne: false
                 }
           }
           Views: {
-            "extrato_movimentacoes": {
+            "divergencias_fornecedor": {
+                  Row: {
+                    "cnpj": string,"confirmada_em": string | null,"descricao": string,"diferenca": number | null,"emitida_em": string,"fornecedor": string,"fornecedor_id": string,"nota_id": string,"numero": string,"numero_item": number,"produto": string,"quantidade_base_nota": number | null,"quantidade_base_recebida": number | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"unidade": string,"variacao": string
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                },"extrato_movimentacoes": {
                   Row: {
                     "aprovado_por_nome": string | null,"codigo_interno": string,"criado_em": string,"estornada": boolean | null,"estorno_de": number | null,"id": number,"lote": string | null,"lote_id": string,"motivo": string,"origem": string | null,"origem_id": string | null,"produto": string,"produto_id": string,"quantidade": number,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"tipo_venda": Database["public"]['Enums']["tipo_venda"],"usuario": string | null,"validade": string | null,"variacao": string,"variacao_id": string
                   }
@@ -686,7 +712,7 @@ isOneToOne: false
                            },
 "avisos_inicio":
 { Args: Record<PropertyKey, never>; Returns: {
-              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
+              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"notas_aguardando": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
             }[]
                            },
 "buscar_estoque":
