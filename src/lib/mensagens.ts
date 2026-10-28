@@ -95,22 +95,43 @@ export type ContagensDoInicio = {
   conferencia_divergencias: number | null
 }
 
-// Avisos do Início: um por contagem maior que zero. A conferência só aparece quando achou diferença.
-export function avisosDoInicio(c: ContagensDoInicio): { texto: string; link: string | null }[] {
-  const avisos: { texto: string; link: string | null }[] = []
-  if (c.vencendo > 0) avisos.push({ texto: `${c.vencendo} lote(s) vencem em até ${c.faixa_maior} dias`, link: "/alertas" })
-  if (c.vencidos > 0) avisos.push({ texto: `${c.vencidos} lote(s) vencidos com saldo`, link: "/alertas" })
+export type AvisoDoInicio = {
+  tipo: "vencidos" | "vencendo" | "abaixoDoMinimo" | "solicitacoes" | "conferencia"
+  // Número em destaque na carta e o texto que vem depois dele; a conferência não tem número.
+  quantidade: number | null
+  resto: string
+  texto: string
+  link: string | null
+}
+
+function avisoDeContagem(
+  tipo: AvisoDoInicio["tipo"],
+  quantidade: number,
+  resto: string,
+  link: string,
+): AvisoDoInicio {
+  return { tipo, quantidade, resto, texto: `${quantidade} ${resto}`, link }
+}
+
+// Avisos do Início, do mais urgente para o menos: um por contagem maior que zero.
+// A conferência só aparece quando achou diferença.
+export function avisosDoInicio(c: ContagensDoInicio): AvisoDoInicio[] {
+  const avisos: AvisoDoInicio[] = []
+  if (c.vencidos > 0) avisos.push(avisoDeContagem("vencidos", c.vencidos, "lote(s) vencidos com saldo", "/alertas"))
+  if (c.vencendo > 0) {
+    avisos.push(avisoDeContagem("vencendo", c.vencendo, `lote(s) vencem em até ${c.faixa_maior} dias`, "/alertas"))
+  }
   if (c.abaixo_minimo > 0) {
-    avisos.push({ texto: `${c.abaixo_minimo} variação(ões) abaixo do estoque mínimo`, link: "/alertas" })
+    avisos.push(avisoDeContagem("abaixoDoMinimo", c.abaixo_minimo, "variação(ões) abaixo do estoque mínimo", "/alertas"))
   }
   if (c.solicitacoes_pendentes > 0) {
-    avisos.push({ texto: `${c.solicitacoes_pendentes} solicitação(ões) pendente(s)`, link: "/estoque/solicitacoes" })
+    avisos.push(
+      avisoDeContagem("solicitacoes", c.solicitacoes_pendentes, "solicitação(ões) pendente(s)", "/estoque/solicitacoes"),
+    )
   }
   if (c.conferencia_em && c.conferencia_divergencias) {
-    avisos.push({
-      texto: `A conferência de ${formatarData(c.conferencia_em)} achou ${c.conferencia_divergencias} diferença(s) entre saldo e movimentações.`,
-      link: null,
-    })
+    const texto = `A conferência de ${formatarData(c.conferencia_em)} achou ${c.conferencia_divergencias} diferença(s) entre saldo e movimentações.`
+    avisos.push({ tipo: "conferencia", quantidade: null, resto: texto, texto, link: null })
   }
   return avisos
 }

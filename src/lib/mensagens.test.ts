@@ -17,21 +17,46 @@ describe("avisosDoInicio", () => {
     expect(avisosDoInicio(SEM_NADA)).toEqual([])
   })
 
-  it("monta um aviso por contagem maior que zero, com o link certo", () => {
+  it("monta um aviso por contagem maior que zero, do mais urgente para o menos, com o link certo", () => {
     expect(
       avisosDoInicio({ ...SEM_NADA, vencendo: 2, vencidos: 1, abaixo_minimo: 3, solicitacoes_pendentes: 4 }),
     ).toEqual([
-      { texto: "2 lote(s) vencem em até 30 dias", link: "/alertas" },
-      { texto: "1 lote(s) vencidos com saldo", link: "/alertas" },
-      { texto: "3 variação(ões) abaixo do estoque mínimo", link: "/alertas" },
-      { texto: "4 solicitação(ões) pendente(s)", link: "/estoque/solicitacoes" },
+      {
+        tipo: "vencidos",
+        quantidade: 1,
+        resto: "lote(s) vencidos com saldo",
+        texto: "1 lote(s) vencidos com saldo",
+        link: "/alertas",
+      },
+      {
+        tipo: "vencendo",
+        quantidade: 2,
+        resto: "lote(s) vencem em até 30 dias",
+        texto: "2 lote(s) vencem em até 30 dias",
+        link: "/alertas",
+      },
+      {
+        tipo: "abaixoDoMinimo",
+        quantidade: 3,
+        resto: "variação(ões) abaixo do estoque mínimo",
+        texto: "3 variação(ões) abaixo do estoque mínimo",
+        link: "/alertas",
+      },
+      {
+        tipo: "solicitacoes",
+        quantidade: 4,
+        resto: "solicitação(ões) pendente(s)",
+        texto: "4 solicitação(ões) pendente(s)",
+        link: "/estoque/solicitacoes",
+      },
     ])
   })
 
   it("a conferência só aparece quando achou diferença", () => {
     expect(avisosDoInicio({ ...SEM_NADA, conferencia_em: "2026-10-27T09:00:00Z", conferencia_divergencias: 0 })).toEqual([])
+    const texto = "A conferência de 27/10/2026 achou 2 diferença(s) entre saldo e movimentações."
     expect(avisosDoInicio({ ...SEM_NADA, conferencia_em: "2026-10-27T09:00:00Z", conferencia_divergencias: 2 })).toEqual([
-      { texto: "A conferência de 27/10/2026 achou 2 diferença(s) entre saldo e movimentações.", link: null },
+      { tipo: "conferencia", quantidade: null, resto: texto, texto, link: null },
     ])
   })
 })

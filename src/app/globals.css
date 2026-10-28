@@ -7,22 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-rubik), system-ui, sans-serif;
+  --font-heading: var(--font-rubik), system-ui, sans-serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,6 +25,20 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Cores da Di Boni (logo e Instagram) e as quatro cores de festa. */
+  --color-uva: var(--uva);
+  --color-magenta: var(--magenta);
+  --color-magenta-clara: var(--magenta-clara);
+  --color-ameixa: var(--ameixa);
+  --color-tinta: var(--tinta);
+  --color-tinta-suave: var(--tinta-suave);
+  --color-lilas: var(--lilas);
+  --color-sol: var(--sol);
+  --color-coral: var(--coral);
+  --color-azul: var(--azul);
+  --color-menta: var(--menta);
+  --ease-mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,82 +49,241 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --uva: #5b1f8e;
+  --magenta: #a62c93;
+  --magenta-clara: #c13fa6;
+  --ameixa: #6e1a63;
+  --tinta: #111a53;
+  --tinta-suave: #4a5180;
+  --lilas: #f1eaf9;
+  --sol: #ffc83d;
+  --coral: #f2545b;
+  --azul: #4a8bef;
+  --menta: #1db37a;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #f6f3fc;
+  --foreground: var(--tinta);
+  --card: rgb(255 255 255 / 0.66);
+  --card-foreground: var(--tinta);
+  --popover: #ffffff;
+  --popover-foreground: var(--tinta);
+  --primary: var(--magenta);
+  --primary-foreground: #ffffff;
+  --secondary: var(--lilas);
+  --secondary-foreground: var(--tinta);
+  --muted: var(--lilas);
+  --muted-foreground: var(--tinta-suave);
+  --accent: var(--lilas);
+  --accent-foreground: var(--tinta);
+  --destructive: #c93139;
+  --border: rgb(17 26 83 / 0.12);
+  --input: #d9d3e8;
+  --ring: var(--magenta);
+  --radius: 0.875rem;
+
+  /* Vidro fosco: o fundo de festa aparece desfocado por trás. */
+  --vidro: rgb(255 255 255 / 0.64);
+  --vidro-borda: rgb(255 255 255 / 0.78);
+  --sombra-vidro: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 2px rgb(17 26 83 / 0.06),
+    0 18px 40px -16px rgb(17 26 83 / 0.28);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    scrollbar-color: #c9bde3 transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  ::selection {
+    background: rgb(166 44 147 / 0.22);
+    color: var(--tinta);
+  }
+  input,
+  textarea,
+  select {
+    caret-color: var(--magenta);
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--magenta);
+  }
+  :focus-visible {
+    outline: 3px solid rgb(166 44 147 / 0.45);
+    outline-offset: 2px;
+  }
+  /* Tabelas legíveis sobre o fundo de festa. */
+  table {
+    background-color: rgb(255 255 255 / 0.72);
+  }
+}
+
+@layer components {
+  .vidro {
+    background: var(--vidro);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--vidro-borda);
+    box-shadow: var(--sombra-vidro);
+  }
+
+  /* Vidro violeta do menu e da barra do celular. */
+  .vidro-uva {
+    color: #fff;
+    background: linear-gradient(180deg, rgb(74 22 122 / 0.82), rgb(112 32 134 / 0.76));
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    backdrop-filter: blur(26px) saturate(160%);
+  }
+
+  /* Botão de jogo: a base afunda quando a pessoa clica. */
+  .botao-jogo {
+    --labio: var(--ameixa);
+    --brilho: rgb(166 44 147 / 0.5);
+    --altura-labio: 4px;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 var(--altura-labio) 0 var(--labio),
+      0 12px 20px -10px var(--brilho);
+    transition:
+      transform 0.14s var(--ease-suave),
+      box-shadow 0.14s var(--ease-suave),
+      filter 0.2s;
+  }
+  .botao-jogo[data-size="xs"],
+  .botao-jogo[data-size="sm"],
+  .botao-jogo[data-size="icon-xs"],
+  .botao-jogo[data-size="icon-sm"] {
+    --altura-labio: 3px;
+  }
+  .botao-jogo:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  .botao-jogo:active:not(:disabled) {
+    transform: translateY(var(--altura-labio));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), 0 0 0 var(--labio), 0 4px 8px -6px var(--brilho);
+    transition-duration: 0.06s;
+  }
+  .botao-claro {
+    --labio: rgb(17 26 83 / 0.16);
+    --brilho: rgb(17 26 83 / 0.22);
+    box-shadow: inset 0 0 0 1.5px rgb(17 26 83 / 0.12), 0 var(--altura-labio) 0 var(--labio),
+      0 12px 20px -12px var(--brilho);
+  }
+  .botao-claro:active:not(:disabled) {
+    box-shadow: inset 0 0 0 1.5px rgb(17 26 83 / 0.18), 0 0 0 var(--labio);
+  }
+  .botao-perigo {
+    --labio: #8a1d23;
+    --brilho: rgb(201 49 57 / 0.5);
+  }
+
+  /* Ícone com degradê e brilho, como peça de jogo. */
+  .icone-jogo {
+    display: grid;
+    place-items: center;
+    flex: none;
+    color: #fff;
+    background: linear-gradient(150deg, var(--i1), var(--i2) 55%, var(--i3));
+    box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 0.55), inset 0 -2px 0 rgb(0 0 0 / 0.12),
+      0 8px 16px -8px var(--i2);
+  }
+  .icone-coral {
+    --i1: #ff9da1;
+    --i2: var(--coral);
+    --i3: #c42f37;
+  }
+  .icone-sol {
+    --i1: #ffe39a;
+    --i2: var(--sol);
+    --i3: #e09a12;
+    color: var(--tinta);
+  }
+  .icone-azul {
+    --i1: #a9caff;
+    --i2: var(--azul);
+    --i3: #2a5fc0;
+  }
+  .icone-magenta {
+    --i1: #e27fcd;
+    --i2: var(--magenta);
+    --i3: #6e1a63;
+  }
+
+  .forma {
+    position: absolute;
+    display: block;
+    will-change: transform;
+    transform: rotate(var(--r, 0deg));
+  }
+  .forma svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 18px rgb(17 26 83 / 0.18));
+  }
+  .forma-viva {
+    animation: flutuar var(--d, 18s) ease-in-out infinite alternate;
+  }
+
+  .entra-com-mola {
+    animation: surgir 0.8s var(--ease-mola) backwards;
+    animation-delay: calc(var(--i, 0) * 90ms + 100ms);
+  }
+  .chega-com-mola {
+    animation: surgir 0.9s var(--ease-mola) 0.15s backwards;
+  }
+  .boia {
+    animation: boiar 4.2s ease-in-out infinite;
+    transform-origin: 50% 90%;
+  }
+}
+
+@keyframes flutuar {
+  from {
+    transform: translate(0, 0) rotate(var(--r, 0deg));
+  }
+  to {
+    transform: translate(var(--dx, 14px), var(--dy, -18px)) rotate(calc(var(--r, 0deg) + var(--giro, 10deg)));
+  }
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes boiar {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

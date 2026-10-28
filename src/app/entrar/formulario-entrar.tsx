@@ -32,7 +32,7 @@ export function FormularioEntrar({ aviso }: { aviso?: string }) {
       </Button>
       <Link
         href="/recuperar-senha"
-        className="text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+        className="text-center text-sm font-medium text-tinta underline underline-offset-4 transition-colors hover:text-magenta"
       >
         Esqueci minha senha
       </Link>
