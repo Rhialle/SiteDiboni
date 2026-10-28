@@ -238,3 +238,106 @@ test("funcionária vê a nota sem valores e sem os botões de ligar", async ({ p
   await expect(page.getByRole("button", { name: "Ligar" })).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Criar produto e ligar" })).toHaveCount(0)
 })
+
+// --- Recebimento, lotes, confirmação e descarte (Task 8) ---
+
+const TAMPA = "TAMPA PARA POTE 250ML"
+
+// Importa a nota com lote e liga os três itens: Forminha (1 CX = 1.000 un), Granulado por peso com
+// validade (1 KG = 1.000 g, lotes L1 e L2 do XML) e Tampa (1 UN = 1 un). A nota fica Em revisão.
+async function prepararNotaComLoteLigada(page: Page, xml = modeloXml("nota-com-lote.xml")) {
+  const forminha = await criarProdutoTeste({ nome: "Forminha Teste" })
+  const granulado = await criarProdutoTeste({ nome: "Granulado Teste", tipo_venda: "peso", controla_validade: true })
+  const tampa = await criarProdutoTeste({ nome: "Tampa Teste" })
+  await entrarComoAdministrador(page, DONA)
+  await importar(page, [arquivo("nota-com-lote.xml", xml)])
+  await abrirNota(page, "nota-com-lote.xml")
+  await ligarPorCodigo(page, 1, FORMINHA, "1000", await codigoInternoDe(forminha.variacaoId))
+  await expect(linhaDoItem(page, FORMINHA)).toContainText("1 CX = 1.000 un")
+  await ligarPorCodigo(page, 2, GRANULADO, "1000", await codigoInternoDe(granulado.variacaoId))
+  await expect(linhaDoItem(page, GRANULADO)).toContainText("1 KG = 1.000 g")
+  await ligarPorCodigo(page, 3, TAMPA, "1", await codigoInternoDe(tampa.variacaoId))
+  await expect(situacaoNaTela(page, "Em revisão")).toBeVisible()
+  return { forminha, granulado, tampa }
+}
+
+const recebimento = (page: Page, numero: number) => page.getByRole("form", { name: `Recebimento do item ${numero}` })
+const mensagemNaTela = (page: Page, texto: string) => page.getByText(texto).filter({ visible: true })
+
+async function clicarConfirmando(page: Page, botao: string) {
+  page.once("dialog", (dialogo) => dialogo.accept())
+  await page.getByRole("button", { name: botao }).click()
+}
+
+test("importar, revisar e confirmar: o saldo da Forminha e os lotes do Granulado aparecem no estoque", async ({ page }) => {
+  const { granulado } = await prepararNotaComLoteLigada(page)
+
+  // O recebimento já vem com a quantidade da nota e os lotes do XML, na unidade da nota.
+  await expect(recebimento(page, 1).getByLabel("Recebido")).toHaveValue("2,5")
+  await expect(recebimento(page, 2).getByLabel("Recebido")).toHaveValue("2")
+  await expect(recebimento(page, 2).getByLabel("Lote 1: código")).toHaveValue("L1")
+  await expect(recebimento(page, 2).getByLabel("Lote 1: validade")).toHaveValue("2027-03-10")
+  await expect(recebimento(page, 2).getByLabel("Lote 1: quantidade")).toHaveValue("1,5")
+  await expect(recebimento(page, 2).getByLabel("Lote 2: quantidade")).toHaveValue("0,5")
+
+  await clicarConfirmando(page, "Confirmar nota")
+  await expect(mensagemNaTela(page, "Nota confirmada: o estoque foi atualizado.")).toBeVisible()
+  await expect(situacaoNaTela(page, "Confirmada")).toBeVisible()
+  await expect(page.getByRole("button", { name: "Confirmar nota" })).toHaveCount(0)
+
+  await linhaDoItem(page, FORMINHA).getByRole("link", { name: "Ver estoque" }).click()
+  await expect(page.getByRole("heading", { name: "Forminha Teste" })).toBeVisible()
+  await expect(mensagemNaTela(page, "Saldo: 2.500 un")).toBeVisible()
+
+  await page.goto(`/estoque/${granulado.variacaoId}`)
+  const lotes = page.getByRole("table", { name: "Lotes" })
+  await expect(lotes.getByRole("row").filter({ hasText: "L1" })).toContainText("10/03/2027")
+  await expect(lotes.getByRole("row").filter({ hasText: "L1" })).toContainText("1.500 g")
+  await expect(lotes.getByRole("row").filter({ hasText: "L2" })).toContainText("22/05/2027")
+  await expect(lotes.getByRole("row").filter({ hasText: "L2" })).toContainText("500 g")
+})
+
+test("recebido menor que a nota: entra no estoque só o que chegou", async ({ page }) => {
+  const { tampa } = await prepararNotaComLoteLigada(page)
+  await recebimento(page, 3).getByLabel("Recebido").fill("8")
+  await recebimento(page, 3).getByRole("button", { name: "Salvar recebimento" }).click()
+  await expect(recebimento(page, 3).getByText("Recebimento salvo.")).toBeVisible()
+  await expect(recebimento(page, 3).getByLabel("Recebido")).toHaveValue("8")
+
+  await clicarConfirmando(page, "Confirmar nota")
+  await expect(situacaoNaTela(page, "Confirmada")).toBeVisible()
+  await page.goto(`/estoque/${tampa.variacaoId}`)
+  await expect(mensagemNaTela(page, "Saldo: 8 un")).toBeVisible()
+})
+
+test("lotes que não somam a quantidade recebida: a confirmação mostra a mensagem e nada entra no estoque", async ({ page }) => {
+  // No XML, o lote L2 veio com 0,4 kg: os lotes somam 1,9 kg e a nota diz 2 kg.
+  const xml = modeloXml("nota-com-lote.xml").replace("<qLote>0.500</qLote>", "<qLote>0.400</qLote>")
+  const { forminha } = await prepararNotaComLoteLigada(page, xml)
+
+  await clicarConfirmando(page, "Confirmar nota")
+  await expect(
+    mensagemNaTela(page, `Item 2 (${GRANULADO}): a soma dos lotes (1900) precisa ser igual à quantidade recebida (2000).`),
+  ).toBeVisible()
+  await expect(situacaoNaTela(page, "Em revisão")).toBeVisible()
+  await page.goto(`/estoque/${forminha.variacaoId}`)
+  await expect(mensagemNaTela(page, "Saldo: 0 un")).toBeVisible()
+})
+
+test("descartar a nota em revisão: some da lista de pendentes e a mesma chave pode ser importada de novo", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Goma Teste", variacao: { codigo_barras: "7891000000014" } })
+  await entrarComoAdministrador(page, DONA)
+  await importar(page, [arquivo("nota-simples.xml", modeloXml("nota-simples.xml"))])
+  await abrirNota(page, "nota-simples.xml")
+  await ligarPorCodigo(page, 1, GOMA, "12")
+  await expect(situacaoNaTela(page, "Em revisão")).toBeVisible()
+
+  await clicarConfirmando(page, "Descartar nota")
+  await expect(mensagemNaTela(page, "Nota descartada.")).toBeVisible()
+  await expect(situacaoNaTela(page, "Descartada")).toBeVisible()
+
+  await page.goto("/notas?situacao=em_revisao")
+  await expect(mensagemNaTela(page, "Nenhuma nota.")).toBeVisible()
+  await importar(page, [arquivo("de-novo.xml", modeloXml("nota-simples.xml"))])
+  await expect(resultado(page, "de-novo.xml")).toContainText("Nota 123 de Doces Exemplo Ltda: importada, pronta para revisar.")
+})
