@@ -1,4 +1,7 @@
 // Apoio aos testes de tela: fala direto com o Supabase local do CI (nunca com a nuvem).
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
+
 import { createClient } from "@supabase/supabase-js"
 
 import type { Database } from "../../src/lib/supabase/tipos"
@@ -114,6 +117,9 @@ export async function limparCatalogo(): Promise<void> {
     const { error } = await admin.from("categorias").delete().in("id", folhas)
     if (error) throw error
   }
+  // XMLs das notas: ficam na raiz do bucket.
+  const { data: xmls } = await admin.storage.from("notas-xml").list("", { limit: 1000 })
+  if (xmls?.length) await admin.storage.from("notas-xml").remove(xmls.map((x) => x.name))
   const { data: pastas } = await admin.storage.from("fotos-produtos").list("", { limit: 1000 })
   for (const pasta of pastas ?? []) {
     const { data: arquivos } = await admin.storage.from("fotos-produtos").list(pasta.name, { limit: 1000 })
@@ -243,6 +249,16 @@ export async function criarEstoqueTeste(
   })
   if (error) throw error
   return data
+}
+
+export async function definirCnpjLoja(cnpj: string | null): Promise<void> {
+  const { error } = await admin.from("configuracoes").update({ cnpj_loja: cnpj }).eq("id", 1)
+  if (error) throw error
+}
+
+// As notas de exemplo dos testes (dados inventados), em src/lib/notas/modelos.
+export function modeloXml(nome: string): string {
+  return readFileSync(resolve("src/lib/notas/modelos", nome), "utf8")
 }
 
 export async function definirEstoqueMinimo(variacaoId: string, minimo: number): Promise<void> {

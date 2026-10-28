@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { avisosDoInicio } from "./mensagens"
+import { avisosDoInicio, mensagemNotaImportada } from "./mensagens"
 
 const SEM_NADA = {
   vencendo: 0,
@@ -10,6 +10,7 @@ const SEM_NADA = {
   solicitacoes_pendentes: 0,
   conferencia_em: null,
   conferencia_divergencias: null,
+  notas_aguardando: 0,
 }
 
 describe("avisosDoInicio", () => {
@@ -52,11 +53,37 @@ describe("avisosDoInicio", () => {
     ])
   })
 
+  it("notas aguardando o administrador levam para a lista já filtrada", () => {
+    expect(avisosDoInicio({ ...SEM_NADA, notas_aguardando: 2 })).toEqual([
+      {
+        tipo: "notas",
+        quantidade: 2,
+        resto: "nota(s) aguardando o administrador",
+        texto: "2 nota(s) aguardando o administrador",
+        link: "/notas?situacao=aguardando_administrador",
+      },
+    ])
+  })
+
   it("a conferência só aparece quando achou diferença", () => {
     expect(avisosDoInicio({ ...SEM_NADA, conferencia_em: "2026-10-27T09:00:00Z", conferencia_divergencias: 0 })).toEqual([])
     const texto = "A conferência de 27/10/2026 achou 2 diferença(s) entre saldo e movimentações."
     expect(avisosDoInicio({ ...SEM_NADA, conferencia_em: "2026-10-27T09:00:00Z", conferencia_divergencias: 2 })).toEqual([
       { tipo: "conferencia", quantidade: null, resto: texto, texto, link: null },
     ])
+  })
+})
+
+describe("mensagemNotaImportada", () => {
+  it("com todos os itens ligados, a nota fica pronta para revisar", () => {
+    expect(mensagemNotaImportada("123", "Doces Exemplo Ltda", 0)).toBe(
+      "Nota 123 de Doces Exemplo Ltda: importada, pronta para revisar.",
+    )
+  })
+
+  it("com itens sem ligação, diz quantos o administrador precisa ligar", () => {
+    expect(mensagemNotaImportada("456", "Embalagens Exemplo Ltda", 3)).toBe(
+      "Nota 456 de Embalagens Exemplo Ltda: importada, aguardando o administrador ligar 3 item(ns).",
+    )
   })
 })

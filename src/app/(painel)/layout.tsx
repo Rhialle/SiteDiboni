@@ -25,6 +25,7 @@ export default async function LayoutPainel({ children }: { children: ReactNode }
     { href: "/produtos", rotulo: "Produtos", icone: "produtos", grupo: "principal" },
     { href: "/estoque", rotulo: "Estoque", icone: "estoque", grupo: "principal" },
     { href: "/alertas", rotulo: "Alertas", icone: "alertas", grupo: "principal" },
+    { href: "/notas", rotulo: "Notas", icone: "notas", grupo: "principal" },
     ...(usuario.papel === "administrador"
       ? ([
           { href: "/categorias", rotulo: "Categorias", icone: "categorias", grupo: "administracao" },

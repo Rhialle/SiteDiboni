@@ -4,7 +4,14 @@ import { Client } from "pg"
 
 const ENDERECO = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 
+// As notas e os fornecedores apontam para as variações, como o estoque: saem juntos, antes do catálogo.
 export const TABELAS_DO_ESTOQUE = [
+  "public.notas_entrada_item_lotes",
+  "public.notas_entrada_itens_valores",
+  "public.notas_entrada_itens",
+  "public.notas_entrada",
+  "public.fornecedor_itens",
+  "public.fornecedores",
   "public.movimentacoes_custos",
   "public.movimentacoes",
   "public.solicitacoes_ajuste",
@@ -88,7 +95,7 @@ export async function alterarSaldoDireto(variacaoId: string, diferenca: number):
   )
 }
 
-// O truncate não passa pelo gatilho que impede apagar movimentações.
+// O truncate não passa pelo gatilho que impede apagar movimentações (nem grava histórico).
 export async function limparEstoque(): Promise<void> {
   await comoDono((conexao) => conexao.query(`truncate ${TABELAS_DO_ESTOQUE} restart identity cascade`))
 }

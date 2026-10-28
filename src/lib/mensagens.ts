@@ -67,6 +67,19 @@ export const MENSAGENS = {
   nenhumAviso: "Nenhum aviso.",
   tipoPerdaInvalido: "Escolha o tipo: perda, quebra ou ajuste.",
   unidadeMudou: "A unidade escolhida em “Em” não vale mais. Recarregue a página e confira.",
+  xmlGrande: "O arquivo precisa ter até 4 MB.",
+  xmlDemais: "Escolha até 50 arquivos por vez.",
+  xmlNenhum: "Escolha pelo menos um arquivo XML.",
+  notaRepetida: "Esta nota já foi importada.",
+  fatorInvalido: "Informe o fator como número inteiro maior que zero.",
+  codigoNaoEncontrado: "Nenhuma variação com este código interno ou de barras.",
+  itemLigado: "Item ligado.",
+  produtoCriadoELigado: "Produto criado e item ligado. Complete o cadastro dele em Produtos.",
+  produtoCriadoSemLigacao: "O produto foi criado mesmo assim: ligue o item pelo código interno, sem criar de novo.",
+  itemSemLigacao: "Este item ainda não está ligado: o administrador precisa ligá-lo.",
+  recebimentoSalvo: "Recebimento salvo.",
+  notaConfirmada: "Nota confirmada: o estoque foi atualizado.",
+  notaDescartada: "Nota descartada.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -81,6 +94,31 @@ export function mensagemGradeCriada(variacoes: number): string {
   return variacoes === 0 ? MENSAGENS.gradeSemNovidade : `${variacoes} variação(ões) criada(s).`
 }
 
+export function mensagemNotaImportada(numero: string, fornecedor: string, semLigacao: number): string {
+  const inicio = `Nota ${numero} de ${fornecedor}: importada`
+  return semLigacao === 0
+    ? `${inicio}, pronta para revisar.`
+    : `${inicio}, aguardando o administrador ligar ${semLigacao} item(ns).`
+}
+
+// R6, com o mesmo texto que o banco usa quando recusa a ligação.
+export function mensagemFatorNaoInteiro(
+  item: { numero: number; descricao: string; unidade: string },
+  quantidade: string,
+  fator: number,
+): string {
+  return `Item ${item.numero} (${item.descricao}): ${quantidade} ${item.unidade} × ${fator} não dá quantidade inteira. Confira o fator.`
+}
+
+// O recebido e os lotes são digitados na unidade da nota; vezes o fator precisa dar inteiro (R6).
+export function mensagemRecebidoInvalido(unidade: string): string {
+  return `Informe o recebido em ${unidade}, com até 4 casas (vezes o fator precisa dar quantidade inteira).`
+}
+
+export function mensagemLoteInvalido(lote: number, unidade: string): string {
+  return `Lote ${lote}: informe a quantidade em ${unidade}, maior que zero e com até 4 casas (vezes o fator precisa dar quantidade inteira).`
+}
+
 export function mensagemPendencias(itens: string[]): string {
   return `Para ficar ativo falta: ${itens.join(", ")}.`
 }
@@ -93,10 +131,11 @@ export type ContagensDoInicio = {
   solicitacoes_pendentes: number
   conferencia_em: string | null
   conferencia_divergencias: number | null
+  notas_aguardando: number
 }
 
 export type AvisoDoInicio = {
-  tipo: "vencidos" | "vencendo" | "abaixoDoMinimo" | "solicitacoes" | "conferencia"
+  tipo: "vencidos" | "vencendo" | "abaixoDoMinimo" | "solicitacoes" | "notas" | "conferencia"
   // Número em destaque na carta e o texto que vem depois dele; a conferência não tem número.
   quantidade: number | null
   resto: string
@@ -127,6 +166,16 @@ export function avisosDoInicio(c: ContagensDoInicio): AvisoDoInicio[] {
   if (c.solicitacoes_pendentes > 0) {
     avisos.push(
       avisoDeContagem("solicitacoes", c.solicitacoes_pendentes, "solicitação(ões) pendente(s)", "/estoque/solicitacoes"),
+    )
+  }
+  if (c.notas_aguardando > 0) {
+    avisos.push(
+      avisoDeContagem(
+        "notas",
+        c.notas_aguardando,
+        "nota(s) aguardando o administrador",
+        "/notas?situacao=aguardando_administrador",
+      ),
     )
   }
   if (c.conferencia_em && c.conferencia_divergencias) {

@@ -25,7 +25,7 @@ Quantidades: produto por unidade conta em **un**; produto por peso conta em **g*
 
 ## 2. Entrada manual (só administrador)
 
-Para mercadoria que chega **sem nota**: compra sem nota, brinde ou amostra de fornecedor. (A entrada por nota fiscal chega no próximo plano.)
+Para mercadoria que chega **sem nota**: compra sem nota, brinde ou amostra de fornecedor. (A entrada por nota fiscal está em [Notas de entrada](notas-de-entrada.md).)
 
 1. Abra a página da variação e vá até **Entrada manual**.
 2. Preencha:

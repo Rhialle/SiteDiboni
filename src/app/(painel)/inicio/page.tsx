@@ -1,4 +1,4 @@
-import { ArrowDown, ClipboardCheck, Clock, TriangleAlert, type LucideIcon } from "lucide-react"
+import { ArrowDown, ClipboardCheck, Clock, ReceiptText, TriangleAlert, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import type { CSSProperties } from "react"
 
@@ -18,6 +18,7 @@ const CARTAS: Record<Exclude<AvisoDoInicio["tipo"], "conferencia">, { icone: Luc
   vencendo: { icone: Clock, cor: "icone-sol", acao: "Ver alertas" },
   abaixoDoMinimo: { icone: ArrowDown, cor: "icone-azul", acao: "Ver alertas" },
   solicitacoes: { icone: ClipboardCheck, cor: "icone-magenta", acao: "Ver solicitações" },
+  notas: { icone: ReceiptText, cor: "icone-magenta", acao: "Ver notas" },
 }
 
 export default async function PaginaInicio() {

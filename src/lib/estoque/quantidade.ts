@@ -11,9 +11,10 @@ type Forma = { id: string; nome: string; fator: number; peso_variavel: boolean; 
 
 const inteiro = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 })
 
-// "3" × 100 = 300; "1,250" kg × 1000 = 1250 g. Ponto só como separador de milhar ("1.000").
+// "3" × 100 = 300; "1,250" kg × 1000 = 1250 g; "2,5" CX × 100 = 250 (a nota tem até 4 casas).
+// Ponto só como separador de milhar ("1.000").
 // Devolve null se não for número, tiver casas demais ou não der inteiro maior que zero.
-export function paraUnidadeBase(texto: string, fator: number, casas: 0 | 3): number | null {
+export function paraUnidadeBase(texto: string, fator: number, casas: number): number | null {
   const partes = /^(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))?$/.exec(texto.trim())
   if (!partes) return null
   const decimais = partes[2] ?? ""

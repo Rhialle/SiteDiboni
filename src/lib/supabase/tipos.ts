@@ -157,6 +157,52 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"fornecedor_itens": {
+                  Row: {
+                    "atualizado_em": string,"codigo_barras": string | null,"codigo_fornecedor": string,"descricao_fornecedor": string,"fator": number,"fornecedor_id": string,"id": string,"unidade_fornecedor": string,"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "atualizado_em"?: string,"codigo_barras"?: string | null,"codigo_fornecedor": string,"descricao_fornecedor"?: string,"fator": number,"fornecedor_id": string,"id"?: string,"unidade_fornecedor": string,"variacao_id": string
+                  }
+                  Update: {
+                    "atualizado_em"?: string,"codigo_barras"?: string | null,"codigo_fornecedor"?: string,"descricao_fornecedor"?: string,"fator"?: number,"fornecedor_id"?: string,"id"?: string,"unidade_fornecedor"?: string,"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "fornecedor_itens_fornecedor_id_fkey"
+      columns: ["fornecedor_id"]
+isOneToOne: false
+      referencedRelation: "divergencias_fornecedor"
+      referencedColumns: ["fornecedor_id"]
+    },{
+      foreignKeyName: "fornecedor_itens_fornecedor_id_fkey"
+      columns: ["fornecedor_id"]
+isOneToOne: false
+      referencedRelation: "fornecedores"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "fornecedor_itens_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"fornecedores": {
+                  Row: {
+                    "cnpj": string,"criado_em": string,"id": string,"nome": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "cnpj": string,"criado_em"?: string,"id"?: string,"nome": string
+                  }
+                  Update: {
+                    "cnpj"?: string,"criado_em"?: string,"id"?: string,"nome"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"fotos": {
                   Row: {
                     "caminho": string,"criado_em": string,"id": string,"ordem": number,"produto_id": string,"variacao_id": string | null
@@ -290,6 +336,104 @@ isOneToOne: true
       columns: ["movimentacao_id"]
 isOneToOne: true
       referencedRelation: "movimentacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notas_entrada": {
+                  Row: {
+                    "caminho_xml": string,"chave_acesso": string,"confirmada_em": string | null,"confirmada_por": string | null,"emitida_em": string,"fornecedor_id": string,"id": string,"importada_em": string,"importada_por": string,"numero": string,"serie": string,"situacao": Database["public"]['Enums']["situacao_nota"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "caminho_xml": string,"chave_acesso": string,"confirmada_em"?: string | null,"confirmada_por"?: string | null,"emitida_em": string,"fornecedor_id": string,"id"?: string,"importada_em"?: string,"importada_por": string,"numero": string,"serie": string,"situacao": Database["public"]['Enums']["situacao_nota"]
+                  }
+                  Update: {
+                    "caminho_xml"?: string,"chave_acesso"?: string,"confirmada_em"?: string | null,"confirmada_por"?: string | null,"emitida_em"?: string,"fornecedor_id"?: string,"id"?: string,"importada_em"?: string,"importada_por"?: string,"numero"?: string,"serie"?: string,"situacao"?: Database["public"]['Enums']["situacao_nota"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notas_entrada_fornecedor_id_fkey"
+      columns: ["fornecedor_id"]
+isOneToOne: false
+      referencedRelation: "divergencias_fornecedor"
+      referencedColumns: ["fornecedor_id"]
+    },{
+      foreignKeyName: "notas_entrada_fornecedor_id_fkey"
+      columns: ["fornecedor_id"]
+isOneToOne: false
+      referencedRelation: "fornecedores"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notas_entrada_item_lotes": {
+                  Row: {
+                    "codigo_lote": string | null,"id": string,"item_id": string,"quantidade_base": number,"validade": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "codigo_lote"?: string | null,"id"?: string,"item_id": string,"quantidade_base": number,"validade"?: string | null
+                  }
+                  Update: {
+                    "codigo_lote"?: string | null,"id"?: string,"item_id"?: string,"quantidade_base"?: number,"validade"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notas_entrada_item_lotes_item_id_fkey"
+      columns: ["item_id"]
+isOneToOne: false
+      referencedRelation: "notas_entrada_itens"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notas_entrada_itens": {
+                  Row: {
+                    "codigo_barras": string | null,"codigo_fornecedor": string,"descricao": string,"fator": number | null,"id": string,"ncm": string | null,"nota_id": string,"numero_item": number,"quantidade_base_nota": number | null,"quantidade_base_recebida": number | null,"quantidade_nota": number,"rastro": NonNullable<Json>,"unidade": string,"variacao_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "codigo_barras"?: string | null,"codigo_fornecedor": string,"descricao": string,"fator"?: number | null,"id"?: string,"ncm"?: string | null,"nota_id": string,"numero_item": number,"quantidade_base_nota"?: number | null,"quantidade_base_recebida"?: number | null,"quantidade_nota": number,"rastro"?: NonNullable<Json>,"unidade": string,"variacao_id"?: string | null
+                  }
+                  Update: {
+                    "codigo_barras"?: string | null,"codigo_fornecedor"?: string,"descricao"?: string,"fator"?: number | null,"id"?: string,"ncm"?: string | null,"nota_id"?: string,"numero_item"?: number,"quantidade_base_nota"?: number | null,"quantidade_base_recebida"?: number | null,"quantidade_nota"?: number,"rastro"?: NonNullable<Json>,"unidade"?: string,"variacao_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notas_entrada_itens_nota_id_fkey"
+      columns: ["nota_id"]
+isOneToOne: false
+      referencedRelation: "divergencias_fornecedor"
+      referencedColumns: ["nota_id"]
+    },{
+      foreignKeyName: "notas_entrada_itens_nota_id_fkey"
+      columns: ["nota_id"]
+isOneToOne: false
+      referencedRelation: "notas_entrada"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notas_entrada_itens_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notas_entrada_itens_valores": {
+                  Row: {
+                    "custo_total": number,"custo_unitario_base": number | null,"desconto": number,"frete": number,"icms_st": number,"ipi": number,"item_id": string,"outras_despesas": number,"seguro": number,"valor_produto": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "custo_total": number,"custo_unitario_base"?: number | null,"desconto"?: number,"frete"?: number,"icms_st"?: number,"ipi"?: number,"item_id": string,"outras_despesas"?: number,"seguro"?: number,"valor_produto"?: number
+                  }
+                  Update: {
+                    "custo_total"?: number,"custo_unitario_base"?: number | null,"desconto"?: number,"frete"?: number,"icms_st"?: number,"ipi"?: number,"item_id"?: string,"outras_despesas"?: number,"seguro"?: number,"valor_produto"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notas_entrada_itens_valores_item_id_fkey"
+      columns: ["item_id"]
+isOneToOne: true
+      referencedRelation: "notas_entrada_itens"
       referencedColumns: ["id"]
     }
                   ]
@@ -498,7 +642,15 @@ isOneToOne: false
                 }
           }
           Views: {
-            "extrato_movimentacoes": {
+            "divergencias_fornecedor": {
+                  Row: {
+                    "cnpj": string,"confirmada_em": string | null,"descricao": string,"diferenca": number | null,"emitida_em": string,"fornecedor": string,"fornecedor_id": string,"nota_id": string,"numero": string,"numero_item": number,"produto": string,"quantidade_base_nota": number | null,"quantidade_base_recebida": number | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"unidade": string,"variacao": string
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                },"extrato_movimentacoes": {
                   Row: {
                     "aprovado_por_nome": string | null,"codigo_interno": string,"criado_em": string,"estornada": boolean | null,"estorno_de": number | null,"id": number,"lote": string | null,"lote_id": string,"motivo": string,"origem": string | null,"origem_id": string | null,"produto": string,"produto_id": string,"quantidade": number,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"tipo_venda": Database["public"]['Enums']["tipo_venda"],"usuario": string | null,"validade": string | null,"variacao": string,"variacao_id": string
                   }
@@ -552,12 +704,15 @@ isOneToOne: false
 "alterar_inativo_em_massa":
 { Args: { "p_inativo": boolean,"p_produtos": (string)[] }; Returns: number
                            },
+"aplicar_ligacao_item":
+{ Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
+                           },
 "atualizar_produto":
 { Args: { "dados": Json,"p_produto": string }; Returns: undefined
                            },
 "avisos_inicio":
 { Args: Record<PropertyKey, never>; Returns: {
-              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
+              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"notas_aguardando": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
             }[]
                            },
 "buscar_estoque":
@@ -576,11 +731,20 @@ isOneToOne: false
 "conferir_integridade_estoque":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
+"conferir_lotes_item":
+{ Args: { "p_item": string }; Returns: undefined
+                           },
+"confirmar_nota":
+{ Args: { "p_nota": string }; Returns: undefined
+                           },
 "criar_produto":
 { Args: { "dados": Json }; Returns: string
                            },
 "decidir_solicitacao":
 { Args: { "p_aprovar": boolean,"p_solicitacao": number }; Returns: undefined
+                           },
+"descartar_nota":
+{ Args: { "p_nota": string }; Returns: undefined
                            },
 "eh_administrador":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -606,6 +770,12 @@ isOneToOne: false
 "hoje_sp":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"importar_nota":
+{ Args: { "dados": Json }; Returns: string
+                           },
+"ligar_item_nota":
+{ Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
+                           },
 "lote_geral":
 { Args: { "p_variacao": string }; Returns: string
                            },
@@ -621,6 +791,9 @@ isOneToOne: false
 "proximo_codigo_interno":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"quantidade_para_mensagem":
+{ Args: { "p_quantidade": number }; Returns: string
+                           },
 "reajustar_precos":
 { Args: { "p_percentual": number,"p_produtos": (string)[] }; Returns: number
                            },
@@ -635,6 +808,30 @@ isOneToOne: false
               "lote_id": string,"quantidade": number
             }[]
                            },
+"salvar_recebimento_item":
+{ Args: { "p_item": string,"p_lotes": Json,"p_quantidade_recebida": number }; Returns: undefined
+                           },
+"travar_nota_aberta":
+{ Args: { "p_nota": string }; Returns: {
+              "caminho_xml": string,
+"chave_acesso": string,
+"confirmada_em": string | null,
+"confirmada_por": string | null,
+"emitida_em": string,
+"fornecedor_id": string,
+"id": string,
+"importada_em": string,
+"importada_por": string,
+"numero": string,
+"serie": string,
+"situacao": Database["public"]['Enums']["situacao_nota"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "notas_entrada"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "travar_saldos":
 { Args: { "p_variacoes": (string)[] }; Returns: undefined
                            },
@@ -646,7 +843,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "papel_usuario": "administrador"|"funcionario","situacao_solicitacao": "pendente"|"aprovada"|"recusada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno","tipo_venda": "unidade"|"peso"
+            "papel_usuario": "administrador"|"funcionario","situacao_nota": "em_revisao"|"aguardando_administrador"|"confirmada"|"descartada","situacao_solicitacao": "pendente"|"aprovada"|"recusada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno","tipo_venda": "unidade"|"peso"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -766,7 +963,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "papel_usuario": ["administrador", "funcionario"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno"],"tipo_venda": ["unidade", "peso"]
+            "papel_usuario": ["administrador", "funcionario"],"situacao_nota": ["em_revisao", "aguardando_administrador", "confirmada", "descartada"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno"],"tipo_venda": ["unidade", "peso"]
           }
         }
 } as const
