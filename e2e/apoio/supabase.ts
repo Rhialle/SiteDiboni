@@ -114,6 +114,9 @@ export async function limparCatalogo(): Promise<void> {
     const { error } = await admin.from("categorias").delete().in("id", folhas)
     if (error) throw error
   }
+  // XMLs das notas: ficam na raiz do bucket.
+  const { data: xmls } = await admin.storage.from("notas-xml").list("", { limit: 1000 })
+  if (xmls?.length) await admin.storage.from("notas-xml").remove(xmls.map((x) => x.name))
   const { data: pastas } = await admin.storage.from("fotos-produtos").list("", { limit: 1000 })
   for (const pasta of pastas ?? []) {
     const { data: arquivos } = await admin.storage.from("fotos-produtos").list(pasta.name, { limit: 1000 })
