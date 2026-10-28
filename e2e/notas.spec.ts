@@ -341,3 +341,56 @@ test("descartar a nota em revisão: some da lista de pendentes e a mesma chave p
   await importar(page, [arquivo("de-novo.xml", modeloXml("nota-simples.xml"))])
   await expect(resultado(page, "de-novo.xml")).toContainText("Nota 123 de Doces Exemplo Ltda: importada, pronta para revisar.")
 })
+
+// --- Divergências, busca pelo fornecedor e aviso no Início (Task 9) ---
+
+test("divergências listam fornecedor, nota, item e a diferença", async ({ page }) => {
+  await prepararNotaComLoteLigada(page)
+  await recebimento(page, 3).getByLabel("Recebido").fill("8")
+  await recebimento(page, 3).getByRole("button", { name: "Salvar recebimento" }).click()
+  await expect(recebimento(page, 3).getByText("Recebimento salvo.")).toBeVisible()
+  await clicarConfirmando(page, "Confirmar nota")
+  await expect(situacaoNaTela(page, "Confirmada")).toBeVisible()
+
+  await page.goto("/notas")
+  await page.getByRole("link", { name: "Divergências" }).click()
+  const divergencias = page.getByRole("table", { name: "Divergências" })
+  const tampa = divergencias.getByRole("row").filter({ hasText: "Tampa Teste" })
+  await expect(tampa).toContainText("Embalagens Exemplo Ltda")
+  await expect(tampa).toContainText("456")
+  await expect(tampa).toContainText("10 un")
+  await expect(tampa).toContainText("8 un")
+  await expect(tampa).toContainText("-2 un")
+  // O que chegou certo não aparece.
+  await expect(divergencias.getByRole("row").filter({ hasText: "Forminha Teste" })).toHaveCount(0)
+})
+
+test("a lista de produtos acha pelo nome do fornecedor", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Goma Teste", variacao: { codigo_barras: "7891000000014" } })
+  await criarProdutoTeste({ nome: "Outro Produto" })
+  await entrarComoAdministrador(page, DONA)
+  await importar(page, [arquivo("nota-simples.xml", modeloXml("nota-simples.xml"))])
+  await abrirNota(page, "nota-simples.xml")
+  await ligarPorCodigo(page, 1, GOMA, "12")
+  await expect(linhaDoItem(page, GOMA)).toContainText("1 DP = 12 un")
+
+  await page.goto("/produtos")
+  await expect(campo(page, "Buscar")).toHaveAttribute("placeholder", "Nome, fornecedor, código interno ou de barras")
+  await campo(page, "Buscar").fill("doces exemplo")
+  await page.getByRole("button", { name: "Buscar" }).click()
+  await expect(linha(page, "Goma Teste")).toBeVisible()
+  await expect(linha(page, "Outro Produto")).toHaveCount(0)
+})
+
+test("Início mostra '1 nota(s) aguardando o administrador' com link para a lista", async ({ page }) => {
+  await entrarComoFuncionaria(page)
+  await importar(page, [arquivo("nota-com-lote.xml", modeloXml("nota-com-lote.xml"))])
+  await expect(resultado(page, "nota-com-lote.xml")).toContainText("importada")
+  await page.getByRole("button", { name: "Sair" }).click()
+
+  await entrarComoAdministrador(page, DONA)
+  await expect(page.getByText("1 nota(s) aguardando o administrador")).toBeVisible()
+  await page.getByRole("link", { name: "1 nota(s) aguardando o administrador" }).click()
+  await expect(page).toHaveURL(/\/notas\?situacao=aguardando_administrador/)
+  await expect(linha(page, "Embalagens Exemplo Ltda")).toBeVisible()
+})
