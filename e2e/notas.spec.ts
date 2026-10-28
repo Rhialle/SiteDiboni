@@ -2,6 +2,8 @@ import { expect, test, type Page } from "@playwright/test"
 
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
+  codigoInternoDe,
+  criarProdutoTeste,
   criarUsuarioTeste,
   dataDaqui,
   definirCnpjLoja,
@@ -118,4 +120,121 @@ test("lista filtra por situação", async ({ page }) => {
   await campo(page, "Situação").selectOption({ label: "Aguardando administrador" })
   await page.getByRole("button", { name: "Filtrar" }).click()
   await expect(linha(page, "Embalagens Exemplo Ltda")).toBeVisible()
+})
+
+// --- Revisão da nota e ligação dos itens (Task 7) ---
+
+const GOMA = "GOMA DE MASCAR MENTA 12X25G"
+const FORMINHA = "FORMINHA N4 MARROM CX C/1000"
+const GRANULADO = "GRANULADO CHOCOLATE GRANEL"
+
+async function abrirNota(page: Page, nomeDoArquivo: string) {
+  await resultado(page, nomeDoArquivo).getByRole("link", { name: "Abrir a nota" }).click()
+  await expect(page.getByRole("heading", { name: /^Nota \d+/ })).toBeVisible()
+}
+
+const linhaDoItem = (page: Page, descricao: string) =>
+  page.getByRole("table", { name: "Itens da nota" }).getByRole("row").filter({ hasText: descricao })
+const itemParaLigar = (page: Page, numero: number, descricao: string) =>
+  page.getByRole("region", { name: `Item ${numero}: ${descricao}` })
+const situacaoNaTela = (page: Page, texto: string) => page.getByText(texto, { exact: true }).filter({ visible: true })
+
+async function ligarPorCodigo(page: Page, numero: number, descricao: string, fator: string, codigo?: string) {
+  const formulario = itemParaLigar(page, numero, descricao).getByRole("form", { name: "Ligar a uma variação" })
+  if (codigo !== undefined) await formulario.getByLabel("Código interno ou de barras").fill(codigo)
+  await formulario.getByLabel("Fator").fill(fator)
+  await formulario.getByRole("button", { name: "Ligar" }).click()
+}
+
+test("administrador liga um item pela sugestão do código de barras e informa o fator; a nota passa a Em revisão", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Goma Teste", variacao: { codigo_barras: "7891000000014" } })
+  await entrarComoAdministrador(page, DONA)
+  await importar(page, [arquivo("nota-simples.xml", modeloXml("nota-simples.xml"))])
+  await abrirNota(page, "nota-simples.xml")
+  await expect(situacaoNaTela(page, "Aguardando administrador")).toBeVisible()
+
+  // A sugestão: a variação com o mesmo código de barras do XML.
+  const formulario = itemParaLigar(page, 1, GOMA).getByRole("form", { name: "Ligar a uma variação" })
+  await expect(formulario.getByLabel("Código interno ou de barras")).toHaveValue("7891000000014")
+  await ligarPorCodigo(page, 1, GOMA, "12")
+
+  await expect(linhaDoItem(page, GOMA)).toContainText("Goma Teste")
+  await expect(linhaDoItem(page, GOMA)).toContainText("1 DP = 12 un")
+  // 2 DP × 12 = 24 un; custo 94,50 (90,00 + IPI 4,50) ÷ 24 = 3,9375.
+  await expect(linhaDoItem(page, GOMA)).toContainText("R$\u00a094,50")
+  await expect(linhaDoItem(page, GOMA)).toContainText("R$\u00a03,9375")
+  await expect(situacaoNaTela(page, "Em revisão")).toBeVisible()
+  await expect(itemParaLigar(page, 1, GOMA)).toHaveCount(0)
+})
+
+test("administrador cria o produto a partir do item, escolhendo tipo e validade, e o item fica ligado", async ({ page }) => {
+  await entrarComoAdministrador(page, DONA)
+  await importar(page, [arquivo("nota-com-lote.xml", modeloXml("nota-com-lote.xml"))])
+  await abrirNota(page, "nota-com-lote.xml")
+
+  const formulario = itemParaLigar(page, 2, GRANULADO).getByRole("form", { name: "Criar produto a partir do item" })
+  // Já vem com o que estava no XML.
+  await expect(formulario.getByLabel("Nome")).toHaveValue(GRANULADO)
+  await expect(formulario.getByLabel("NCM")).toHaveValue("18069000")
+  await expect(formulario.getByLabel("Código de barras")).toHaveValue("7891000000021")
+  await formulario.getByLabel("Nome").fill("Granulado de chocolate")
+  await formulario.getByLabel("Tipo de venda").selectOption({ label: "Por peso (a granel)" })
+  await formulario.getByLabel("Controla validade (lote)").check()
+  await formulario.getByLabel("Fator").fill("1000")
+  await formulario.getByRole("button", { name: "Criar produto e ligar" }).click()
+
+  await expect(linhaDoItem(page, GRANULADO)).toContainText("Granulado de chocolate")
+  await expect(linhaDoItem(page, GRANULADO)).toContainText("1 KG = 1.000 g")
+  await expect(itemParaLigar(page, 2, GRANULADO)).toHaveCount(0)
+  // Os outros dois itens continuam sem ligação.
+  await expect(situacaoNaTela(page, "Aguardando administrador")).toBeVisible()
+})
+
+test("fator que não dá inteiro mostra a mensagem com o item", async ({ page }) => {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha Teste" })
+  const codigo = await codigoInternoDe(variacaoId)
+  await entrarComoAdministrador(page, DONA)
+  await importar(page, [arquivo("nota-com-lote.xml", modeloXml("nota-com-lote.xml"))])
+  await abrirNota(page, "nota-com-lote.xml")
+
+  await ligarPorCodigo(page, 1, FORMINHA, "3", codigo)
+  await expect(itemParaLigar(page, 1, FORMINHA)).toContainText(
+    `Item 1 (${FORMINHA}): 2,5 CX × 3 não dá quantidade inteira. Confira o fator.`,
+  )
+  await expect(linhaDoItem(page, FORMINHA)).toContainText("Sem ligação")
+  await expect(linhaDoItem(page, FORMINHA)).not.toContainText("Forminha Teste")
+})
+
+test("na segunda nota do mesmo fornecedor o item já vem ligado", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Goma Teste", variacao: { codigo_barras: "7891000000014" } })
+  await entrarComoAdministrador(page, DONA)
+  const primeira = modeloXml("nota-simples.xml")
+  await importar(page, [arquivo("primeira.xml", primeira)])
+  await abrirNota(page, "primeira.xml")
+  await ligarPorCodigo(page, 1, GOMA, "12")
+  await expect(linhaDoItem(page, GOMA)).toContainText("1 DP = 12 un")
+
+  // Outra nota do mesmo fornecedor: outra chave e outro número, o mesmo item.
+  const segunda = primeira
+    .replaceAll("0000001231000001239", "0000001241000001248")
+    .replace("<nNF>123</nNF>", "<nNF>124</nNF>")
+  await importar(page, [arquivo("segunda.xml", segunda)])
+  await expect(resultado(page, "segunda.xml")).toContainText("Nota 124 de Doces Exemplo Ltda: importada, pronta para revisar.")
+  await abrirNota(page, "segunda.xml")
+  await expect(linhaDoItem(page, GOMA)).toContainText("Goma Teste")
+  await expect(linhaDoItem(page, GOMA)).toContainText("1 DP = 12 un")
+  await expect(situacaoNaTela(page, "Em revisão")).toBeVisible()
+})
+
+test("funcionária vê a nota sem valores e sem os botões de ligar", async ({ page }) => {
+  await entrarComoFuncionaria(page)
+  await importar(page, [arquivo("nota-com-lote.xml", modeloXml("nota-com-lote.xml"))])
+  await abrirNota(page, "nota-com-lote.xml")
+
+  await expect(linhaDoItem(page, FORMINHA)).toBeVisible()
+  await expect(page.getByText("Aguardando o administrador ligar este item").filter({ visible: true })).toHaveCount(3)
+  await expect(page.getByRole("columnheader", { name: "Custo total" })).toHaveCount(0)
+  await expect(page.getByText(/R\$/).filter({ visible: true })).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Ligar" })).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Criar produto e ligar" })).toHaveCount(0)
 })
