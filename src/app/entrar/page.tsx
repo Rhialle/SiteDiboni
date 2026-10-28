@@ -1,6 +1,8 @@
 import { TelaDeAcesso } from "@/components/tela-de-acesso"
+import { entradaDeTesteLigada } from "@/lib/auth/entrada-de-teste"
 import { MENSAGENS } from "@/lib/mensagens"
 
+import { EntradaDeTeste } from "./entrada-de-teste"
 import { FormularioEntrar } from "./formulario-entrar"
 
 const AVISOS: Record<string, string> = {
@@ -18,6 +20,7 @@ export default async function PaginaEntrar({ searchParams }: PageProps<"/entrar"
   return (
     <TelaDeAcesso titulo="Entrar" descricao="Use o e-mail e a senha do seu acesso à loja.">
       <FormularioEntrar aviso={aviso} />
+      {entradaDeTesteLigada() ? <EntradaDeTeste /> : null}
     </TelaDeAcesso>
   )
 }
