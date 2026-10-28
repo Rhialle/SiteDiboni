@@ -73,6 +73,9 @@ export async function entrarComoTeste(papel: PapelDeTeste): Promise<void> {
   if (!entradaDeTesteLigada()) redirect("/entrar")
 
   const admin = criarClienteAdmin()
+  // A primeira conta do banco vira administradora sozinha (e a última não pode ser rebaixada):
+  // por isso a conta de administrador de teste nasce antes da de funcionária.
+  if (papel === "funcionario") await garantirConta(admin, "administrador")
   const id = await garantirConta(admin, papel)
 
   // Sessão sem senha: um link de acesso gerado e confirmado aqui mesmo, sem e-mail.
