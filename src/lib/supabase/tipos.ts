@@ -500,7 +500,7 @@ isOneToOne: false
           Views: {
             "extrato_movimentacoes": {
                   Row: {
-                    "aprovado_por_nome": string | null,"codigo_interno": string | null,"criado_em": string | null,"estornada": boolean | null,"estorno_de": number | null,"id": number | null,"lote": string | null,"lote_id": string | null,"motivo": string | null,"origem": string | null,"origem_id": string | null,"produto": string | null,"produto_id": string | null,"quantidade": number | null,"tipo": Database["public"]['Enums']["tipo_movimentacao"] | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"] | null,"usuario": string | null,"validade": string | null,"variacao": string | null,"variacao_id": string | null
+                    "aprovado_por_nome": string | null,"codigo_interno": string,"criado_em": string,"estornada": boolean | null,"estorno_de": number | null,"id": number,"lote": string | null,"lote_id": string,"motivo": string,"origem": string | null,"origem_id": string | null,"produto": string,"produto_id": string,"quantidade": number,"tipo": Database["public"]['Enums']["tipo_movimentacao"],"tipo_venda": Database["public"]['Enums']["tipo_venda"],"usuario": string | null,"validade": string | null,"variacao": string,"variacao_id": string
                   }
                   ComputedFields: never
                   Relationships: [
@@ -532,7 +532,7 @@ isOneToOne: false
                   ]
                 },"produtos_com_situacao": {
                   Row: {
-                    "apto_alimento": boolean | null,"apto_forno": boolean | null,"apto_freezer": boolean | null,"apto_microondas": boolean | null,"atualizado_em": string | null,"cest": string | null,"controla_validade": boolean | null,"criado_em": string | null,"descricao": string | null,"id": string | null,"inativo": boolean | null,"ncm": string | null,"nome": string | null,"origem_fiscal": number | null,"pendencias": (string)[] | null,"situacao": string | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"] | null
+                    "apto_alimento": boolean,"apto_forno": boolean,"apto_freezer": boolean,"apto_microondas": boolean,"atualizado_em": string,"cest": string | null,"controla_validade": boolean,"criado_em": string,"descricao": string,"id": string,"inativo": boolean,"ncm": string | null,"nome": string,"origem_fiscal": number | null,"pendencias": (string)[] | null,"situacao": string | null,"tipo_venda": Database["public"]['Enums']["tipo_venda"]
                   }
                   ComputedFields: never
                   Relationships: [
