@@ -58,16 +58,19 @@ export function FundoFesta({ cena, className }: { cena: "painel" | "entrar"; cla
               left: `${x}%`,
               top: `${y}%`,
               width: `clamp(${Math.round(largura * 0.5)}px, ${(largura / 14).toFixed(1)}vw, ${largura}px)`,
+              // Formas maiores parecem mais perto e andam mais com o mouse.
+              "--prof": Math.round(largura / 7),
               "--r": `${giro}deg`,
               "--d": `${duracao}s`,
               "--dx": `${((i * 37) % 44) - 22}px`,
               "--dy": `${((i * 53) % 44) - 26}px`,
               "--giro": `${((i * 29) % 28) - 14}deg`,
-              animationDelay: `-${((i * 2.3) % duracao).toFixed(1)}s`,
             } as CSSProperties
           }
         >
-          <Forma tipo={tipo} cor={cor} prefixo={prefixo} />
+          <span className="forma-giro" style={{ animationDelay: `-${((i * 2.3) % duracao).toFixed(1)}s` }}>
+            <Forma tipo={tipo} cor={cor} prefixo={prefixo} />
+          </span>
         </span>
       ))}
     </div>

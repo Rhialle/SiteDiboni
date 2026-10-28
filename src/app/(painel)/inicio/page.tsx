@@ -2,13 +2,12 @@ import { ArrowDown, ClipboardCheck, Clock, TriangleAlert, type LucideIcon } from
 import Link from "next/link"
 import type { CSSProperties } from "react"
 
-import { ChuvaDeConfete } from "@/components/festa/chuva-de-confete"
-import { Balao } from "@/components/marca/balao"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { avisosDoInicio, MENSAGENS, type AvisoDoInicio } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { NumeroAnimado } from "./numero-animado"
+import { TudoEmDia } from "./tudo-em-dia"
 
 // Depende da sessão (cookies) ou da URL: o servidor espera antes de mostrar a página.
 export const instant = false
@@ -42,7 +41,7 @@ export default async function PaginaInicio() {
           Avisos
         </h2>
         {avisos.length === 0 ? (
-          <TudoEmDia />
+          <TudoEmDia mensagem={MENSAGENS.nenhumAviso} />
         ) : (
           <>
             {cartas.length > 0 ? (
@@ -73,10 +72,7 @@ function CartaDeAviso({ aviso, ordem }: { aviso: AvisoDoInicio; ordem: number })
   const { icone: Icone, cor, acao } = CARTAS[aviso.tipo]
   return (
     <li className="entra-com-mola" style={{ "--i": ordem } as CSSProperties}>
-      <Link
-        href={aviso.link}
-        className="vidro flex h-full flex-col gap-3 rounded-[26px] p-4 transition-[transform,box-shadow] duration-300 ease-mola hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_26px_44px_-18px_rgb(17_26_83/0.36)] sm:p-5"
-      >
+      <Link href={aviso.link} data-inclina className="vidro carta-inclina flex h-full flex-col gap-3 rounded-[26px] p-4 sm:p-5">
         <span aria-hidden="true" className={`icone-jogo ${cor} size-11 rounded-[14px] sm:size-12 sm:rounded-[16px]`}>
           <Icone className="size-6" />
         </span>
@@ -84,7 +80,7 @@ function CartaDeAviso({ aviso, ordem }: { aviso: AvisoDoInicio; ordem: number })
           <NumeroAnimado
             valor={aviso.quantidade}
             atraso={0.25 + ordem * 0.09}
-            className="mb-2 block text-5xl leading-none font-extrabold tracking-[-0.03em] tabular-nums sm:text-6xl"
+            className="mb-2 block origin-left text-5xl leading-none font-extrabold tracking-[-0.03em] tabular-nums sm:text-6xl"
           />{" "}
           {aviso.resto}
         </p>
@@ -96,18 +92,5 @@ function CartaDeAviso({ aviso, ordem }: { aviso: AvisoDoInicio; ordem: number })
         </span>
       </Link>
     </li>
-  )
-}
-
-function TudoEmDia() {
-  return (
-    <div className="vidro relative flex items-center gap-5 rounded-[30px] px-6 py-6 sm:gap-7 sm:px-9">
-      <ChuvaDeConfete origem={{ x: 72, y: 64 }} umaVezPorSessao="diboni:confete-tudo-em-dia" />
-      <Balao className="boia w-[72px] shrink-0 sm:w-24" />
-      <div className="flex flex-col gap-1.5">
-        <h3 className="text-3xl font-extrabold sm:text-4xl">Tudo em dia!</h3>
-        <p className="text-tinta-suave">{MENSAGENS.nenhumAviso}</p>
-      </div>
-    </div>
   )
 }

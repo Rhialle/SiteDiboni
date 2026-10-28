@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { FundoFesta } from "@/components/festa/fundo-festa"
@@ -33,11 +34,13 @@ export function TelaDeAcesso({
   )
 }
 
+// Erro treme ao aparecer, como um "não" balançando a cabeça.
 export function MensagemDeErro({ children }: { children: ReactNode }) {
   if (!children) return null
   return (
-    <p role="alert" className="rounded-xl bg-[#ffe8e9] px-3 py-2 text-sm font-medium text-[#a3222b]">
-      {children}
+    <p role="alert" className="treme flex items-start gap-2 rounded-xl bg-[#ffe8e9] px-3 py-2 text-sm font-medium text-[#a3222b]">
+      <TriangleAlert aria-hidden="true" className="mt-px size-4 shrink-0" />
+      <span>{children}</span>
     </p>
   )
 }

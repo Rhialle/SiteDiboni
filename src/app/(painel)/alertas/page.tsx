@@ -1,3 +1,4 @@
+import { ArrowDown, Clock, TriangleAlert, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import type { ReactNode } from "react"
 
@@ -9,19 +10,44 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 // Depende da sessão (cookies): o servidor espera antes de mostrar a página.
 export const instant = false
 
-function Secao({ id, titulo, vazio, children }: { id: string; titulo: string; vazio: boolean; children: ReactNode }) {
+// Cada seção usa a cor da carta do Início: vencendo em sol, vencido em coral, repor em azul.
+const ICONES_DAS_SECOES = {
+  sol: Clock,
+  coral: TriangleAlert,
+  azul: ArrowDown,
+} satisfies Record<string, LucideIcon>
+
+function Secao({
+  id,
+  titulo,
+  cor,
+  vazio,
+  children,
+}: {
+  id: string
+  titulo: string
+  cor: keyof typeof ICONES_DAS_SECOES
+  vazio: boolean
+  children: ReactNode
+}) {
+  const Icone = ICONES_DAS_SECOES[cor]
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-2">
-      <h2 id={id} className="text-lg font-semibold">
-        {titulo}
-      </h2>
-      {vazio ? <p className="text-sm text-muted-foreground">Nada aqui.</p> : <div className="overflow-x-auto rounded-lg border">{children}</div>}
+    <section aria-labelledby={id} className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <span aria-hidden="true" className={`icone-jogo icone-${cor} size-9 rounded-[11px]`}>
+          <Icone className="size-[18px]" />
+        </span>
+        <h2 id={id} className="text-xl font-semibold">
+          {titulo}
+        </h2>
+      </div>
+      {vazio ? <p className="text-sm text-muted-foreground">Nada aqui.</p> : <div className="tabela-vidro overflow-x-auto">{children}</div>}
     </section>
   )
 }
 
 const CABECALHO = "bg-muted/50 text-muted-foreground"
-const CELULA = "px-3 py-2"
+const CELULA = "px-4 py-3"
 
 export default async function PaginaAlertas() {
   await exigirUsuario()
@@ -42,9 +68,9 @@ export default async function PaginaAlertas() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-semibold">Alertas</h1>
+      <h1 className="text-3xl font-bold sm:text-4xl">Alertas</h1>
 
-      <Secao id="alertas-vencendo" titulo="Vencendo" vazio={vencendo.length === 0}>
+      <Secao id="alertas-vencendo" titulo="Vencendo" cor="sol" vazio={vencendo.length === 0}>
         <table className="w-full text-left text-sm">
           <thead className={CABECALHO}>
             <tr>
@@ -71,7 +97,7 @@ export default async function PaginaAlertas() {
         </table>
       </Secao>
 
-      <Secao id="alertas-vencidos" titulo="Vencidos com saldo" vazio={vencidos.length === 0}>
+      <Secao id="alertas-vencidos" titulo="Vencidos com saldo" cor="coral" vazio={vencidos.length === 0}>
         <table className="w-full text-left text-sm">
           <thead className={CABECALHO}>
             <tr>
@@ -94,7 +120,7 @@ export default async function PaginaAlertas() {
         </table>
       </Secao>
 
-      <Secao id="alertas-minimo" titulo="Abaixo do estoque mínimo" vazio={abaixo.length === 0}>
+      <Secao id="alertas-minimo" titulo="Abaixo do estoque mínimo" cor="azul" vazio={abaixo.length === 0}>
         <table className="w-full text-left text-sm">
           <thead className={CABECALHO}>
             <tr>

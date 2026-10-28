@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade } from "@/lib/estoque/quantidade"
 import { ROTULO_TIPO_MOVIMENTACAO } from "@/lib/estoque/rotulos"
@@ -16,7 +17,7 @@ import { BotaoEstornar } from "./botao-estornar"
 export const instant = false
 
 const POR_PAGINA = 50
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 const DIA = /^\d{4}-\d{2}-\d{2}$/
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -66,11 +67,11 @@ export default async function PaginaMovimentacoes({ searchParams }: PageProps<"/
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Movimentações</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">Movimentações</h1>
         {filtros.variacao && movimentacoes[0] ? (
           <p className="text-sm text-muted-foreground">
             Só de {movimentacoes[0].produto} — {movimentacoes[0].variacao}.{" "}
-            <Link href="/estoque/movimentacoes" className="underline-offset-4 hover:underline">
+            <Link href="/estoque/movimentacoes" className="font-medium text-tinta underline underline-offset-4 hover:text-magenta">
               Ver todas
             </Link>
           </p>
@@ -107,49 +108,49 @@ export default async function PaginaMovimentacoes({ searchParams }: PageProps<"/
       {movimentacoes.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nenhuma movimentação.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="tabela-vidro overflow-x-auto">
           <table aria-label="Movimentações" className="w-full text-left text-sm">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
-                <th className="px-3 py-2 font-medium">Data e hora</th>
-                <th className="px-3 py-2 font-medium">Produto</th>
-                <th className="px-3 py-2 font-medium">Lote</th>
-                <th className="px-3 py-2 font-medium">Tipo</th>
-                <th className="px-3 py-2 font-medium">Quantidade</th>
-                <th className="px-3 py-2 font-medium">Motivo</th>
-                <th className="px-3 py-2 font-medium">Feito por</th>
-                {administrador ? <th className="px-3 py-2 font-medium"><span className="sr-only">Estorno</span></th> : null}
+                <th className="px-4 py-3 font-medium">Data e hora</th>
+                <th className="px-4 py-3 font-medium">Produto</th>
+                <th className="px-4 py-3 font-medium">Lote</th>
+                <th className="px-4 py-3 font-medium">Tipo</th>
+                <th className="px-4 py-3 font-medium">Quantidade</th>
+                <th className="px-4 py-3 font-medium">Motivo</th>
+                <th className="px-4 py-3 font-medium">Feito por</th>
+                {administrador ? <th className="px-4 py-3 font-medium"><span className="sr-only">Estorno</span></th> : null}
               </tr>
             </thead>
             <tbody>
               {movimentacoes.map((m) => (
                 <tr key={m.id} className="border-t align-top">
-                  <td className="px-3 py-2 whitespace-nowrap">{formatarDataHora(m.criado_em)}</td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3 whitespace-nowrap">{formatarDataHora(m.criado_em)}</td>
+                  <td className="px-4 py-3">
                     <Link href={`/estoque/${m.variacao_id}`} className="hover:underline">
                       {m.produto} — {m.variacao}
                     </Link>
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     {m.lote ? `${m.lote}${m.validade ? ` (${formatarDia(m.validade)})` : ""}` : "—"}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     {ROTULO_TIPO_MOVIMENTACAO[m.tipo] ?? m.tipo}
                     {m.estornada ? (
-                      <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">Estornada</span>
+                      <Selo className="ml-2">Estornada</Selo>
                     ) : null}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     {m.quantidade > 0 ? "+" : ""}
                     {formatarQuantidade(m.quantidade, m.tipo_venda)}
                   </td>
-                  <td className="px-3 py-2">{m.motivo}</td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">{m.motivo}</td>
+                  <td className="px-4 py-3">
                     {m.usuario ?? "—"}
                     {m.aprovado_por_nome ? ` (aprovado por ${m.aprovado_por_nome})` : ""}
                   </td>
                   {administrador ? (
-                    <td className="px-3 py-2">
+                    <td className="px-4 py-3">
                       {m.tipo !== "estorno" ? <BotaoEstornar id={m.id} estornada={m.estornada ?? false} /> : null}
                     </td>
                   ) : null}
@@ -161,12 +162,16 @@ export default async function PaginaMovimentacoes({ searchParams }: PageProps<"/
       )}
 
       {paginas > 1 ? (
-        <nav aria-label="Páginas" className="flex items-center gap-3 text-sm">
-          {pagina > 1 ? <Link href={endereco(pagina - 1)}>Anterior</Link> : null}
+        <nav aria-label="Páginas" className="flex flex-wrap items-center gap-3 text-sm text-tinta-suave">
+          {pagina > 1 ? <Link href={endereco(pagina - 1)} className="link-pilula">
+              Anterior
+            </Link> : null}
           <span>
             Página {pagina} de {paginas}
           </span>
-          {pagina < paginas ? <Link href={endereco(pagina + 1)}>Próxima</Link> : null}
+          {pagina < paginas ? <Link href={endereco(pagina + 1)} className="link-pilula">
+              Próxima
+            </Link> : null}
         </nav>
       ) : null}
     </div>

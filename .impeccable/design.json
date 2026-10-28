@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T16:45:41+00:00",
+  "title": "Design System: Di Boni",
+  "extensions": {
+    "colorMeta": {
+      "uva": {
+        "role": "secondary",
+        "displayName": "Uva",
+        "canonical": "#5b1f8e",
+        "tonalRamp": [
+          "#1b092b",
+          "#2e1047",
+          "#401663",
+          "#501b7d",
+          "#7c4ca5",
+          "#a584c1",
+          "#cebcdd",
+          "#efe9f4"
+        ]
+      },
+      "magenta": {
+        "role": "primary",
+        "displayName": "Magenta da marca",
+        "canonical": "#a62c93",
+        "tonalRamp": [
+          "#320d2c",
+          "#53164a",
+          "#741f67",
+          "#922781",
+          "#b856a9",
+          "#ce8bc4",
+          "#e4c0df",
+          "#f6eaf4"
+        ]
+      },
+      "magenta-clara": {
+        "role": "primary",
+        "displayName": "Magenta claro",
+        "canonical": "#c13fa6",
+        "tonalRamp": [
+          "#3a1332",
+          "#602053",
+          "#872c74",
+          "#aa3792",
+          "#cd65b8",
+          "#dd95ce",
+          "#ecc5e4",
+          "#f9ecf6"
+        ]
+      },
+      "ameixa": {
+        "role": "primary",
+        "displayName": "Ameixa",
+        "canonical": "#6e1a63",
+        "tonalRamp": [
+          "#21081e",
+          "#370d32",
+          "#4d1245",
+          "#611757",
+          "#8b4882",
+          "#af81a9",
+          "#d4bad0",
+          "#f0e8ef"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#111a53",
+        "tonalRamp": [
+          "#050819",
+          "#080d2a",
+          "#0c123a",
+          "#0f1749",
+          "#414875",
+          "#7c81a0",
+          "#b8bacb",
+          "#e7e8ee"
+        ]
+      },
+      "tinta-suave": {
+        "role": "neutral",
+        "displayName": "Tinta suave",
+        "canonical": "#4a5180",
+        "tonalRamp": [
+          "#161826",
+          "#252840",
+          "#34395a",
+          "#414771",
+          "#6e7499",
+          "#9b9fb9",
+          "#c9cbd9",
+          "#edeef2"
+        ]
+      },
+      "lilas": {
+        "role": "neutral",
+        "displayName": "Lilás",
+        "canonical": "#f1eaf9",
+        "tonalRamp": [
+          "#48464b",
+          "#78757c",
+          "#a9a4ae",
+          "#d4cedb",
+          "#f4eefa",
+          "#f7f3fc",
+          "#fbf9fd",
+          "#fefdfe"
+        ]
+      },
+      "nevoa": {
+        "role": "neutral",
+        "displayName": "Névoa",
+        "canonical": "#f6f3fc",
+        "tonalRamp": [
+          "#4a494c",
+          "#7b7a7e",
+          "#acaab0",
+          "#d8d6de",
+          "#f8f5fd",
+          "#faf8fd",
+          "#fcfbfe",
+          "#fefeff"
+        ]
+      },
+      "borda-campo": {
+        "role": "neutral",
+        "displayName": "Borda do campo",
+        "canonical": "#d9d3e8",
+        "tonalRamp": [
+          "#413f46",
+          "#6c6a74",
+          "#9894a2",
+          "#bfbacc",
+          "#e1dced",
+          "#eae7f2",
+          "#f4f2f8",
+          "#fbfbfd"
+        ]
+      },
+      "sol": {
+        "role": "tertiary",
+        "displayName": "Sol",
+        "canonical": "#ffc83d",
+        "tonalRamp": [
+          "#4c3c12",
+          "#80641e",
+          "#b28c2b",
+          "#e0b036",
+          "#ffd364",
+          "#ffe194",
+          "#ffeec5",
+          "#fffaec"
+        ]
+      },
+      "coral": {
+        "role": "tertiary",
+        "displayName": "Coral",
+        "canonical": "#f2545b",
+        "tonalRamp": [
+          "#49191b",
+          "#792a2e",
+          "#a93b40",
+          "#d54a50",
+          "#f5767c",
+          "#f8a1a5",
+          "#fbccce",
+          "#feeeef"
+        ]
+      },
+      "azul": {
+        "role": "tertiary",
+        "displayName": "Azul",
+        "canonical": "#4a8bef",
+        "tonalRamp": [
+          "#162a48",
+          "#254678",
+          "#3461a7",
+          "#417ad2",
+          "#6ea2f2",
+          "#9bbff6",
+          "#c9dcfa",
+          "#edf3fd"
+        ]
+      },
+      "menta": {
+        "role": "tertiary",
+        "displayName": "Menta",
+        "canonical": "#1db37a",
+        "tonalRamp": [
+          "#093625",
+          "#0e5a3d",
+          "#147d55",
+          "#1a9e6b",
+          "#4ac295",
+          "#83d5b6",
+          "#bbe8d7",
+          "#e8f7f2"
+        ]
+      },
+      "perigo": {
+        "role": "tertiary",
+        "displayName": "Perigo",
+        "canonical": "#c93139",
+        "tonalRamp": [
+          "#3c0f11",
+          "#64181c",
+          "#8d2228",
+          "#b12b32",
+          "#d45a61",
+          "#e18e92",
+          "#efc1c4",
+          "#faeaeb"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Título da tela",
+        "purpose": "Título de cada tela; 1.875rem no celular."
+      },
+      "numero": {
+        "displayName": "Número da carta",
+        "purpose": "Contagem das cartas de aviso, que conta de 0 até o valor."
+      },
+      "headline": {
+        "displayName": "Título de seção",
+        "purpose": "Seções dentro da tela."
+      },
+      "body": {
+        "displayName": "Texto",
+        "purpose": "Texto corrido e campos; nada menor que 14px no corpo."
+      },
+      "label": {
+        "displayName": "Rótulo",
+        "purpose": "Rótulos de campo, células de tabela, botões."
+      },
+      "selo": {
+        "displayName": "Selo",
+        "purpose": "Selos de situação."
+      }
+    },
+    "shadows": [
+      {
+        "name": "vidro",
+        "value": "inset 0 1px 0 rgb(255 255 255 / .9), 0 1px 2px rgb(17 26 83 / .06), 0 18px 40px -16px rgb(17 26 83 / .28)",
+        "purpose": "Painéis, cartas, tabelas e a barra do celular, com backdrop-filter: blur(22px) saturate(170%)."
+      },
+      {
+        "name": "base-do-botao",
+        "value": "inset 0 1px 0 rgb(255 255 255 / .35), 0 4px 0 #6e1a63, 0 12px 20px -10px rgb(166 44 147 / .5)",
+        "purpose": "Botão principal; some no clique e o botão desce 4px."
+      },
+      {
+        "name": "confete",
+        "value": "drop-shadow(0 14px 18px rgb(17 26 83 / .18))",
+        "purpose": "Formas 3D do fundo de festa (filter)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "mola",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Entrada das cartas e do cartão de entrar, pílula do menu; o leve passo além é o jeito de jogo."
+      },
+      {
+        "name": "suave",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Botões, campos, contagem dos números e o traço do ✓."
+      },
+      {
+        "name": "flutuar",
+        "value": "14s a 26s, ease-in-out, ida e volta",
+        "purpose": "Confete do fundo, só no Início e nas telas de acesso."
+      },
+      {
+        "name": "faisca",
+        "value": "9 traços coloridos, 460ms, ease-out cúbico",
+        "purpose": "Resposta a cada clique em botão, link ou caixa de marcar."
+      },
+      {
+        "name": "brilho-passa",
+        "value": "0.75s, suave",
+        "purpose": "Faixa de luz que atravessa botões e links em pílula no hover."
+      },
+      {
+        "name": "tela-entra",
+        "value": "0.5s, suave, de 14px abaixo e desfocada",
+        "purpose": "Entrada de cada tela do painel; linhas de tabela entram a cada 35ms."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "celular",
+        "value": "abaixo de 768px"
+      },
+      {
+        "name": "computador",
+        "value": "768px ou mais"
+      },
+      {
+        "name": "quatro-cartas",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal da tela: botão de jogo magenta com base que afunda no clique.",
+      "html": "<button class=\"ds-btn\">Salvar produto</button>",
+      "css": ".ds-btn { font-family: Rubik, system-ui, sans-serif; height: 44px; padding: 0 20px; border: 0; border-radius: 999px; font-size: 14px; font-weight: 600; color: #fff; background: linear-gradient(180deg, #c13fa6, #a62c93); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 0 #6e1a63, 0 12px 20px -10px rgba(166,44,147,.5); cursor: pointer; transition: transform .14s cubic-bezier(.22,1,.36,1), box-shadow .14s cubic-bezier(.22,1,.36,1), filter .2s; } .ds-btn:hover { transform: translateY(-1px); filter: brightness(1.05); } .ds-btn:focus-visible { outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 0 #6e1a63, 0 0 0 4px rgba(166,44,147,.3); } .ds-btn:active { transform: translateY(4px); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 0 #6e1a63; }"
+    },
+    {
+      "name": "Botão claro",
+      "kind": "button",
+      "refersTo": "button-claro",
+      "description": "Ação secundária: pílula branca com base cinza-azulada.",
+      "html": "<button class=\"ds-btn-claro\">Cancelar</button>",
+      "css": ".ds-btn-claro { font-family: Rubik, system-ui, sans-serif; height: 44px; padding: 0 20px; border: 0; border-radius: 999px; font-size: 14px; font-weight: 600; color: #111a53; background: linear-gradient(180deg, #fff, #f6f3fb); box-shadow: inset 0 0 0 1.5px rgba(17,26,83,.12), 0 4px 0 rgba(17,26,83,.16), 0 12px 20px -12px rgba(17,26,83,.22); cursor: pointer; transition: transform .14s, box-shadow .14s; } .ds-btn-claro:hover { transform: translateY(-1px); } .ds-btn-claro:focus-visible { outline: 3px solid rgba(166,44,147,.45); outline-offset: 2px; } .ds-btn-claro:active { transform: translateY(4px); box-shadow: inset 0 0 0 1.5px rgba(17,26,83,.18), 0 0 0 rgba(17,26,83,.16); }"
+    },
+    {
+      "name": "Campo",
+      "kind": "input",
+      "refersTo": "campo",
+      "description": "Campo de texto de 44px que acende em magenta no foco.",
+      "html": "<label class=\"ds-campo\">Buscar<input placeholder=\"Nome, código interno ou de barras\"></label>",
+      "css": ".ds-campo { font-family: Rubik, system-ui, sans-serif; display: grid; gap: 6px; font-size: 14px; font-weight: 500; color: #111a53; } .ds-campo input { font-family: Rubik, system-ui, sans-serif; height: 44px; padding: 0 14px; border: 1.5px solid #d9d3e8; border-radius: 14px; background: rgba(255,255,255,.9); color: #111a53; font-size: 16px; caret-color: #a62c93; transition: border-color .2s, box-shadow .2s; } .ds-campo input::placeholder { color: #7d82a6; } .ds-campo input:focus-visible { outline: none; border-color: #a62c93; box-shadow: 0 0 0 4px rgba(166,44,147,.15); }"
+    },
+    {
+      "name": "Selos de situação",
+      "kind": "chip",
+      "refersTo": "selo-repor",
+      "description": "Cada cor diz uma coisa: vencido, vencendo, repor, ativo, pendente.",
+      "html": "<span class=\"ds-selo ds-critico\">Vencido</span> <span class=\"ds-selo ds-atencao\">Vence em 9 dias</span> <span class=\"ds-selo ds-repor\">Repor</span> <span class=\"ds-selo ds-ok\">Ativo</span> <span class=\"ds-selo ds-marca\">Pendente</span>",
+      "css": ".ds-selo { font-family: Rubik, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 8px; border: 1px solid; border-radius: 999px; font-size: 13px; font-weight: 500; white-space: nowrap; } .ds-selo::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; } .ds-critico { background: #ffe8e9; border-color: #f7a3a7; color: #a3222b; } .ds-atencao { background: #fff4d1; border-color: #f3cf6b; color: #6e4d00; } .ds-repor { background: #e6efff; border-color: #a9c6fb; color: #1f4fae; } .ds-ok { background: #e0f7ec; border-color: #8edcb9; color: #0b6b47; } .ds-marca { background: #f8e6f4; border-color: #e3a6d6; color: #7d1f6e; }"
+    },
+    {
+      "name": "Carta de aviso",
+      "kind": "card",
+      "refersTo": "carta-de-aviso",
+      "description": "Aviso do Início: vidro claro, ícone de jogo, número grande e a frase do aviso.",
+      "html": "<a class=\"ds-carta\" href=\"#\"><span class=\"ds-icone\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 4v13M6 12l6 6 6-6\"/></svg></span><span class=\"ds-numero\">7</span><span class=\"ds-frase\">variação(ões) abaixo do estoque mínimo</span></a>",
+      "css": ".ds-carta { font-family: Rubik, system-ui, sans-serif; background: rgba(255,255,255,.64); backdrop-filter: blur(22px) saturate(170%); -webkit-backdrop-filter: blur(22px) saturate(170%); border: 1px solid rgba(255,255,255,.78); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 2px rgba(17,26,83,.06), 0 18px 40px -16px rgba(17,26,83,.28); display: flex; flex-direction: column; gap: 12px; width: 220px; padding: 20px; border-radius: 26px; color: #111a53; text-decoration: none; transition: transform .3s cubic-bezier(.34,1.56,.64,1); } .ds-carta:hover { transform: translateY(-4px); } .ds-carta:focus-visible { outline: 3px solid rgba(166,44,147,.45); outline-offset: 2px; } .ds-icone { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(150deg, #a9caff, #4a8bef 55%, #2a5fc0); box-shadow: inset 0 1.5px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.12), 0 8px 16px -8px #4a8bef; } .ds-numero { font-size: 60px; font-weight: 800; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; } .ds-frase { font-size: 15px; font-weight: 500; line-height: 1.35; }"
+    },
+    {
+      "name": "Menu lateral",
+      "kind": "nav",
+      "refersTo": "menu-lateral",
+      "description": "Coluna de vidro violeta; a pílula branca marca a página aberta.",
+      "html": "<nav class=\"ds-menu\"><a class=\"ds-ativo\" href=\"#\">Início</a><a href=\"#\">Produtos</a><a href=\"#\">Estoque</a><a href=\"#\">Alertas</a></nav>",
+      "css": ".ds-menu { font-family: Rubik, system-ui, sans-serif; display: flex; flex-direction: column; gap: 4px; width: 220px; padding: 14px; border-radius: 22px; background: linear-gradient(180deg, rgba(74,22,122,.92), rgba(112,32,134,.88)); } .ds-menu a { display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; color: rgba(255,255,255,.82); font-size: 15px; font-weight: 500; text-decoration: none; transition: color .2s, background .2s; } .ds-menu a:hover { color: #fff; background: rgba(255,255,255,.1); } .ds-menu a:focus-visible { outline: 3px solid rgba(255,255,255,.6); outline-offset: 2px; } .ds-menu a.ds-ativo { color: #111a53; font-weight: 600; background: rgba(255,255,255,.96); box-shadow: inset 0 1px 0 #fff, 0 10px 22px -10px rgba(17,10,60,.7); }"
+    },
+    {
+      "name": "Aviso de salvo",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Confirmação depois de salvar: pílula escura com o ✓ menta.",
+      "html": "<p class=\"ds-salvo\"><span class=\"ds-check\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\"><path d=\"M5 12.5 10 17l9-10\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span>Alterações salvas.</p>",
+      "css": ".ds-salvo { font-family: Rubik, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 6px 16px 6px 6px; border-radius: 999px; background: rgba(17,26,83,.85); color: #fff; font-size: 14px; font-weight: 500; box-shadow: 0 14px 30px -14px rgba(17,26,83,.6); } .ds-check { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(150deg, #7de8bd, #1db37a 60%, #0c7650); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Confete com ordem",
+    "overview": "O painel é a ferramenta de trabalho de uma loja de festas e confeitaria: a festa aparece no visual, o rigor fica no estoque. Cor, brilho e movimento ocupam o menu, os avisos e os momentos de conquista; tabelas e formulários ficam limpos, alinhados e fáceis de ler para uma equipe com familiaridade mista com tecnologia, no computador do balcão e no celular do depósito.\n\nA identidade vem do logo da Di Boni: o \"d\" em degradê roxo-magenta e o \"b\" azul-marinho, as letras de balão e o círculo listrado. Daí saem o violeta do menu, o magenta das ações e a tinta azul-marinho do texto. Por cima, uma camada de vidro fosco no estilo da Apple deixa o fundo de confete em 3D aparecer desfocado, e as peças se comportam como botões de videogame: têm brilho, base e afundam no clique.\n\nA ambição é jogo com acabamento caprichado: contornos finos em vez de traço grosso de desenho animado, sombras suaves com cor e resposta a cada gesto. Tudo se mexe quando a pessoa age (faísca no clique, brilho no botão, carta que inclina, tela que entra), e o confete grande fica guardado para as conquistas.",
+    "keyCharacteristics": [
+      "Vidro fosco sobre um fundo de confete 3D nas cores da loja.",
+      "Menu violeta de vidro com a pílula branca que desliza até a página aberta.",
+      "Botões de jogo em pílula, com base que afunda no clique.",
+      "Cores de festa que sempre dizem alguma coisa: vencido, vencendo, repor, tudo certo.",
+      "Uma família tipográfica só (Rubik), dos números grandes ao texto das tabelas.",
+      "O balão da Di Boni comemora quando está tudo em dia, e solta confete de novo quando alguém clica nele.",
+      "Tudo responde: faísca colorida em cada clique, brilho que atravessa o botão, mola ao soltar, telas e linhas de tabela que entram em sequência."
+    ],
+    "rules": [
+      {
+        "name": "The Uma Cor, Um Recado Rule",
+        "body": "Coral, sol, azul e menta nunca são enfeite fora do confete. A carta, o selo e o ícone de um mesmo assunto usam a mesma cor: \"abaixo do mínimo\" é azul em todo lugar.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sem Preto Rule",
+        "body": "Texto e contorno usam tinta azul-marinho; preto puro não aparece.",
+        "section": "colors"
+      },
+      {
+        "name": "The Número Que Conta Rule",
+        "body": "Quantidades em tabelas e cartas usam números de largura fixa (tabular), para as colunas alinharem.",
+        "section": "typography"
+      },
+      {
+        "name": "The Frase Completa Rule",
+        "body": "Rótulos e botões dizem a ação por extenso (\"Ver alertas\", \"Salvar produto\"); ícone sozinho não substitui palavra.",
+        "section": "typography"
+      },
+      {
+        "name": "The Vidro Não Empilha Rule",
+        "body": "Vidro dentro de vidro perde o desfoque: uma tabela dentro de um painel vira branco translúcido, sem sombra própria.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Tudo Responde Rule",
+        "body": "Todo gesto tem resposta: faísca no clique, brilho no hover, mola ao soltar, tela que entra subindo e entrando em foco, linhas da tabela que chegam em sequência. O confete grande fica para as conquistas (tudo em dia, salvo).",
+        "section": "elevation"
+      },
+      {
+        "name": "The Alvo Parado Rule",
+        "body": "O que se clica nunca fica se mexendo sozinho para sempre; movimento contínuo só em enfeite (balão, confete do fundo, ponto do selo crítico).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do colocar conteúdo de trabalho em vidro claro (painel, tabela ou carta) sobre o fundo de festa.",
+      "Do usar a mesma cor para o mesmo assunto na carta, no selo e no ícone.",
+      "Do manter 44px de altura em botões e campos, para tocar fácil no celular.",
+      "Do respeitar quem pede menos movimento: sem animação, o ✓ já aparece desenhado e os números já mostram o valor.",
+      "Do usar o monograma \"db\" num selo branco sempre que ele ficar sobre o violeta."
+    ],
+    "donts": [
+      "Don't pôr vidro dentro de vidro com sombra própria.",
+      "Don't deixar algo clicável em movimento contínuo; o clique precisa de um alvo parado.",
+      "Don't gastar o confete grande fora das conquistas; no dia a dia, a resposta é faísca, brilho e mola.",
+      "Don't usar coral, sol, azul ou menta como decoração fora do confete.",
+      "Don't usar preto puro ou cinza neutro no texto; use tinta e tinta suave.",
+      "Don't trocar um rótulo escrito por um ícone sozinho."
+    ]
+  }
+}

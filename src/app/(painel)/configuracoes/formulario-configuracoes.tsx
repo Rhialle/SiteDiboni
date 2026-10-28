@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,9 +56,9 @@ export function FormularioConfiguracoes({
       </div>
       <MensagemDeErro>{estado.erro}</MensagemDeErro>
       {estado.sucesso ? (
-        <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+        <MensagemDeSucesso>
           {estado.sucesso}
-        </p>
+        </MensagemDeSucesso>
       ) : null}
       <Button type="submit" className="self-start" disabled={enviando}>
         {enviando ? "Salvando…" : "Salvar"}

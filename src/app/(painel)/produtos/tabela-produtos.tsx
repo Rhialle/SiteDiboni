@@ -3,11 +3,13 @@
 import Link from "next/link"
 import { useId, useState, useTransition } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ROTULO_SITUACAO, ROTULO_TIPO_VENDA } from "@/lib/catalogo/rotulos"
+import { Selo } from "@/components/ui/selo"
+import { ROTULO_SITUACAO, ROTULO_TIPO_VENDA, TOM_SITUACAO } from "@/lib/catalogo/rotulos"
 import { formatarMoeda } from "@/lib/formatacao"
 
 import { categoriaEmMassa, inativarEmMassa, reajustarEmMassa, type ResultadoMassa } from "./acoes-massa"
@@ -21,7 +23,7 @@ export type LinhaProduto = {
   menor_preco_centavos: number | null
 }
 
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 
 export function TabelaProdutos({
   produtos,
@@ -50,7 +52,7 @@ export function TabelaProdutos({
       {podeEditar ? (
         <BarraAcoesMassa selecionados={selecionados} categorias={categorias} aoConcluir={() => setMarcados([])} />
       ) : null}
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="tabela-vidro overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
@@ -64,18 +66,18 @@ export function TabelaProdutos({
                   />
                 </th>
               ) : null}
-              <th className="px-3 py-2 font-medium">Produto</th>
-              <th className="px-3 py-2 font-medium">Situação</th>
-              <th className="px-3 py-2 font-medium">Tipo</th>
-              <th className="px-3 py-2 font-medium">Variações</th>
-              <th className="px-3 py-2 font-medium">Preço</th>
+              <th className="px-4 py-3 font-medium">Produto</th>
+              <th className="px-4 py-3 font-medium">Situação</th>
+              <th className="px-4 py-3 font-medium">Tipo</th>
+              <th className="px-4 py-3 font-medium">Variações</th>
+              <th className="px-4 py-3 font-medium">Preço</th>
             </tr>
           </thead>
           <tbody>
             {produtos.map((produto) => (
               <tr key={produto.id} className="border-t">
                 {podeEditar ? (
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     <input
                       type="checkbox"
                       aria-label={`Selecionar ${produto.nome}`}
@@ -84,15 +86,17 @@ export function TabelaProdutos({
                     />
                   </td>
                 ) : null}
-                <td className="px-3 py-2">
+                <td className="px-4 py-3">
                   <Link href={`/produtos/${produto.id}`} className="font-medium hover:underline">
                     {produto.nome}
                   </Link>
                 </td>
-                <td className="px-3 py-2">{ROTULO_SITUACAO[produto.situacao] ?? produto.situacao}</td>
-                <td className="px-3 py-2">{ROTULO_TIPO_VENDA[produto.tipo_venda]}</td>
-                <td className="px-3 py-2">{produto.variacoes}</td>
-                <td className="px-3 py-2">
+                <td className="px-4 py-3">
+                  <Selo tom={TOM_SITUACAO[produto.situacao]}>{ROTULO_SITUACAO[produto.situacao] ?? produto.situacao}</Selo>
+                </td>
+                <td className="px-4 py-3">{ROTULO_TIPO_VENDA[produto.tipo_venda]}</td>
+                <td className="px-4 py-3">{produto.variacoes}</td>
+                <td className="px-4 py-3">
                   {produto.menor_preco_centavos === null
                     ? "—"
                     : `a partir de ${formatarMoeda(produto.menor_preco_centavos)}${produto.tipo_venda === "peso" ? "/kg" : ""}`}
@@ -129,7 +133,7 @@ function BarraAcoesMassa({
     })
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
+    <div className="flex flex-col gap-2 vidro rounded-2xl p-4 text-sm">
       <p className="text-muted-foreground">{selecionados.length} selecionado(s)</p>
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
@@ -178,7 +182,7 @@ function BarraAcoesMassa({
       </div>
       <MensagemDeErro>{resultado.erro}</MensagemDeErro>
       {resultado.sucesso ? (
-        <p role="status" className="text-emerald-700 dark:text-emerald-400">{resultado.sucesso}</p>
+        <MensagemDeSucesso>{resultado.sucesso}</MensagemDeSucesso>
       ) : null}
     </div>
   )

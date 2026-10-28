@@ -11,7 +11,7 @@ export type Filtros = {
   material: string
 }
 
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 
 function Escolha({
   id,

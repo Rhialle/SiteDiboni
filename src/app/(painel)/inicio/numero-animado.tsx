@@ -21,6 +21,10 @@ export function NumeroAnimado({ valor, atraso = 0, className }: { valor: number;
       onUpdate: (atual) => {
         elemento.textContent = formato.format(Math.round(atual))
       },
+      // Chegou no valor: o número dá um pulinho, como placar de jogo.
+      onComplete: () => {
+        animate(elemento, { scale: [1, 1.18, 1] }, { duration: 0.45, ease: [0.34, 1.56, 0.64, 1] })
+      },
     })
     return () => {
       contagem.stop()

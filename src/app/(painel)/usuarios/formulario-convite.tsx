@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,7 +21,7 @@ export function FormularioConvite() {
   const [estado, acao, enviando] = useActionState(convidarUsuario, estadoInicial)
 
   return (
-    <form action={acao} className="grid gap-4 rounded-lg border p-4 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
+    <form action={acao} className="grid gap-4 vidro rounded-3xl p-5 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
       <div className="flex flex-col gap-2">
         <Label htmlFor={`${id}-nome`}>Nome</Label>
         <Input id={`${id}-nome`} name="nome" defaultValue={estado.valores.nome} required />
@@ -41,7 +42,7 @@ export function FormularioConvite() {
           id={`${id}-papel`}
           name="papel"
           defaultValue={estado.valores.papel}
-          className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+          className="campo-escolha"
         >
           <option value="funcionario">Funcionário</option>
           <option value="administrador">Administrador</option>
@@ -53,9 +54,9 @@ export function FormularioConvite() {
       <div className="sm:col-span-4">
         <MensagemDeErro>{estado.erro}</MensagemDeErro>
         {estado.sucesso ? (
-          <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+          <MensagemDeSucesso>
             {estado.sucesso}
-          </p>
+          </MensagemDeSucesso>
         ) : null}
       </div>
     </form>

@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation"
 
+import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { caminhosDasCategorias, montarArvore } from "@/lib/catalogo/arvore"
 import { CAMPOS_MARCAVEIS, type CamposDoProduto } from "@/lib/catalogo/produto-form"
-import { PROPRIEDADES, ROTULO_SITUACAO, ROTULO_TIPO_VENDA } from "@/lib/catalogo/rotulos"
+import { PROPRIEDADES, ROTULO_SITUACAO, ROTULO_TIPO_VENDA, TOM_SITUACAO } from "@/lib/catalogo/rotulos"
 import { mensagemPendencias } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
@@ -17,12 +18,6 @@ import { Variacoes } from "./variacoes"
 
 // Depende da sessão (cookies): o servidor espera antes de mostrar a página.
 export const instant = false
-
-const COR_SITUACAO: Record<string, string> = {
-  ativo: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  incompleto: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  inativo: "bg-muted text-muted-foreground",
-}
 
 export default async function PaginaProduto({ params }: PageProps<"/produtos/[id]">) {
   const { id } = await params
@@ -121,20 +116,22 @@ export default async function PaginaProduto({ params }: PageProps<"/produtos/[id
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold">{produto.nome}</h1>
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${COR_SITUACAO[produto.situacao ?? ""] ?? ""}`}>
+          <h1 className="text-3xl font-bold sm:text-4xl">{produto.nome}</h1>
+          <Selo tom={TOM_SITUACAO[produto.situacao ?? ""]}>
             {ROTULO_SITUACAO[produto.situacao ?? ""] ?? produto.situacao}
-          </span>
+          </Selo>
         </div>
         <p className="text-sm text-muted-foreground">{ROTULO_TIPO_VENDA[campos.tipo_venda]}</p>
         {podeEditar ? <BotaoInativar produtoId={id} inativo={produto.inativo ?? false} /> : null}
         {produto.situacao === "incompleto" && pendencias.length > 0 ? (
-          <p className="text-sm text-amber-800 dark:text-amber-300">{mensagemPendencias(pendencias)}</p>
+          <p className="w-fit rounded-xl border border-[#f3cf6b] bg-[#fff4d1] px-3 py-2 text-sm font-medium text-[#6e4d00]">
+            {mensagemPendencias(pendencias)}
+          </p>
         ) : null}
       </header>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Dados</h2>
+      <section className="vidro flex flex-col gap-4 rounded-3xl p-5 sm:p-6">
+        <h2 className="text-xl font-semibold">Dados</h2>
         {podeEditar ? (
           <DadosGerais produtoId={id} salvos={campos} categorias={caminhos} materiais={materiaisR.data ?? []} />
         ) : (
@@ -153,19 +150,19 @@ export default async function PaginaProduto({ params }: PageProps<"/produtos/[id
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Variações</h2>
+      <section className="vidro flex flex-col gap-4 rounded-3xl p-5 sm:p-6">
+        <h2 className="text-xl font-semibold">Variações</h2>
         <Variacoes produtoId={id} variacoes={variacoes} podeEditar={podeEditar} unidade={porPeso ? "g" : "un."} />
         {podeEditar ? <Grade produtoId={id} /> : null}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Fotos</h2>
+      <section className="vidro flex flex-col gap-4 rounded-3xl p-5 sm:p-6">
+        <h2 className="text-xl font-semibold">Fotos</h2>
         <Fotos produtoId={id} nomeProduto={produto.nome ?? ""} fotos={fotos} podeEditar={podeEditar} />
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">{porPeso ? "Preço por kg" : "Formas de venda"}</h2>
+      <section className="vidro flex flex-col gap-4 rounded-3xl p-5 sm:p-6">
+        <h2 className="text-xl font-semibold">{porPeso ? "Preço por kg" : "Formas de venda"}</h2>
         <FormasVenda
           produtoId={id}
           porPeso={porPeso}
@@ -175,8 +172,8 @@ export default async function PaginaProduto({ params }: PageProps<"/produtos/[id
         />
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Compatibilidades</h2>
+      <section className="vidro flex flex-col gap-4 rounded-3xl p-5 sm:p-6">
+        <h2 className="text-xl font-semibold">Compatibilidades</h2>
         <Compatibilidades
           produtoId={id}
           variacoes={variacoes.filter((v) => v.ativa)}

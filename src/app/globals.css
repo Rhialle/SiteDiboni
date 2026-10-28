@@ -118,6 +118,8 @@
   input[type="checkbox"],
   input[type="radio"] {
     accent-color: var(--magenta);
+    width: 1.125rem;
+    height: 1.125rem;
   }
   :focus-visible {
     outline: 3px solid rgb(166 44 147 / 0.45);
@@ -136,6 +138,94 @@
     backdrop-filter: blur(22px) saturate(170%);
     border: 1px solid var(--vidro-borda);
     box-shadow: var(--sombra-vidro);
+  }
+
+  /* Tabela de vidro claro: as linhas acendem quando o mouse passa. */
+  .tabela-vidro {
+    border-radius: 22px;
+    background: var(--vidro);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--vidro-borda);
+    box-shadow: var(--sombra-vidro);
+  }
+  .tabela-vidro table {
+    background-color: transparent;
+  }
+  /* Dentro de um painel de vidro, a tabela não vira outro vidro por cima. */
+  .vidro .tabela-vidro {
+    background: rgb(255 255 255 / 0.55);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: rgb(17 26 83 / 0.08);
+    box-shadow: none;
+  }
+  .tabela-vidro thead {
+    background: rgb(241 234 249 / 0.8);
+  }
+  .tabela-vidro thead th {
+    font-weight: 600;
+    color: var(--tinta-suave);
+  }
+  .tabela-vidro tbody tr {
+    transition: background-color 0.2s;
+  }
+  .tabela-vidro tbody tr:hover {
+    background: rgb(255 255 255 / 0.75);
+  }
+
+  /* Seletor e caixa de texto no mesmo tamanho e jeito dos campos. */
+  .campo-escolha,
+  .campo-texto {
+    border: 1.5px solid var(--input);
+    border-radius: 14px;
+    background-color: rgb(255 255 255 / 0.9);
+    color: var(--tinta);
+    font-size: 1rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .campo-escolha {
+    height: 2.75rem;
+    padding: 0 2.25rem 0 0.875rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5180' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+  }
+  .campo-texto {
+    padding: 0.625rem 0.875rem;
+  }
+  .campo-escolha:focus-visible,
+  .campo-texto:focus-visible {
+    outline: none;
+    border-color: var(--magenta);
+    box-shadow: 0 0 0 4px rgb(166 44 147 / 0.15);
+  }
+
+  /* Link que funciona como aba ou atalho: pílula de vidro. */
+  .link-pilula {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.625rem;
+    padding: 0 1.125rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--tinta);
+    background: rgb(255 255 255 / 0.7);
+    border: 1px solid var(--vidro-borda);
+    box-shadow: 0 6px 16px -10px rgb(17 26 83 / 0.35);
+    transition:
+      background-color 0.2s,
+      transform 0.2s var(--ease-suave);
+  }
+  .link-pilula:hover {
+    background: #fff;
+    transform: translateY(-1px);
   }
 
   /* Vidro violeta do menu e da barra do celular. */
@@ -219,8 +309,14 @@
     --i3: #6e1a63;
   }
 
+  /* A forma acompanha o mouse em camadas (--prof); dentro dela, o giro e a flutuação. */
   .forma {
     position: absolute;
+    display: block;
+    transform: translate3d(calc(var(--px, 0) * var(--prof, 16) * 1px), calc(var(--py, 0) * var(--prof, 16) * 1px), 0);
+    transition: transform 0.9s var(--ease-suave);
+  }
+  .forma-giro {
     display: block;
     will-change: transform;
     transform: rotate(var(--r, 0deg));
@@ -232,7 +328,7 @@
     overflow: visible;
     filter: drop-shadow(0 14px 18px rgb(17 26 83 / 0.18));
   }
-  .forma-viva {
+  .forma-viva .forma-giro {
     animation: flutuar var(--d, 18s) ease-in-out infinite alternate;
   }
 
@@ -269,6 +365,32 @@
   }
 }
 
+.traco-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tracar 0.45s var(--ease-suave) 0.35s forwards;
+}
+
+.selo-pulsa::before {
+  animation: pulso 2.2s ease-out infinite;
+}
+
+@keyframes tracar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulso {
+  0% {
+    box-shadow: 0 0 0 0 rgb(242 84 91 / 0.55);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px rgb(242 84 91 / 0);
+  }
+}
+
 @keyframes boiar {
   0%,
   100% {
@@ -285,5 +407,228 @@
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+  /* Sem animação, o ✓ já aparece desenhado. */
+  .traco-check {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Animações: tudo se mexe, nada fica no caminho ----------
+   Regra de ouro: nada que se clica fica se mexendo sozinho para sempre (o clique precisa de um alvo parado). */
+@layer components {
+  /* Brilho que atravessa o botão quando o mouse chega. */
+  .botao-jogo,
+  .link-pilula {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .botao-jogo::after,
+  .link-pilula::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.55) 47%, rgb(255 255 255 / 0.12) 55%, transparent 68%);
+    transform: translateX(-130%);
+  }
+  .botao-claro::after,
+  .link-pilula::after {
+    background: linear-gradient(105deg, transparent 30%, rgb(166 44 147 / 0.16) 50%, transparent 68%);
+  }
+  .botao-jogo:hover::after,
+  .link-pilula:hover::after {
+    animation: brilho-passa 0.75s var(--ease-suave);
+  }
+  /* Ao soltar o clique, o botão volta com mola; ao apertar, achata um pouco. */
+  .botao-jogo {
+    transition:
+      transform 0.38s var(--ease-mola),
+      box-shadow 0.2s var(--ease-suave),
+      filter 0.2s;
+  }
+  .botao-jogo:active:not(:disabled) {
+    transform: translateY(var(--altura-labio)) scale(0.97);
+  }
+  .link-pilula:active {
+    transform: scale(0.95);
+  }
+
+  /* Luz que segue o cursor dentro do vidro (as coordenadas vêm de EfeitosGlobais). */
+  .vidro,
+  .tabela-vidro {
+    position: relative;
+    isolation: isolate;
+  }
+  .vidro::before,
+  .tabela-vidro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(380px circle at var(--luz-x, 50%) var(--luz-y, 50%), rgb(255 255 255 / 0.8), transparent 62%);
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .vidro:hover::before,
+  .tabela-vidro:hover::before {
+    opacity: 1;
+  }
+
+  /* Carta que inclina em 3D na direção do cursor e dá um pulinho no ícone. */
+  .carta-inclina {
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--sobe, 0px));
+    transition:
+      transform 0.45s var(--ease-mola),
+      box-shadow 0.3s;
+  }
+  .carta-inclina:hover {
+    --sobe: -5px;
+    transition:
+      transform 0.15s ease-out,
+      box-shadow 0.3s;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 30px 50px -20px rgb(17 26 83 / 0.4);
+  }
+  .carta-inclina:hover .icone-jogo {
+    animation: pulinho 0.55s var(--ease-mola);
+  }
+
+  /* Ícones do menu balançam quando o mouse passa; no celular, encolhem no toque. */
+  .item-menu:hover svg {
+    animation: balancar 0.6s var(--ease-suave);
+  }
+  .aba-celular svg {
+    transition: scale 0.35s var(--ease-mola);
+  }
+  .aba-celular:active svg {
+    scale: 0.8;
+  }
+
+  /* Cada tela entra subindo e entrando em foco. */
+  .entra-tela {
+    animation: tela-entra 0.5s var(--ease-suave) backwards;
+  }
+
+  /* Linhas da tabela entram em sequência. */
+  .tabela-vidro tbody tr {
+    animation: linha-entra 0.45s var(--ease-suave) backwards;
+  }
+  .tabela-vidro tbody tr:nth-child(2) { animation-delay: 35ms; }
+  .tabela-vidro tbody tr:nth-child(3) { animation-delay: 70ms; }
+  .tabela-vidro tbody tr:nth-child(4) { animation-delay: 105ms; }
+  .tabela-vidro tbody tr:nth-child(5) { animation-delay: 140ms; }
+  .tabela-vidro tbody tr:nth-child(6) { animation-delay: 175ms; }
+  .tabela-vidro tbody tr:nth-child(7) { animation-delay: 210ms; }
+  .tabela-vidro tbody tr:nth-child(8) { animation-delay: 245ms; }
+  .tabela-vidro tbody tr:nth-child(9) { animation-delay: 280ms; }
+  .tabela-vidro tbody tr:nth-child(10) { animation-delay: 315ms; }
+  .tabela-vidro tbody tr:nth-child(n + 11) { animation-delay: 350ms; }
+
+  /* Selos e avisos estouram ao aparecer; erros tremem. */
+  .estoura {
+    animation: estourar 0.6s var(--ease-mola) backwards;
+  }
+  .treme {
+    animation: tremer 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) backwards;
+  }
+}
+
+@layer base {
+  input[type="checkbox"],
+  input[type="radio"] {
+    transition: scale 0.3s var(--ease-mola);
+  }
+  input[type="checkbox"]:checked,
+  input[type="radio"]:checked {
+    animation: marcar 0.35s var(--ease-mola);
+  }
+  input[type="checkbox"]:active,
+  input[type="radio"]:active {
+    scale: 0.85;
+  }
+}
+
+@keyframes brilho-passa {
+  to {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes pulinho {
+  30% {
+    transform: translateY(-7px) rotate(-8deg) scale(1.08);
+  }
+  60% {
+    transform: translateY(1px) rotate(4deg);
+  }
+}
+
+@keyframes balancar {
+  20% {
+    rotate: -14deg;
+  }
+  40% {
+    rotate: 10deg;
+  }
+  60% {
+    rotate: -6deg;
+  }
+  80% {
+    rotate: 3deg;
+  }
+}
+
+@keyframes tela-entra {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+}
+
+@keyframes linha-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes estourar {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+@keyframes tremer {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(3px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes marcar {
+  0% {
+    scale: 0.6;
   }
 }

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
+
+import { EfeitosGlobais } from "@/components/festa/efeitos-globais";
+
 import "./globals.css";
 
 const rubik = Rubik({
@@ -15,7 +18,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${rubik.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <EfeitosGlobais />
+      </body>
     </html>
   );
 }

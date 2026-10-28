@@ -20,7 +20,7 @@ export default async function PaginaUsuarios() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Usuários</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">Usuários</h1>
         <p className="text-sm text-muted-foreground">
           Convide quem trabalha na loja. A pessoa recebe um e-mail para criar a própria senha.
         </p>

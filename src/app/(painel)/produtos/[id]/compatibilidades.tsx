@@ -17,7 +17,7 @@ export type Compatibilidade = {
   outra: { produtoId: string; produto: string; variacao: string; codigo: string }
 }
 
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 
 export function Compatibilidades({
   produtoId,
@@ -44,7 +44,7 @@ export function Compatibilidades({
       {compatibilidades.length === 0 ? <p className="text-muted-foreground">Nenhuma compatibilidade.</p> : null}
       <ul aria-label="Compatibilidades" className="flex flex-col gap-1">
         {compatibilidades.map((c) => (
-          <li key={c.id} className="flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2">
+          <li key={c.id} className="flex flex-wrap items-center gap-2 vidro rounded-2xl px-4 py-3">
             {variasVariacoes ? <span className="text-muted-foreground">{c.daqui} ↔</span> : null}
             <Link href={`/produtos/${c.outra.produtoId}`} className="font-medium hover:underline">
               {c.outra.produto} — {c.outra.variacao}

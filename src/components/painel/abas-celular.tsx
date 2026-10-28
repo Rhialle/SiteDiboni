@@ -53,23 +53,29 @@ export function AbasCelular({ itens, rodapeDoMais }: { itens: ItemDoMenu[]; roda
           >
             {extras.length > 0 ? (
               <nav aria-label="Mais opções" className="flex flex-col gap-1">
-                {extras.map((item) => {
+                {extras.map((item, ordem) => {
                   const Icone = ICONES[item.icone]
                   const ativo = estaAtivo(caminho, item.href)
                   return (
-                    <Link
+                    <motion.div
                       key={item.href}
-                      href={item.href}
-                      aria-current={ativo ? "page" : undefined}
-                      onClick={() => setAberto(false)}
-                      className={cn(
-                        "flex min-h-12 items-center gap-3 rounded-2xl px-4 font-medium text-tinta",
-                        ativo ? "bg-magenta/10 text-magenta" : "hover:bg-tinta/5",
-                      )}
+                      initial={{ opacity: 0, x: -14 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ ...MOLA, delay: 0.05 + ordem * 0.05 }}
                     >
-                      <Icone className="size-5" aria-hidden="true" />
-                      {item.rotulo}
-                    </Link>
+                      <Link
+                        href={item.href}
+                        aria-current={ativo ? "page" : undefined}
+                        onClick={() => setAberto(false)}
+                        className={cn(
+                          "flex min-h-12 items-center gap-3 rounded-2xl px-4 font-medium text-tinta",
+                          ativo ? "bg-magenta/10 text-magenta" : "hover:bg-tinta/5",
+                        )}
+                      >
+                        <Icone className="size-5" aria-hidden="true" />
+                        {item.rotulo}
+                      </Link>
+                    </motion.div>
                   )
                 })}
               </nav>
@@ -92,7 +98,7 @@ export function AbasCelular({ itens, rodapeDoMais }: { itens: ItemDoMenu[]; roda
               href={item.href}
               aria-current={ativo ? "page" : undefined}
               className={cn(
-                "relative grid justify-items-center gap-0.5 rounded-[22px] py-1.5 text-xs transition-colors",
+                "aba-celular relative grid justify-items-center gap-0.5 rounded-[22px] py-1.5 text-xs transition-colors",
                 ativo ? "font-semibold text-magenta" : "font-medium text-tinta-suave",
               )}
             >
@@ -108,7 +114,7 @@ export function AbasCelular({ itens, rodapeDoMais }: { itens: ItemDoMenu[]; roda
           aria-controls="menu-mais"
           onClick={() => setAberto((valor) => !valor)}
           className={cn(
-            "relative grid justify-items-center gap-0.5 rounded-[22px] py-1.5 text-xs transition-colors",
+            "aba-celular relative grid justify-items-center gap-0.5 rounded-[22px] py-1.5 text-xs transition-colors",
             maisAtivo ? "font-semibold text-magenta" : "font-medium text-tinta-suave",
           )}
         >

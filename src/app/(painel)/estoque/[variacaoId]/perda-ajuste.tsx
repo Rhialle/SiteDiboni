@@ -2,6 +2,7 @@
 
 import { useActionState, useId, useState } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +13,7 @@ import { registrarPerdaOuAjuste, type EstadoEstoque } from "./acoes"
 
 export type LoteParaPerda = { id: string; codigo: string; vencido: boolean }
 
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 const INICIAL: EstadoEstoque = { erro: "", sucesso: "", valores: null }
 
 // Perda ou ajuste, para todos. Os tipos seguem o lote: de lote vencido só sai perda por vencimento.
@@ -50,8 +51,8 @@ export function PerdaOuAjuste({
       ]
 
   return (
-    <section aria-labelledby={`${id}-titulo`} className="flex flex-col gap-3 rounded-lg border p-4">
-      <h2 id={`${id}-titulo`} className="text-lg font-semibold">
+    <section aria-labelledby={`${id}-titulo`} className="flex flex-col gap-3 vidro rounded-3xl p-5">
+      <h2 id={`${id}-titulo`} className="text-xl font-semibold">
         Perda ou ajuste
       </h2>
       {controlaValidade && lotes.length === 0 ? (
@@ -102,9 +103,9 @@ export function PerdaOuAjuste({
           <div className="flex flex-col gap-2 sm:col-span-2">
             <MensagemDeErro>{estado.erro}</MensagemDeErro>
             {estado.sucesso ? (
-              <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+              <MensagemDeSucesso>
                 {estado.sucesso}
-              </p>
+              </MensagemDeSucesso>
             ) : null}
             <Button type="submit" className="self-start" disabled={enviando}>
               {enviando ? "Registrando…" : "Registrar"}

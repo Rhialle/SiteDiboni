@@ -17,7 +17,7 @@ import {
 } from "./acoes"
 
 const SELECT =
-  "h-8 rounded-lg border border-input bg-transparent px-2 text-sm disabled:opacity-50"
+  "campo-escolha disabled:opacity-50"
 
 export function ArvoreCategorias({ arvore }: { arvore: NoCategoria[] }) {
   const id = useId()
@@ -33,7 +33,7 @@ export function ArvoreCategorias({ arvore }: { arvore: NoCategoria[] }) {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">Categorias</h2>
+      <h2 className="text-xl font-semibold">Categorias</h2>
       <form action={acao} className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-nome`}>Nova categoria</Label>

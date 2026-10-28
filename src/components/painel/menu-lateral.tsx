@@ -48,7 +48,7 @@ function ItemDoMenuLateral({ item, ativo }: { item: ItemDoMenu; ativo: boolean }
       href={item.href}
       aria-current={ativo ? "page" : undefined}
       className={cn(
-        "relative flex min-h-11 items-center gap-3 rounded-full px-4 text-[0.9375rem] transition-colors duration-200",
+        "item-menu relative flex min-h-11 items-center gap-3 rounded-full px-4 text-[0.9375rem] transition-colors duration-200",
         ativo ? "font-semibold text-tinta" : "font-medium text-white/80 hover:bg-white/10 hover:text-white",
       )}
     >
