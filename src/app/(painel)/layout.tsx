@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
 import { sair } from "@/app/entrar/acoes"
+import { entradaDeTesteLigada } from "@/lib/auth/entrada-de-teste"
 import { exigirUsuario } from "@/lib/auth/sessao"
 
 // Depende da sessão (cookies) ou da URL: o servidor espera antes de mostrar a página.
@@ -29,6 +30,11 @@ export default async function LayoutPainel({ children }: { children: ReactNode }
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
+      {entradaDeTesteLigada() ? (
+        <p role="note" className="bg-amber-100 px-4 py-1.5 text-center text-sm text-amber-950 dark:bg-amber-900 dark:text-amber-50">
+          Modo de teste: a entrada sem senha está ligada. Não cadastre dados reais da loja.
+        </p>
+      ) : null}
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
           <span className="text-sm font-semibold tracking-wide uppercase">Di Boni</span>

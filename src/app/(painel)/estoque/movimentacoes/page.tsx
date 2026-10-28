@@ -21,23 +21,6 @@ const DIA = /^\d{4}-\d{2}-\d{2}$/
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 type TipoMovimentacao = Database["public"]["Enums"]["tipo_movimentacao"]
-type LinhaDoExtrato = Database["public"]["Views"]["extrato_movimentacoes"]["Row"]
-
-// Os tipos gerados tratam toda coluna de view como "pode ser nula"; estas nunca são.
-type Movimentacao = Omit<
-  LinhaDoExtrato,
-  "id" | "criado_em" | "tipo" | "quantidade" | "estornada" | "variacao_id" | "produto" | "variacao" | "tipo_venda"
-> & {
-  id: number
-  criado_em: string
-  tipo: TipoMovimentacao
-  quantidade: number
-  estornada: boolean
-  variacao_id: string
-  produto: string
-  variacao: string
-  tipo_venda: Database["public"]["Enums"]["tipo_venda"]
-}
 
 function primeiro(valor: string | string[] | undefined): string {
   return (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? ""
@@ -75,7 +58,7 @@ export default async function PaginaMovimentacoes({ searchParams }: PageProps<"/
   const { data, count, error } = await consulta
   if (error) throw error
 
-  const movimentacoes = (data ?? []) as Movimentacao[]
+  const movimentacoes = data ?? []
   const paginas = Math.max(1, Math.ceil((count ?? 0) / POR_PAGINA))
   const ativos = Object.fromEntries(Object.entries(filtros).filter(([, valor]) => valor))
   const endereco = (n: number) => `/estoque/movimentacoes?${new URLSearchParams({ ...ativos, pagina: String(n) })}`
@@ -167,7 +150,7 @@ export default async function PaginaMovimentacoes({ searchParams }: PageProps<"/
                   </td>
                   {administrador ? (
                     <td className="px-3 py-2">
-                      {m.tipo !== "estorno" ? <BotaoEstornar id={m.id} estornada={m.estornada} /> : null}
+                      {m.tipo !== "estorno" ? <BotaoEstornar id={m.id} estornada={m.estornada ?? false} /> : null}
                     </td>
                   ) : null}
                 </tr>
