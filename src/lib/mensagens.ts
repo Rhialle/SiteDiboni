@@ -130,10 +130,11 @@ export type ContagensDoInicio = {
   solicitacoes_pendentes: number
   conferencia_em: string | null
   conferencia_divergencias: number | null
+  notas_aguardando: number
 }
 
 export type AvisoDoInicio = {
-  tipo: "vencidos" | "vencendo" | "abaixoDoMinimo" | "solicitacoes" | "conferencia"
+  tipo: "vencidos" | "vencendo" | "abaixoDoMinimo" | "solicitacoes" | "notas" | "conferencia"
   // Número em destaque na carta e o texto que vem depois dele; a conferência não tem número.
   quantidade: number | null
   resto: string
@@ -164,6 +165,16 @@ export function avisosDoInicio(c: ContagensDoInicio): AvisoDoInicio[] {
   if (c.solicitacoes_pendentes > 0) {
     avisos.push(
       avisoDeContagem("solicitacoes", c.solicitacoes_pendentes, "solicitação(ões) pendente(s)", "/estoque/solicitacoes"),
+    )
+  }
+  if (c.notas_aguardando > 0) {
+    avisos.push(
+      avisoDeContagem(
+        "notas",
+        c.notas_aguardando,
+        "nota(s) aguardando o administrador",
+        "/notas?situacao=aguardando_administrador",
+      ),
     )
   }
   if (c.conferencia_em && c.conferencia_divergencias) {

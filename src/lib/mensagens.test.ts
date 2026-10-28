@@ -10,6 +10,7 @@ const SEM_NADA = {
   solicitacoes_pendentes: 0,
   conferencia_em: null,
   conferencia_divergencias: null,
+  notas_aguardando: 0,
 }
 
 describe("avisosDoInicio", () => {
@@ -48,6 +49,18 @@ describe("avisosDoInicio", () => {
         resto: "solicitação(ões) pendente(s)",
         texto: "4 solicitação(ões) pendente(s)",
         link: "/estoque/solicitacoes",
+      },
+    ])
+  })
+
+  it("notas aguardando o administrador levam para a lista já filtrada", () => {
+    expect(avisosDoInicio({ ...SEM_NADA, notas_aguardando: 2 })).toEqual([
+      {
+        tipo: "notas",
+        quantidade: 2,
+        resto: "nota(s) aguardando o administrador",
+        texto: "2 nota(s) aguardando o administrador",
+        link: "/notas?situacao=aguardando_administrador",
       },
     ])
   })

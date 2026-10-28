@@ -59,7 +59,7 @@ export function FiltrosProdutos({
           id="busca-produtos"
           name="q"
           defaultValue={filtros.q}
-          placeholder="Nome, código interno ou de barras"
+          placeholder="Nome, fornecedor, código interno ou de barras"
           className="w-72"
         />
       </div>

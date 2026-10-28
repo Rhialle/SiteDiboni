@@ -40,9 +40,14 @@ export default async function PaginaNotas({ searchParams }: PageProps<"/notas">)
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold sm:text-4xl">Notas de entrada</h1>
-        <p className="text-sm text-muted-foreground">Notas fiscais de compra: importe o XML, confira e dê entrada no estoque.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold sm:text-4xl">Notas de entrada</h1>
+          <p className="text-sm text-muted-foreground">Notas fiscais de compra: importe o XML, confira e dê entrada no estoque.</p>
+        </div>
+        <Link href="/notas/divergencias" className="link-pilula">
+          Divergências
+        </Link>
       </div>
 
       <ImportarNotas />
