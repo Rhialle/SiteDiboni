@@ -70,6 +70,11 @@ export const MENSAGENS = {
   xmlGrande: "O arquivo precisa ter até 4 MB.",
   xmlDemais: "Escolha até 50 arquivos por vez.",
   notaRepetida: "Esta nota já foi importada.",
+  fatorInvalido: "Informe o fator como número inteiro maior que zero.",
+  codigoNaoEncontrado: "Nenhuma variação com este código interno ou de barras.",
+  itemLigado: "Item ligado.",
+  produtoCriadoELigado: "Produto criado e item ligado. Complete o cadastro dele em Produtos.",
+  produtoCriadoSemLigacao: "O produto foi criado mesmo assim: ligue o item pelo código interno, sem criar de novo.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -89,6 +94,15 @@ export function mensagemNotaImportada(numero: string, fornecedor: string, semLig
   return semLigacao === 0
     ? `${inicio}, pronta para revisar.`
     : `${inicio}, aguardando o administrador ligar ${semLigacao} item(ns).`
+}
+
+// R6, com o mesmo texto que o banco usa quando recusa a ligação.
+export function mensagemFatorNaoInteiro(
+  item: { numero: number; descricao: string; unidade: string },
+  quantidade: string,
+  fator: number,
+): string {
+  return `Item ${item.numero} (${item.descricao}): ${quantidade} ${item.unidade} × ${fator} não dá quantidade inteira. Confira o fator.`
 }
 
 export function mensagemPendencias(itens: string[]): string {
