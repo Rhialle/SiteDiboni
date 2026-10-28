@@ -58,7 +58,7 @@ export default async function PaginaProdutos({ searchParams }: PageProps<"/produ
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold">Produtos</h1>
+          <h1 className="text-3xl font-bold sm:text-4xl">Produtos</h1>
           <p className="text-sm text-muted-foreground">{total} produto(s)</p>
         </div>
         {usuario.papel === "administrador" ? (
@@ -78,12 +78,16 @@ export default async function PaginaProdutos({ searchParams }: PageProps<"/produ
       />
 
       {paginas > 1 ? (
-        <nav aria-label="Páginas" className="flex items-center gap-3 text-sm">
-          {pagina > 1 ? <Link href={endereco(pagina - 1)}>Anterior</Link> : null}
+        <nav aria-label="Páginas" className="flex flex-wrap items-center gap-3 text-sm text-tinta-suave">
+          {pagina > 1 ? <Link href={endereco(pagina - 1)} className="link-pilula">
+              Anterior
+            </Link> : null}
           <span>
             Página {pagina} de {paginas}
           </span>
-          {pagina < paginas ? <Link href={endereco(pagina + 1)}>Próxima</Link> : null}
+          {pagina < paginas ? <Link href={endereco(pagina + 1)} className="link-pilula">
+              Próxima
+            </Link> : null}
         </nav>
       ) : null}
     </div>

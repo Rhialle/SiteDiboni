@@ -2,6 +2,7 @@
 
 import { useId, useState, useTransition } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,9 +48,9 @@ export function BotaoEstornar({ id, estornada }: { id: number; estornada: boolea
       ) : null}
       <MensagemDeErro>{resultado.erro}</MensagemDeErro>
       {resultado.sucesso ? (
-        <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+        <MensagemDeSucesso>
           {resultado.sucesso}
-        </p>
+        </MensagemDeSucesso>
       ) : null}
     </div>
   )

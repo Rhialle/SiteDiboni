@@ -5,7 +5,10 @@ import { entrarComoTeste } from "./acoes-teste"
 // Só aparece com ENTRADA_DE_TESTE=1 (ver src/lib/auth/entrada-de-teste.ts).
 export function EntradaDeTeste() {
   return (
-    <section aria-labelledby="entrada-de-teste" className="mt-6 flex flex-col gap-2 rounded-lg border border-dashed p-4 text-sm">
+    <section
+      aria-labelledby="entrada-de-teste"
+      className="flex flex-col gap-2.5 rounded-2xl border border-dashed border-tinta/25 bg-[#fff6d6]/70 p-4 text-sm"
+    >
       <h2 id="entrada-de-teste" className="font-medium">
         Modo de teste
       </h2>

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade, unidadesDeDigitacao } from "@/lib/estoque/quantidade"
 import { diaEmSaoPaulo, formatarCusto, formatarDia } from "@/lib/formatacao"
@@ -52,7 +53,7 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">{produto.nome}</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">{produto.nome}</h1>
         <p className="text-sm text-muted-foreground">
           {variacao.nome} · <span className="font-mono">{variacao.codigo_interno}</span>
         </p>
@@ -71,28 +72,28 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
         lotes.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhum lote com saldo.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="tabela-vidro overflow-x-auto">
             <table aria-label="Lotes" className="w-full text-left text-sm">
               <thead className="bg-muted/50 text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2 font-medium">Lote</th>
-                  <th className="px-3 py-2 font-medium">Validade</th>
-                  <th className="px-3 py-2 font-medium">Saldo</th>
+                  <th className="px-4 py-3 font-medium">Lote</th>
+                  <th className="px-4 py-3 font-medium">Validade</th>
+                  <th className="px-4 py-3 font-medium">Saldo</th>
                 </tr>
               </thead>
               <tbody>
                 {lotes.map((lote) => (
                   <tr key={lote.id} className="border-t">
-                    <td className="px-3 py-2 font-mono text-xs">{lote.codigo}</td>
-                    <td className="px-3 py-2">
+                    <td className="px-4 py-3 font-mono text-xs">{lote.codigo}</td>
+                    <td className="px-4 py-3">
                       {lote.validade ? formatarDia(lote.validade) : "—"}
                       {vencido(lote.validade) ? (
-                        <span className="ml-2 rounded bg-destructive/10 px-1.5 py-0.5 text-xs font-medium text-destructive">
+                        <Selo tom="critico" className="ml-2">
                           Vencido
-                        </span>
+                        </Selo>
                       ) : null}
                     </td>
-                    <td className="px-3 py-2">{formatarQuantidade(lote.quantidade, tipo)}</td>
+                    <td className="px-4 py-3">{formatarQuantidade(lote.quantidade, tipo)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -113,11 +114,11 @@ export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/es
         <EntradaManual variacaoId={variacao.id} unidades={unidades} controlaValidade={produto.controla_validade} />
       ) : null}
 
-      <nav className="flex flex-wrap gap-4 text-sm">
-        <Link href={`/estoque/movimentacoes?variacao=${variacao.id}`} className="underline-offset-4 hover:underline">
+      <nav className="flex flex-wrap gap-2">
+        <Link href={`/estoque/movimentacoes?variacao=${variacao.id}`} className="link-pilula">
           Ver extrato
         </Link>
-        <Link href={`/produtos/${produto.id}`} className="underline-offset-4 hover:underline">
+        <Link href={`/produtos/${produto.id}`} className="link-pilula">
           Ficha do produto
         </Link>
       </nav>

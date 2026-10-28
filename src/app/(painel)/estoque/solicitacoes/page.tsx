@@ -1,3 +1,4 @@
+import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade } from "@/lib/estoque/quantidade"
 import { ROTULO_SITUACAO_SOLICITACAO, ROTULO_TIPO_MOVIMENTACAO } from "@/lib/estoque/rotulos"
@@ -5,6 +6,9 @@ import { formatarData, formatarDia } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { BotoesDecisao } from "./botoes-decisao"
+
+// Pendente em magenta (falta decidir), aprovada em menta, recusada neutra.
+const TOM_DA_SITUACAO: Record<string, "marca" | "ok" | "neutro"> = { pendente: "marca", aprovada: "ok", recusada: "neutro" }
 
 // Depende da sessão (cookies): o servidor espera antes de mostrar a página.
 export const instant = false
@@ -36,42 +40,44 @@ export default async function PaginaSolicitacoes() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Solicitações</h1>
+      <h1 className="text-3xl font-bold sm:text-4xl">Solicitações</h1>
       {solicitacoes.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nenhuma solicitação.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="tabela-vidro overflow-x-auto">
           <table aria-label="Solicitações" className="w-full text-left text-sm">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
-                <th className="px-3 py-2 font-medium">Data</th>
-                <th className="px-3 py-2 font-medium">Produto</th>
-                <th className="px-3 py-2 font-medium">Lote</th>
-                <th className="px-3 py-2 font-medium">Tipo</th>
-                <th className="px-3 py-2 font-medium">Quantidade</th>
-                <th className="px-3 py-2 font-medium">Motivo</th>
-                <th className="px-3 py-2 font-medium">Pedido por</th>
-                <th className="px-3 py-2 font-medium">Situação</th>
-                {administrador ? <th className="px-3 py-2 font-medium"><span className="sr-only">Decidir</span></th> : null}
+                <th className="px-4 py-3 font-medium">Data</th>
+                <th className="px-4 py-3 font-medium">Produto</th>
+                <th className="px-4 py-3 font-medium">Lote</th>
+                <th className="px-4 py-3 font-medium">Tipo</th>
+                <th className="px-4 py-3 font-medium">Quantidade</th>
+                <th className="px-4 py-3 font-medium">Motivo</th>
+                <th className="px-4 py-3 font-medium">Pedido por</th>
+                <th className="px-4 py-3 font-medium">Situação</th>
+                {administrador ? <th className="px-4 py-3 font-medium"><span className="sr-only">Decidir</span></th> : null}
               </tr>
             </thead>
             <tbody>
               {solicitacoes.map((s) => (
                 <tr key={s.id} className="border-t align-top">
-                  <td className="px-3 py-2">{formatarData(s.solicitado_em)}</td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">{formatarData(s.solicitado_em)}</td>
+                  <td className="px-4 py-3">
                     {s.variacoes.produtos.nome} — {s.variacoes.nome}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     {s.lotes.validade ? `${s.lotes.codigo} (${formatarDia(s.lotes.validade)})` : "—"}
                   </td>
-                  <td className="px-3 py-2">{ROTULO_TIPO_MOVIMENTACAO[s.tipo] ?? s.tipo}</td>
-                  <td className="px-3 py-2">{formatarQuantidade(s.quantidade, s.variacoes.produtos.tipo_venda)}</td>
-                  <td className="px-3 py-2">{s.motivo}</td>
-                  <td className="px-3 py-2">{nomes.get(s.solicitado_por) ?? "—"}</td>
-                  <td className="px-3 py-2">{ROTULO_SITUACAO_SOLICITACAO[s.situacao]}</td>
+                  <td className="px-4 py-3">{ROTULO_TIPO_MOVIMENTACAO[s.tipo] ?? s.tipo}</td>
+                  <td className="px-4 py-3">{formatarQuantidade(s.quantidade, s.variacoes.produtos.tipo_venda)}</td>
+                  <td className="px-4 py-3">{s.motivo}</td>
+                  <td className="px-4 py-3">{nomes.get(s.solicitado_por) ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <Selo tom={TOM_DA_SITUACAO[s.situacao]}>{ROTULO_SITUACAO_SOLICITACAO[s.situacao]}</Selo>
+                  </td>
                   {administrador ? (
-                    <td className="px-3 py-2">{s.situacao === "pendente" ? <BotoesDecisao id={s.id} /> : null}</td>
+                    <td className="px-4 py-3">{s.situacao === "pendente" ? <BotoesDecisao id={s.id} /> : null}</td>
                   ) : null}
                 </tr>
               ))}

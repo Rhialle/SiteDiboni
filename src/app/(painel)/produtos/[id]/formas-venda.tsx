@@ -2,6 +2,7 @@
 
 import { useActionState, useId, useState, useTransition } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,7 +35,7 @@ function Retorno({ estado }: { estado: EstadoFicha }) {
   return (
     <>
       <MensagemDeErro>{estado.erro}</MensagemDeErro>
-      {estado.sucesso ? <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">{estado.sucesso}</p> : null}
+      {estado.sucesso ? <MensagemDeSucesso>{estado.sucesso}</MensagemDeSucesso> : null}
     </>
   )
 }
@@ -95,7 +96,7 @@ function Forma({ produtoId, forma, podeEditar }: { produtoId: string; forma: For
   }
 
   return (
-    <fieldset className="flex flex-col gap-2 rounded-lg border p-3 text-sm">
+    <fieldset className="flex flex-col gap-2 vidro rounded-2xl p-4 text-sm">
       <legend className="px-1 font-medium">{forma.nome}</legend>
       <p>
         {formatarMoeda(forma.preco_centavos)} · {forma.fator} un. {forma.ativa ? null : <span className="text-muted-foreground">(inativa)</span>}

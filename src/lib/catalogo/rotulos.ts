@@ -1,4 +1,11 @@
 // Como os valores do banco aparecem nas telas.
+// Cor do selo de cada situação: ativo em menta, incompleto pede atenção, inativo fica neutro.
+export const TOM_SITUACAO: Record<string, "ok" | "atencao" | "neutro"> = {
+  incompleto: "atencao",
+  ativo: "ok",
+  inativo: "neutro",
+}
+
 export const ROTULO_SITUACAO: Record<string, string> = {
   incompleto: "Incompleto",
   ativo: "Ativo",

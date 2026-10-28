@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import type { CamposDoProduto } from "@/lib/catalogo/produto-form"
 import { ORIGENS_FISCAIS, PROPRIEDADES } from "@/lib/catalogo/rotulos"
 
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 
 // Campos do produto, usados no cadastro de produto novo e nos dados da ficha.
 export function CamposProduto({
@@ -37,7 +37,7 @@ export function CamposProduto({
             name="descricao"
             rows={3}
             defaultValue={valores?.descricao}
-            className="rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm"
+            className="campo-texto"
           />
         </div>
         <div className="flex flex-col gap-2">

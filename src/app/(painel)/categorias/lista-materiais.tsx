@@ -17,7 +17,7 @@ export function ListaMateriais({ materiais }: { materiais: { id: string; nome: s
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">Materiais</h2>
+      <h2 className="text-xl font-semibold">Materiais</h2>
       <form action={acao} className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-nome`}>Novo material</Label>
@@ -34,7 +34,7 @@ export function ListaMateriais({ materiais }: { materiais: { id: string; nome: s
       ) : (
         <ul aria-label="Materiais" className="flex flex-wrap gap-2">
           {materiais.map((material) => (
-            <li key={material.id} className="flex items-center gap-1 rounded-lg border px-2 py-1 text-sm">
+            <li key={material.id} className="flex items-center gap-1 rounded-full border border-tinta/10 bg-white/80 py-1 pr-1.5 pl-3.5 text-sm">
               {material.nome}
               <Button
                 variant="ghost"

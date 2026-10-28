@@ -23,17 +23,19 @@ export default async function PaginaConfiguracoes() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Configurações</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">Configurações</h1>
         <p className="text-sm text-muted-foreground">Dados da loja e regras do estoque.</p>
       </div>
-      <FormularioConfiguracoes
-        salvos={{
-          cnpj: configuracoes.cnpj_loja ? formatarCnpj(configuracoes.cnpj_loja) : "",
-          limite: formatarReais(configuracoes.limite_ajuste_centavos),
-          dias: formatarDiasDeAlerta(configuracoes.dias_alerta_validade),
-        }}
-        limiteAtual={formatarMoeda(configuracoes.limite_ajuste_centavos)}
-      />
+      <div className="vidro max-w-xl rounded-3xl p-5 sm:p-6">
+        <FormularioConfiguracoes
+          salvos={{
+            cnpj: configuracoes.cnpj_loja ? formatarCnpj(configuracoes.cnpj_loja) : "",
+            limite: formatarReais(configuracoes.limite_ajuste_centavos),
+            dias: formatarDiasDeAlerta(configuracoes.dias_alerta_validade),
+          }}
+          limiteAtual={formatarMoeda(configuracoes.limite_ajuste_centavos)}
+        />
+      </div>
     </div>
   )
 }

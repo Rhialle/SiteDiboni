@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -22,13 +23,13 @@ export function Grade({ produtoId }: { produtoId: string }) {
         required
         defaultValue={estado.texto}
         placeholder={"Tamanho: 4, 6, 12\nCor: marrom, branca"}
-        className="rounded-lg border border-input bg-transparent px-2.5 py-1 font-mono text-sm"
+        className="campo-texto font-mono text-sm"
       />
       <p className="text-xs text-muted-foreground">
         Um atributo por linha. O sistema cria as combinações que ainda não existem.
       </p>
       <MensagemDeErro>{estado.erro}</MensagemDeErro>
-      {estado.sucesso ? <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">{estado.sucesso}</p> : null}
+      {estado.sucesso ? <MensagemDeSucesso>{estado.sucesso}</MensagemDeSucesso> : null}
       <Button type="submit" variant="outline" className="self-start" disabled={enviando}>
         Gerar variações
       </Button>

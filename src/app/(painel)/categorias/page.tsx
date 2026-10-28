@@ -23,13 +23,17 @@ export default async function PaginaCategorias() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Categorias</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">Categorias</h1>
         <p className="text-sm text-muted-foreground">
           Organize os produtos por uso (com subcategorias) e marque os materiais.
         </p>
       </div>
-      <ArvoreCategorias arvore={montarArvore(categorias)} />
-      <ListaMateriais materiais={materiais} />
+      <div className="vidro rounded-3xl p-5 sm:p-6">
+        <ArvoreCategorias arvore={montarArvore(categorias)} />
+      </div>
+      <div className="vidro rounded-3xl p-5 sm:p-6">
+        <ListaMateriais materiais={materiais} />
+      </div>
     </div>
   )
 }

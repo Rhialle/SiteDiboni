@@ -7,22 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-rubik), system-ui, sans-serif;
+  --font-heading: var(--font-rubik), system-ui, sans-serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,6 +25,20 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Cores da Di Boni (logo e Instagram) e as quatro cores de festa. */
+  --color-uva: var(--uva);
+  --color-magenta: var(--magenta);
+  --color-magenta-clara: var(--magenta-clara);
+  --color-ameixa: var(--ameixa);
+  --color-tinta: var(--tinta);
+  --color-tinta-suave: var(--tinta-suave);
+  --color-lilas: var(--lilas);
+  --color-sol: var(--sol);
+  --color-coral: var(--coral);
+  --color-azul: var(--azul);
+  --color-menta: var(--menta);
+  --ease-mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,82 +49,586 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --uva: #5b1f8e;
+  --magenta: #a62c93;
+  --magenta-clara: #c13fa6;
+  --ameixa: #6e1a63;
+  --tinta: #111a53;
+  --tinta-suave: #4a5180;
+  --lilas: #f1eaf9;
+  --sol: #ffc83d;
+  --coral: #f2545b;
+  --azul: #4a8bef;
+  --menta: #1db37a;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #f6f3fc;
+  --foreground: var(--tinta);
+  --card: rgb(255 255 255 / 0.66);
+  --card-foreground: var(--tinta);
+  --popover: #ffffff;
+  --popover-foreground: var(--tinta);
+  --primary: var(--magenta);
+  --primary-foreground: #ffffff;
+  --secondary: var(--lilas);
+  --secondary-foreground: var(--tinta);
+  --muted: var(--lilas);
+  --muted-foreground: var(--tinta-suave);
+  --accent: var(--lilas);
+  --accent-foreground: var(--tinta);
+  --destructive: #c93139;
+  --border: rgb(17 26 83 / 0.12);
+  --input: #d9d3e8;
+  --ring: var(--magenta);
+  --radius: 0.875rem;
+
+  /* Vidro fosco: o fundo de festa aparece desfocado por trás. */
+  --vidro: rgb(255 255 255 / 0.64);
+  --vidro-borda: rgb(255 255 255 / 0.78);
+  --sombra-vidro: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 2px rgb(17 26 83 / 0.06),
+    0 18px 40px -16px rgb(17 26 83 / 0.28);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    scrollbar-color: #c9bde3 transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  ::selection {
+    background: rgb(166 44 147 / 0.22);
+    color: var(--tinta);
+  }
+  input,
+  textarea,
+  select {
+    caret-color: var(--magenta);
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--magenta);
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  :focus-visible {
+    outline: 3px solid rgb(166 44 147 / 0.45);
+    outline-offset: 2px;
+  }
+  /* Tabelas legíveis sobre o fundo de festa. */
+  table {
+    background-color: rgb(255 255 255 / 0.72);
+  }
+}
+
+@layer components {
+  .vidro {
+    background: var(--vidro);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--vidro-borda);
+    box-shadow: var(--sombra-vidro);
+  }
+
+  /* Tabela de vidro claro: as linhas acendem quando o mouse passa. */
+  .tabela-vidro {
+    border-radius: 22px;
+    background: var(--vidro);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--vidro-borda);
+    box-shadow: var(--sombra-vidro);
+  }
+  .tabela-vidro table {
+    background-color: transparent;
+  }
+  /* Dentro de um painel de vidro, a tabela não vira outro vidro por cima. */
+  .vidro .tabela-vidro {
+    background: rgb(255 255 255 / 0.55);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: rgb(17 26 83 / 0.08);
+    box-shadow: none;
+  }
+  .tabela-vidro thead {
+    background: rgb(241 234 249 / 0.8);
+  }
+  .tabela-vidro thead th {
+    font-weight: 600;
+    color: var(--tinta-suave);
+  }
+  .tabela-vidro tbody tr {
+    transition: background-color 0.2s;
+  }
+  .tabela-vidro tbody tr:hover {
+    background: rgb(255 255 255 / 0.75);
+  }
+
+  /* Seletor e caixa de texto no mesmo tamanho e jeito dos campos. */
+  .campo-escolha,
+  .campo-texto {
+    border: 1.5px solid var(--input);
+    border-radius: 14px;
+    background-color: rgb(255 255 255 / 0.9);
+    color: var(--tinta);
+    font-size: 1rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .campo-escolha {
+    height: 2.75rem;
+    padding: 0 2.25rem 0 0.875rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5180' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+  }
+  .campo-texto {
+    padding: 0.625rem 0.875rem;
+  }
+  .campo-escolha:focus-visible,
+  .campo-texto:focus-visible {
+    outline: none;
+    border-color: var(--magenta);
+    box-shadow: 0 0 0 4px rgb(166 44 147 / 0.15);
+  }
+
+  /* Link que funciona como aba ou atalho: pílula de vidro. */
+  .link-pilula {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.625rem;
+    padding: 0 1.125rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--tinta);
+    background: rgb(255 255 255 / 0.7);
+    border: 1px solid var(--vidro-borda);
+    box-shadow: 0 6px 16px -10px rgb(17 26 83 / 0.35);
+    transition:
+      background-color 0.2s,
+      transform 0.2s var(--ease-suave);
+  }
+  .link-pilula:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+
+  /* Vidro violeta do menu e da barra do celular. */
+  .vidro-uva {
+    color: #fff;
+    background: linear-gradient(180deg, rgb(74 22 122 / 0.82), rgb(112 32 134 / 0.76));
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    backdrop-filter: blur(26px) saturate(160%);
+  }
+
+  /* Botão de jogo: a base afunda quando a pessoa clica. */
+  .botao-jogo {
+    --labio: var(--ameixa);
+    --brilho: rgb(166 44 147 / 0.5);
+    --altura-labio: 4px;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 var(--altura-labio) 0 var(--labio),
+      0 12px 20px -10px var(--brilho);
+    transition:
+      transform 0.14s var(--ease-suave),
+      box-shadow 0.14s var(--ease-suave),
+      filter 0.2s;
+  }
+  .botao-jogo[data-size="xs"],
+  .botao-jogo[data-size="sm"],
+  .botao-jogo[data-size="icon-xs"],
+  .botao-jogo[data-size="icon-sm"] {
+    --altura-labio: 3px;
+  }
+  .botao-jogo:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  .botao-jogo:active:not(:disabled) {
+    transform: translateY(var(--altura-labio));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), 0 0 0 var(--labio), 0 4px 8px -6px var(--brilho);
+    transition-duration: 0.06s;
+  }
+  .botao-claro {
+    --labio: rgb(17 26 83 / 0.16);
+    --brilho: rgb(17 26 83 / 0.22);
+    box-shadow: inset 0 0 0 1.5px rgb(17 26 83 / 0.12), 0 var(--altura-labio) 0 var(--labio),
+      0 12px 20px -12px var(--brilho);
+  }
+  .botao-claro:active:not(:disabled) {
+    box-shadow: inset 0 0 0 1.5px rgb(17 26 83 / 0.18), 0 0 0 var(--labio);
+  }
+  .botao-perigo {
+    --labio: #8a1d23;
+    --brilho: rgb(201 49 57 / 0.5);
+  }
+
+  /* Ícone com degradê e brilho, como peça de jogo. */
+  .icone-jogo {
+    display: grid;
+    place-items: center;
+    flex: none;
+    color: #fff;
+    background: linear-gradient(150deg, var(--i1), var(--i2) 55%, var(--i3));
+    box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 0.55), inset 0 -2px 0 rgb(0 0 0 / 0.12),
+      0 8px 16px -8px var(--i2);
+  }
+  .icone-coral {
+    --i1: #ff9da1;
+    --i2: var(--coral);
+    --i3: #c42f37;
+  }
+  .icone-sol {
+    --i1: #ffe39a;
+    --i2: var(--sol);
+    --i3: #e09a12;
+    color: var(--tinta);
+  }
+  .icone-azul {
+    --i1: #a9caff;
+    --i2: var(--azul);
+    --i3: #2a5fc0;
+  }
+  .icone-magenta {
+    --i1: #e27fcd;
+    --i2: var(--magenta);
+    --i3: #6e1a63;
+  }
+
+  /* A forma acompanha o mouse em camadas (--prof); dentro dela, o giro e a flutuação. */
+  .forma {
+    position: absolute;
+    display: block;
+    transform: translate3d(calc(var(--px, 0) * var(--prof, 16) * 1px), calc(var(--py, 0) * var(--prof, 16) * 1px), 0);
+    transition: transform 0.9s var(--ease-suave);
+  }
+  .forma-giro {
+    display: block;
+    will-change: transform;
+    transform: rotate(var(--r, 0deg));
+  }
+  .forma svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 18px rgb(17 26 83 / 0.18));
+  }
+  .forma-viva .forma-giro {
+    animation: flutuar var(--d, 18s) ease-in-out infinite alternate;
+  }
+
+  .entra-com-mola {
+    animation: surgir 0.8s var(--ease-mola) backwards;
+    animation-delay: calc(var(--i, 0) * 90ms + 100ms);
+  }
+  .chega-com-mola {
+    animation: surgir 0.9s var(--ease-mola) 0.15s backwards;
+  }
+  .boia {
+    animation: boiar 4.2s ease-in-out infinite;
+    transform-origin: 50% 90%;
+  }
+}
+
+@keyframes flutuar {
+  from {
+    transform: translate(0, 0) rotate(var(--r, 0deg));
+  }
+  to {
+    transform: translate(var(--dx, 14px), var(--dy, -18px)) rotate(calc(var(--r, 0deg) + var(--giro, 10deg)));
+  }
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.traco-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tracar 0.45s var(--ease-suave) 0.35s forwards;
+}
+
+.selo-pulsa::before {
+  animation: pulso 2.2s ease-out infinite;
+}
+
+@keyframes tracar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulso {
+  0% {
+    box-shadow: 0 0 0 0 rgb(242 84 91 / 0.55);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px rgb(242 84 91 / 0);
+  }
+}
+
+@keyframes boiar {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* Sem animação, o ✓ já aparece desenhado. */
+  .traco-check {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Animações: tudo se mexe, nada fica no caminho ----------
+   Regra de ouro: nada que se clica fica se mexendo sozinho para sempre (o clique precisa de um alvo parado). */
+@layer components {
+  /* Brilho que atravessa o botão quando o mouse chega. */
+  .botao-jogo,
+  .link-pilula {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .botao-jogo::after,
+  .link-pilula::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.55) 47%, rgb(255 255 255 / 0.12) 55%, transparent 68%);
+    transform: translateX(-130%);
+  }
+  .botao-claro::after,
+  .link-pilula::after {
+    background: linear-gradient(105deg, transparent 30%, rgb(166 44 147 / 0.16) 50%, transparent 68%);
+  }
+  .botao-jogo:hover::after,
+  .link-pilula:hover::after {
+    animation: brilho-passa 0.75s var(--ease-suave);
+  }
+  /* Ao soltar o clique, o botão volta com mola; ao apertar, achata um pouco. */
+  .botao-jogo {
+    transition:
+      transform 0.38s var(--ease-mola),
+      box-shadow 0.2s var(--ease-suave),
+      filter 0.2s;
+  }
+  .botao-jogo:active:not(:disabled) {
+    transform: translateY(var(--altura-labio)) scale(0.97);
+  }
+  .link-pilula:active {
+    transform: scale(0.95);
+  }
+
+  /* Luz que segue o cursor dentro do vidro (as coordenadas vêm de EfeitosGlobais). */
+  .vidro,
+  .tabela-vidro {
+    position: relative;
+    isolation: isolate;
+  }
+  .vidro::before,
+  .tabela-vidro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(380px circle at var(--luz-x, 50%) var(--luz-y, 50%), rgb(255 255 255 / 0.8), transparent 62%);
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .vidro:hover::before,
+  .tabela-vidro:hover::before {
+    opacity: 1;
+  }
+
+  /* Carta que inclina em 3D na direção do cursor e dá um pulinho no ícone. */
+  .carta-inclina {
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--sobe, 0px));
+    transition:
+      transform 0.45s var(--ease-mola),
+      box-shadow 0.3s;
+  }
+  .carta-inclina:hover {
+    --sobe: -5px;
+    transition:
+      transform 0.15s ease-out,
+      box-shadow 0.3s;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 30px 50px -20px rgb(17 26 83 / 0.4);
+  }
+  .carta-inclina:hover .icone-jogo {
+    animation: pulinho 0.55s var(--ease-mola);
+  }
+
+  /* Ícones do menu balançam quando o mouse passa; no celular, encolhem no toque. */
+  .item-menu:hover svg {
+    animation: balancar 0.6s var(--ease-suave);
+  }
+  .aba-celular svg {
+    transition: scale 0.35s var(--ease-mola);
+  }
+  .aba-celular:active svg {
+    scale: 0.8;
+  }
+
+  /* Cada tela entra subindo e entrando em foco. */
+  .entra-tela {
+    animation: tela-entra 0.5s var(--ease-suave) backwards;
+  }
+
+  /* Linhas da tabela entram em sequência. */
+  .tabela-vidro tbody tr {
+    animation: linha-entra 0.45s var(--ease-suave) backwards;
+  }
+  .tabela-vidro tbody tr:nth-child(2) { animation-delay: 35ms; }
+  .tabela-vidro tbody tr:nth-child(3) { animation-delay: 70ms; }
+  .tabela-vidro tbody tr:nth-child(4) { animation-delay: 105ms; }
+  .tabela-vidro tbody tr:nth-child(5) { animation-delay: 140ms; }
+  .tabela-vidro tbody tr:nth-child(6) { animation-delay: 175ms; }
+  .tabela-vidro tbody tr:nth-child(7) { animation-delay: 210ms; }
+  .tabela-vidro tbody tr:nth-child(8) { animation-delay: 245ms; }
+  .tabela-vidro tbody tr:nth-child(9) { animation-delay: 280ms; }
+  .tabela-vidro tbody tr:nth-child(10) { animation-delay: 315ms; }
+  .tabela-vidro tbody tr:nth-child(n + 11) { animation-delay: 350ms; }
+
+  /* Selos e avisos estouram ao aparecer; erros tremem. */
+  .estoura {
+    animation: estourar 0.6s var(--ease-mola) backwards;
+  }
+  .treme {
+    animation: tremer 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) backwards;
+  }
+}
+
+@layer base {
+  input[type="checkbox"],
+  input[type="radio"] {
+    transition: scale 0.3s var(--ease-mola);
+  }
+  input[type="checkbox"]:checked,
+  input[type="radio"]:checked {
+    animation: marcar 0.35s var(--ease-mola);
+  }
+  input[type="checkbox"]:active,
+  input[type="radio"]:active {
+    scale: 0.85;
+  }
+}
+
+@keyframes brilho-passa {
+  to {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes pulinho {
+  30% {
+    transform: translateY(-7px) rotate(-8deg) scale(1.08);
+  }
+  60% {
+    transform: translateY(1px) rotate(4deg);
+  }
+}
+
+@keyframes balancar {
+  20% {
+    rotate: -14deg;
+  }
+  40% {
+    rotate: 10deg;
+  }
+  60% {
+    rotate: -6deg;
+  }
+  80% {
+    rotate: 3deg;
+  }
+}
+
+@keyframes tela-entra {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+}
+
+@keyframes linha-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes estourar {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+@keyframes tremer {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(3px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes marcar {
+  0% {
+    scale: 0.6;
   }
 }

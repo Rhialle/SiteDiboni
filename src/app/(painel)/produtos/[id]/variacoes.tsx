@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { useActionState, useId, useState, useTransition } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Selo } from "@/components/ui/selo"
 
 import { alterarVariacaoAtiva, salvarVariacao, type EstadoFicha } from "./acoes"
 
@@ -47,35 +49,37 @@ export function Variacoes({
   return (
     <div className="flex flex-col gap-4">
       <MensagemDeErro>{erro}</MensagemDeErro>
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="tabela-vidro overflow-x-auto">
         <table aria-label="Variações" className="w-full text-left text-sm">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
-              <th className="px-3 py-2 font-medium">Variação</th>
-              <th className="px-3 py-2 font-medium">Código interno</th>
-              <th className="px-3 py-2 font-medium">Código de barras</th>
-              <th className="px-3 py-2 font-medium">Medidas</th>
-              <th className="px-3 py-2 font-medium">Estoque mínimo</th>
-              <th className="px-3 py-2 font-medium">Situação</th>
-              {podeEditar ? <th className="px-3 py-2 font-medium"><span className="sr-only">Ações</span></th> : null}
+              <th className="px-4 py-3 font-medium">Variação</th>
+              <th className="px-4 py-3 font-medium">Código interno</th>
+              <th className="px-4 py-3 font-medium">Código de barras</th>
+              <th className="px-4 py-3 font-medium">Medidas</th>
+              <th className="px-4 py-3 font-medium">Estoque mínimo</th>
+              <th className="px-4 py-3 font-medium">Situação</th>
+              {podeEditar ? <th className="px-4 py-3 font-medium"><span className="sr-only">Ações</span></th> : null}
             </tr>
           </thead>
           <tbody>
             {variacoes.map((v) => (
               <tr key={v.id} className="border-t align-top">
-                <td className="px-3 py-2">
+                <td className="px-4 py-3">
                   <span className="font-medium">{v.nome}</span>
                   <Link href={`/estoque/${v.id}`} className="block text-xs text-muted-foreground underline-offset-4 hover:underline">
                     Ver estoque
                   </Link>
                 </td>
-                <td className="px-3 py-2 font-mono">{v.codigo_interno}</td>
-                <td className="px-3 py-2 font-mono">{v.codigo_barras ?? "—"}</td>
-                <td className="px-3 py-2">{medidas(v)}</td>
-                <td className="px-3 py-2">{v.estoque_minimo} {unidade}</td>
-                <td className="px-3 py-2">{v.ativa ? "Ativa" : "Inativa"}</td>
+                <td className="px-4 py-3 font-mono">{v.codigo_interno}</td>
+                <td className="px-4 py-3 font-mono">{v.codigo_barras ?? "—"}</td>
+                <td className="px-4 py-3">{medidas(v)}</td>
+                <td className="px-4 py-3">{v.estoque_minimo} {unidade}</td>
+                <td className="px-4 py-3">
+                  <Selo tom={v.ativa ? "ok" : "neutro"}>{v.ativa ? "Ativa" : "Inativa"}</Selo>
+                </td>
                 {podeEditar ? (
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     <div className="flex flex-col items-end gap-2">
                       <Button
                         variant="ghost"
@@ -133,7 +137,7 @@ function FormularioVariacao({ produtoId, variacao }: { produtoId: string; variac
       {campo("capacidade_ml", "Capacidade (ml)", variacao?.capacidade_ml, { inputMode: "numeric" })}
       <div className="flex flex-col gap-2 sm:col-span-4">
         <MensagemDeErro>{estado.erro}</MensagemDeErro>
-        {estado.sucesso ? <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">{estado.sucesso}</p> : null}
+        {estado.sucesso ? <MensagemDeSucesso>{estado.sucesso}</MensagemDeSucesso> : null}
         <Button type="submit" size="sm" className="self-start" disabled={enviando}>
           {variacao ? "Salvar variação" : "Adicionar variação"}
         </Button>

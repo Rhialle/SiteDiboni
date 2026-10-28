@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from "react"
 
+import { MensagemDeSucesso } from "@/components/mensagem-de-sucesso"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +11,7 @@ import type { UnidadeDeDigitacao } from "@/lib/estoque/quantidade"
 
 import { registrarEntrada, type EstadoEstoque } from "./acoes"
 
-const SELECT = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+const SELECT = "campo-escolha"
 const INICIAL: EstadoEstoque = { erro: "", sucesso: "", valores: null }
 
 // Entrada sem nota (só administrador): custo e motivo obrigatórios; validade só se o produto controla.
@@ -28,8 +29,8 @@ export function EntradaManual({
   const valor = (campo: string) => estado.valores?.[campo] ?? ""
 
   return (
-    <section aria-labelledby={`${id}-titulo`} className="flex flex-col gap-3 rounded-lg border p-4">
-      <h2 id={`${id}-titulo`} className="text-lg font-semibold">
+    <section aria-labelledby={`${id}-titulo`} className="flex flex-col gap-3 vidro rounded-3xl p-5">
+      <h2 id={`${id}-titulo`} className="text-xl font-semibold">
         Entrada manual
       </h2>
       <form action={acao} className="grid max-w-2xl gap-3 sm:grid-cols-2">
@@ -71,9 +72,9 @@ export function EntradaManual({
         <div className="flex flex-col gap-2 sm:col-span-2">
           <MensagemDeErro>{estado.erro}</MensagemDeErro>
           {estado.sucesso ? (
-            <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+            <MensagemDeSucesso>
               {estado.sucesso}
-            </p>
+            </MensagemDeSucesso>
           ) : null}
           <Button type="submit" className="self-start" disabled={enviando}>
             {enviando ? "Registrando…" : "Registrar entrada"}
