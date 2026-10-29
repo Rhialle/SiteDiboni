@@ -21,6 +21,9 @@ import type { Aba, ErroDaPlanilha, LinhaForma, LinhaVariacao, PlanilhaLida } fro
 
 const normalizar = (texto: string) => texto.trim().replace(/\s+/g, " ").toLowerCase()
 
+// As células de uma linha, pelo nome da coluna.
+type Celulas = (coluna: string) => unknown
+
 // Uma linha de dados: lê cada coluna pelo nome e junta os erros com a linha e a coluna do Excel.
 type Leitor = { valor: <T>(coluna: string, ler: (celula: unknown) => Lido<T>) => T | undefined; erros: ErroDaPlanilha[] }
 
@@ -85,7 +88,7 @@ function lerAba<T>(
   aba: Aba,
   nomes: readonly string[],
   lerLinha: (leitor: Leitor, numero: number) => T | null,
-): { linhas: T[]; erros: ErroDaPlanilha[] } {
+): { linhas: T[]; erros: ErroDaPlanilha[]; comErro: Celulas[] } {
   const cabecalho = new Map<string, number>()
   folha.getRow(1).eachCell((celula, coluna) => cabecalho.set(normalizar(textoDaCelula(celula.value)), coluna))
   const colunas = new Map<string, number>()
@@ -95,7 +98,7 @@ function lerAba<T>(
     if (coluna === undefined) erros.push({ aba, linha: null, coluna: nome, mensagem: mensagemSemColuna(aba, nome) })
     else colunas.set(nome, coluna)
   }
-  if (erros.length) return { linhas: [], erros }
+  if (erros.length) return { linhas: [], erros, comErro: [] }
 
   const dados: ExcelJS.Row[] = []
   for (let numero = 2; numero <= folha.rowCount; numero++) {
@@ -103,25 +106,41 @@ function lerAba<T>(
     if ([...colunas.values()].some((coluna) => textoDaCelula(linha.getCell(coluna).value) !== "")) dados.push(linha)
   }
   if (dados.length > MAXIMO_LINHAS) {
-    return { linhas: [], erros: [{ aba, linha: null, coluna: null, mensagem: MENSAGENS.planilhaLinhasDemais }] }
+    return { linhas: [], erros: [{ aba, linha: null, coluna: null, mensagem: MENSAGENS.planilhaLinhasDemais }], comErro: [] }
   }
 
   const linhas: T[] = []
+  const comErro: Celulas[] = []
   for (const linha of dados) {
     const leitor = leitorDaLinha(aba, linha, colunas)
     const lida = lerLinha(leitor, linha.number)
     if (lida) linhas.push(lida)
+    else comErro.push((coluna) => linha.getCell(colunas.get(coluna)!).value)
     erros.push(...leitor.erros)
   }
-  return { linhas, erros }
+  return { linhas, erros, comErro }
 }
+
+// O código (e a forma) de uma linha que ficou de fora, quando eles mesmos não têm erro.
+function codigoDaLinha(celulas: Celulas): string | null {
+  const lido = codigoInterno(celulas("Código interno"))
+  return lido.ok ? lido.valor : null
+}
+
+function formaDaLinha(celulas: Celulas): { codigoInterno: string; forma: string } | null {
+  const codigo = codigoDaLinha(celulas)
+  const forma = lerTexto(celulas("Forma"), { obrigatorio: true, maximo: 60 })
+  return codigo && forma.ok ? { codigoInterno: codigo, forma: forma.valor } : null
+}
+
+const SEM_LINHAS = { variacoes: [], formas: [], codigosComErro: [], formasComErro: [] }
 
 export async function lerPlanilha(arquivo: ArrayBuffer): Promise<PlanilhaLida> {
   const livro = new ExcelJS.Workbook()
   try {
     await livro.xlsx.load(Buffer.from(arquivo) as unknown as ExcelJS.Buffer)
   } catch {
-    return { variacoes: [], formas: [], erros: [{ aba: null, linha: null, coluna: null, mensagem: MENSAGENS.planilhaInvalida }] }
+    return { ...SEM_LINHAS, erros: [{ aba: null, linha: null, coluna: null, mensagem: MENSAGENS.planilhaInvalida }] }
   }
 
   const folha = (aba: Aba) => livro.worksheets.find((f) => normalizar(f.name) === normalizar(aba))
@@ -130,13 +149,18 @@ export async function lerPlanilha(arquivo: ArrayBuffer): Promise<PlanilhaLida> {
   const faltando = [ABA_VARIACOES, ABA_FORMAS].filter((aba) => !folha(aba))
   if (!folhaVariacoes || !folhaFormas) {
     return {
-      variacoes: [],
-      formas: [],
+      ...SEM_LINHAS,
       erros: faltando.map((aba) => ({ aba: null, linha: null, coluna: null, mensagem: mensagemSemAba(aba) })),
     }
   }
 
   const variacoes = lerAba(folhaVariacoes, ABA_VARIACOES, COLUNAS_VARIACOES, lerVariacao)
   const formas = lerAba(folhaFormas, ABA_FORMAS, COLUNAS_FORMAS, lerForma)
-  return { variacoes: variacoes.linhas, formas: formas.linhas, erros: [...variacoes.erros, ...formas.erros] }
+  return {
+    variacoes: variacoes.linhas,
+    formas: formas.linhas,
+    erros: [...variacoes.erros, ...formas.erros],
+    codigosComErro: variacoes.comErro.flatMap((celulas) => codigoDaLinha(celulas) ?? []),
+    formasComErro: formas.comErro.flatMap((celulas) => formaDaLinha(celulas) ?? []),
+  }
 }

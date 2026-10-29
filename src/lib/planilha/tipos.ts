@@ -36,7 +36,15 @@ export type LinhaForma = {
   precoCentavos: number
 }
 
-export type PlanilhaLida = { variacoes: LinhaVariacao[]; formas: LinhaForma[]; erros: ErroDaPlanilha[] }
+export type PlanilhaLida = {
+  variacoes: LinhaVariacao[]
+  formas: LinhaForma[]
+  erros: ErroDaPlanilha[]
+  // O código (e a forma) das linhas que ficaram de fora por erro: a prévia não acusa de novo o que já
+  // tem erro (a forma de uma variação com erro não vira "Nenhuma variação com este código interno").
+  codigosComErro: string[]
+  formasComErro: { codigoInterno: string; forma: string }[]
+}
 
 export type VariacaoAtual = Omit<LinhaVariacao, "linha"> & {
   produtoId: string

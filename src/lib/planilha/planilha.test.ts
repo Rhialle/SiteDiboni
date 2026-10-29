@@ -95,7 +95,7 @@ describe("escreverPlanilha e lerPlanilha", () => {
 
   it("o modelo vazio tem só os cabeçalhos", async () => {
     const lida = await lerPlanilha(await escreverPlanilha([], []))
-    expect(lida).toEqual({ variacoes: [], formas: [], erros: [] })
+    expect(lida).toEqual({ variacoes: [], formas: [], erros: [], codigosComErro: [], formasComErro: [] })
   })
 })
 
@@ -143,6 +143,21 @@ describe("lerPlanilha", () => {
     expect(lida.variacoes.map((v) => v.codigoInterno)).toEqual(["CX-P", "CX-G"])
   })
 
+  it("anota o código e a forma das linhas que ficaram de fora por erro", async () => {
+    const arquivo = await planilha([
+      {
+        nome: "Variações",
+        cabecalho: [...COLUNAS_VARIACOES],
+        linhas: [linhaVariacao(), linhaVariacao({ "Código interno": "cx-m", NCM: "123" })],
+      },
+      { ...abaFormas, linhas: [["CX-M", "Unidade", 1, 1, "12.50"], ["CX-M", "Unidade", 1, 10, 1.2]] },
+    ])
+    const lida = await lerPlanilha(arquivo)
+    expect(lida.codigosComErro).toEqual(["CX-M"])
+    expect(lida.formasComErro).toEqual([{ codigoInterno: "CX-M", forma: "Unidade" }])
+    expect(lida.formas.map((f) => f.quantidadeMinima)).toEqual([10])
+  })
+
   it("mais de 5.000 linhas numa aba", async () => {
     const linhas = Array.from({ length: 5001 }, (_, i) => linhaVariacao({ "Código interno": `C${i}` }))
     const arquivo = await planilha([{ nome: "Variações", cabecalho: [...COLUNAS_VARIACOES], linhas }, abaFormas])
@@ -156,6 +171,8 @@ describe("lerPlanilha", () => {
     expect(await lerPlanilha(arquivo)).toEqual({
       variacoes: [],
       formas: [],
+      codigosComErro: [],
+      formasComErro: [],
       erros: [
         { aba: null, linha: null, coluna: null, mensagem: "Arquivo inválido: use uma planilha .xlsx (o modelo baixado do sistema)." },
       ],
