@@ -82,6 +82,7 @@ export const MENSAGENS = {
   notaDescartada: "Nota descartada.",
   planilhaInvalida: "Arquivo inválido: use uma planilha .xlsx (o modelo baixado do sistema).",
   planilhaGrande: "A planilha precisa ter até 4 MB.",
+  planilhaNenhuma: "Escolha a planilha .xlsx.",
   planilhaLinhasDemais: "Cada aba pode ter até 5.000 linhas.",
   preenchaCampo: "Preencha este campo.",
   simOuNao: "Use S ou N.",
