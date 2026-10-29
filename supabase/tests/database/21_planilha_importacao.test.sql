@@ -70,10 +70,10 @@ select is(
   1400, 'a forma com a faixa');
 
 -- O produto que não mudou não é regravado
-create temp table antes as select ctid::text as ctid from produtos where id = pg_temp.id_produto('CX-P');
+create temp table antes as select ctid::text as endereco from produtos where id = pg_temp.id_produto('CX-P');
 select importar_planilha(pg_temp.dados(jsonb_build_array(pg_temp.produto(pg_temp.id_produto('CX-P'), 'Caixa para bolo', 'unidade',
   '["Bolos > Caixas", "Festa"]', jsonb_build_array(pg_temp.variacao('CX-P', 'P', '7891000000014'))))));
-select is((select ctid::text from produtos where id = pg_temp.id_produto('CX-P')), (select ctid from antes), 'produto igual não é regravado');
+select is((select ctid::text from produtos where id = pg_temp.id_produto('CX-P')), (select endereco from antes), 'produto igual não é regravado');
 
 -- Atualização: renomeia, apaga o código de barras, troca as categorias e as formas
 insert into formas_venda (variacao_id, nome, fator, preco_centavos) values ((select id from variacoes where codigo_interno = 'CX-G'), 'Unidade', 1, 300);
