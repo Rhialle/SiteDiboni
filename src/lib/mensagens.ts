@@ -80,6 +80,27 @@ export const MENSAGENS = {
   recebimentoSalvo: "Recebimento salvo.",
   notaConfirmada: "Nota confirmada: o estoque foi atualizado.",
   notaDescartada: "Nota descartada.",
+  planilhaInvalida: "Arquivo inválido: use uma planilha .xlsx (o modelo baixado do sistema).",
+  planilhaGrande: "A planilha precisa ter até 4 MB.",
+  planilhaNenhuma: "Escolha a planilha .xlsx.",
+  planilhaLinhasDemais: "Cada aba pode ter até 5.000 linhas.",
+  preenchaCampo: "Preencha este campo.",
+  simOuNao: "Use S ou N.",
+  unidadeOuPeso: "Use unidade ou peso.",
+  inteiroPositivo: "Use um número inteiro maior que zero.",
+  inteiroZeroOuMais: "Use um número inteiro, zero ou mais.",
+  categoriasPlanilha: "Escreva as categorias assim: Bolos > Caixas para bolo; Festa.",
+  codigoRepetidoPlanilha: "Este código interno aparece em mais de uma linha.",
+  produtoDiferente: "As linhas do mesmo produto precisam ter o mesmo valor nesta coluna.",
+  produtoAmbiguo: "Há mais de um produto com este nome: para acrescentar a variação, use a ficha do produto.",
+  formaSemPrecoNormal: "Falta a linha com quantidade mínima 1 (o preço normal) desta forma.",
+  formaRepetidaPlanilha: "Esta forma com esta quantidade mínima aparece em mais de uma linha.",
+  fatorDiferente: "As linhas desta forma precisam ter o mesmo fator.",
+  granelPlanilha: "Produto por peso tem uma forma só, com fator 1000 e preço por kg, sem faixas.",
+  tipoVendaComMovimentacao: "Não dá para mudar o tipo de venda: o produto já tem movimentações de estoque.",
+  validadeComSaldo: "Não dá para mudar o controle de validade: o produto tem estoque.",
+  formaRepetida: "Esta variação já tem uma forma de venda com este nome.",
+  nadaAImportar: "Nada a importar: a planilha é igual ao catálogo.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -117,6 +138,26 @@ export function mensagemRecebidoInvalido(unidade: string): string {
 
 export function mensagemLoteInvalido(lote: number, unidade: string): string {
   return `Lote ${lote}: informe a quantidade em ${unidade}, maior que zero e com até 4 casas (vezes o fator precisa dar quantidade inteira).`
+}
+
+export function mensagemSemAba(aba: string): string {
+  return `A planilha não tem a aba “${aba}”.`
+}
+
+export function mensagemSemColuna(aba: string, coluna: string): string {
+  return `A aba “${aba}” não tem a coluna “${coluna}”.`
+}
+
+export function mensagemTamanhoMaximo(caracteres: number): string {
+  return `Use até ${caracteres} caracteres.`
+}
+
+export function mensagemPreviaPlanilha(criados: number, atualizados: number, semMudanca: number): string {
+  return `${criados} criado(s), ${atualizados} atualizado(s) e ${semMudanca} sem mudança.`
+}
+
+export function mensagemPlanilhaImportada(criados: number, atualizados: number): string {
+  return `Planilha importada: ${criados} criado(s) e ${atualizados} atualizado(s).`
 }
 
 export function mensagemPendencias(itens: string[]): string {

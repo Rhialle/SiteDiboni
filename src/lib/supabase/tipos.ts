@@ -725,6 +725,9 @@ isOneToOne: false
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
             }[]
                            },
+"catalogo_para_planilha":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "cnpj_valido":
 { Args: { "cnpj": string }; Returns: boolean
                            },
@@ -772,6 +775,9 @@ isOneToOne: false
                            },
 "importar_nota":
 { Args: { "dados": Json }; Returns: string
+                           },
+"importar_planilha":
+{ Args: { "dados": Json }; Returns: undefined
                            },
 "ligar_item_nota":
 { Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined

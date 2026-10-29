@@ -62,9 +62,14 @@ export default async function PaginaProdutos({ searchParams }: PageProps<"/produ
           <p className="text-sm text-muted-foreground">{total} produto(s)</p>
         </div>
         {usuario.papel === "administrador" ? (
-          <Link href="/produtos/novo" className={buttonVariants()}>
-            Novo produto
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/produtos/planilha" className="link-pilula">
+              Planilha
+            </Link>
+            <Link href="/produtos/novo" className={buttonVariants()}>
+              Novo produto
+            </Link>
+          </div>
         ) : null}
       </div>
 

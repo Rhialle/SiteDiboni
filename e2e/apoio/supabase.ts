@@ -299,3 +299,14 @@ export async function formasDoProduto(produtoId: string): Promise<string[]> {
   if (erroFormas) throw erroFormas
   return formas.map((f) => f.nome)
 }
+
+// Para conferir o que a planilha gravou.
+export async function variacaoPorCodigo(codigoInterno: string) {
+  const { data, error } = await admin
+    .from("variacoes")
+    .select("id, nome, codigo_barras, produtos(id, nome)")
+    .eq("codigo_interno", codigoInterno)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
