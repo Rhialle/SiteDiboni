@@ -776,6 +776,9 @@ isOneToOne: false
 "importar_nota":
 { Args: { "dados": Json }; Returns: string
                            },
+"importar_planilha":
+{ Args: { "dados": Json }; Returns: undefined
+                           },
 "ligar_item_nota":
 { Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
                            },
