@@ -725,6 +725,9 @@ isOneToOne: false
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
             }[]
                            },
+"catalogo_para_planilha":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "cnpj_valido":
 { Args: { "cnpj": string }; Returns: boolean
                            },
