@@ -112,10 +112,15 @@ function lista(valor: unknown): string[] {
     .filter(Boolean)
 }
 
-// Sem repetidos (sem diferença de maiúsculas e acentos; fica a primeira grafia), em ordem.
+// Sem repetidos (sem diferença de maiúsculas, como os nomes no banco; fica a primeira grafia), em ordem.
 function semRepetidos(itens: string[]): string[] {
   const vistos = new Set<string>()
-  return emOrdem(itens.filter((item) => !vistos.has(semAcento(item)) && Boolean(vistos.add(semAcento(item)))))
+  return emOrdem(itens.filter((item) => !vistos.has(chaveDeNome(item)) && Boolean(vistos.add(chaveDeNome(item)))))
+}
+
+// Nomes de categoria, material e forma: o banco compara com lower(), então acento conta e maiúscula não.
+export function chaveDeNome(texto: string): string {
+  return texto.trim().replace(/\s+/g, " ").toLowerCase()
 }
 
 // "Bolos>Caixas; Festa" → ["Bolos > Caixas", "Festa"]: cada nível com até 80 caracteres.
