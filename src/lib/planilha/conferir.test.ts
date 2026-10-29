@@ -43,11 +43,18 @@ const CATALOGO: CatalogoAtual = {
 }
 
 // A planilha: as linhas recebem o número da linha do Excel (a primeira de dados é a 2).
-function lida(variacoes: Omit<LinhaVariacao, "linha">[], formas: Omit<LinhaForma, "linha">[] = [], erros: PlanilhaLida["erros"] = []): PlanilhaLida {
+function lida(
+  variacoes: Omit<LinhaVariacao, "linha">[],
+  formas: Omit<LinhaForma, "linha">[] = [],
+  erros: PlanilhaLida["erros"] = [],
+  comErro: Partial<Pick<PlanilhaLida, "codigosComErro" | "formasComErro">> = {},
+): PlanilhaLida {
   return {
     variacoes: variacoes.map((v, i) => ({ ...v, linha: i + 2 })),
     formas: formas.map((f, i) => ({ ...f, linha: i + 2 })),
     erros,
+    codigosComErro: comErro.codigosComErro ?? [],
+    formasComErro: comErro.formasComErro ?? [],
   }
 }
 
@@ -218,6 +225,21 @@ describe("conferirPlanilha", () => {
     expect(conferirPlanilha(lida([{ ...P, tipoVenda: "peso" }, { ...G, tipoVenda: "peso" }]), CATALOGO).erros).toEqual([
       { aba: "Variações", linha: 2, coluna: "Tipo de venda", mensagem: "Não dá para mudar o tipo de venda: há formas de venda que não combinam com ele." },
     ])
+  })
+
+  it("forma de uma variação que ficou de fora por erro não vira outro erro", () => {
+    const erroDaLeitura = { aba: "Variações" as const, linha: 2, coluna: "NCM", mensagem: "O NCM precisa ter 8 dígitos." }
+    const faixa = { codigoInterno: "CX-M", forma: "Unidade", fator: 1, quantidadeMinima: 10, precoCentavos: 120 }
+    const comErro = { codigosComErro: ["CX-M"], formasComErro: [{ codigoInterno: "CX-M", forma: "Unidade" }] }
+    expect(conferirPlanilha(lida([], [faixa], [erroDaLeitura], comErro), CATALOGO).erros).toEqual([erroDaLeitura])
+  })
+
+  it("forma com uma linha que ficou de fora por erro não reclama da linha que falta", () => {
+    const erroDaLeitura = {
+      aba: "Formas de venda" as const, linha: 2, coluna: "Preço (R$)", mensagem: "Informe o preço em reais, por exemplo 6,00.",
+    }
+    const comErro = { formasComErro: [{ codigoInterno: "CX-P", forma: "Pacote com 10" }] }
+    expect(conferirPlanilha(lida([P], [PACOTE[1]], [erroDaLeitura], comErro), CATALOGO).erros).toEqual([erroDaLeitura])
   })
 
   it("os erros da leitura chegam junto e deixam nada a gravar", () => {

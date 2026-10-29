@@ -175,14 +175,21 @@ export function conferirPlanilha(lida: PlanilhaLida, atual: CatalogoAtual): Prev
   // produto por peso com uma forma só, a granel.
   const tipoDoCodigo = new Map<string, "unidade" | "peso">(atual.variacoes.map((v) => [v.codigoInterno, v.tipoVenda]))
   for (const { linhas } of grupos.values()) for (const v of linhas) tipoDoCodigo.set(v.codigoInterno, linhas[0].tipoVenda)
+  // O que já tem erro não é acusado de novo: as formas de uma variação que ficou de fora e as conferências
+  // de uma forma com uma linha que ficou de fora (as faixas sem o preço normal, por exemplo).
+  const codigosComErro = new Set(lida.codigosComErro)
+  const formasComErro = new Set(lida.formasComErro.map((f) => `${f.codigoInterno}|${chaveDeNome(f.forma)}`))
   const formasDaPlanilha = agruparFormas(lida.formas)
   for (const [codigo, porNome] of formasDaPlanilha) {
+    if (codigosComErro.has(codigo)) continue
     const todas = [...porNome.values()]
     if (!tipoDoCodigo.has(codigo)) {
       erro(ABA_FORMAS, todas[0][0].linha, "Código interno", MENSAGENS.variacaoNaoEncontrada)
       continue
     }
-    for (const linhas of todas) {
+    const nomesComErro = [...porNome.keys()].filter((nome) => formasComErro.has(`${codigo}|${nome}`))
+    for (const [nome, linhas] of porNome) {
+      if (nomesComErro.includes(nome)) continue
       const quantidades = new Set<number>()
       for (const l of linhas) {
         if (quantidades.has(l.quantidadeMinima)) erro(ABA_FORMAS, l.linha, "Quantidade mínima", MENSAGENS.formaRepetidaPlanilha)
@@ -203,7 +210,8 @@ export function conferirPlanilha(lida: PlanilhaLida, atual: CatalogoAtual): Prev
         anterior = faixa.precoCentavos
       }
     }
-    if (tipoDoCodigo.get(codigo) === "peso" && (todas.length > 1 || todas[0].some((l) => l.fator !== 1000 || l.quantidadeMinima !== 1))) {
+    const granelErrado = todas.length > 1 || todas[0].some((l) => l.fator !== 1000 || l.quantidadeMinima !== 1)
+    if (tipoDoCodigo.get(codigo) === "peso" && !nomesComErro.length && granelErrado) {
       erro(ABA_FORMAS, todas[0][0].linha, "Forma", MENSAGENS.granelPlanilha)
     }
   }
