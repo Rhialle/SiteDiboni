@@ -788,6 +788,9 @@ isOneToOne: false
 "aplicar_ligacao_item":
 { Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
                            },
+"aprovar_inventario":
+{ Args: { "p_inventario": number }; Returns: number
+                           },
 "atualizar_produto":
 { Args: { "dados": Json,"p_produto": string }; Returns: undefined
                            },
@@ -823,6 +826,9 @@ isOneToOne: false
                            },
 "confirmar_nota":
 { Args: { "p_nota": string }; Returns: undefined
+                           },
+"contar_item":
+{ Args: { "p_codigo_lote"?: string,"p_inventario": number,"p_lote": string,"p_quantidade": number,"p_validade"?: string,"p_variacao": string }; Returns: number
                            },
 "criar_produto":
 { Args: { "dados": Json }; Returns: string
@@ -866,6 +872,11 @@ isOneToOne: false
 "importar_planilha":
 { Args: { "dados": Json }; Returns: undefined
                            },
+"itens_para_contar":
+{ Args: { "p_busca": string,"p_inventario": number }; Returns: {
+              "codigo_interno": string,"controla_validade": boolean,"lotes": Json,"produto": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"variacao": string,"variacao_id": string
+            }[]
+                           },
 "ligar_item_nota":
 { Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
                            },
@@ -899,9 +910,19 @@ isOneToOne: false
 "registrar_perda_ou_ajuste":
 { Args: { "p_lote": string,"p_motivo": string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_variacao": string }; Returns: string
                            },
+"resumo_inventario":
+{ Args: { "p_inventario": number }; Returns: {
+              "com_diferenca": number,"itens_contados": number,"primeira_contagem": string,"ultima_contagem": string,"variacoes_contadas": number,"variacoes_no_escopo": number
+            }[]
+                           },
 "retirar_fefo":
 { Args: { "p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string,"p_variacao": string }; Returns: {
               "lote_id": string,"quantidade": number
+            }[]
+                           },
+"revisao_inventario":
+{ Args: { "p_inventario": number }; Returns: {
+              "codigo_lote": string,"contado": number,"contado_em": string,"contado_por": string,"diferenca": number,"lote_id": string,"produto": string,"saldo_no_momento": number,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"validade": string,"valor_centavos": number,"variacao": string
             }[]
                            },
 "salvar_recebimento_item":
