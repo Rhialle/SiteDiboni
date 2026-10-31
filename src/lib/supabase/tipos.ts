@@ -255,6 +255,84 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"inventario_escopo": {
+                  Row: {
+                    "categoria_id": string | null,"inventario_id": number,"variacao_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "categoria_id"?: string | null,"inventario_id": number,"variacao_id"?: string | null
+                  }
+                  Update: {
+                    "categoria_id"?: string | null,"inventario_id"?: number,"variacao_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "inventario_escopo_categoria_id_fkey"
+      columns: ["categoria_id"]
+isOneToOne: false
+      referencedRelation: "categorias"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventario_escopo_inventario_id_fkey"
+      columns: ["inventario_id"]
+isOneToOne: false
+      referencedRelation: "inventarios"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventario_escopo_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"inventario_itens": {
+                  Row: {
+                    "contado_em": string,"contado_por": string,"id": number,"inventario_id": number,"lote_id": string,"quantidade_contada": number,"saldo_no_momento": number,"variacao_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "contado_em"?: string,"contado_por": string,"id"?: never,"inventario_id": number,"lote_id": string,"quantidade_contada": number,"saldo_no_momento": number,"variacao_id": string
+                  }
+                  Update: {
+                    "contado_em"?: string,"contado_por"?: string,"id"?: never,"inventario_id"?: number,"lote_id"?: string,"quantidade_contada"?: number,"saldo_no_momento"?: number,"variacao_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "inventario_itens_inventario_id_fkey"
+      columns: ["inventario_id"]
+isOneToOne: false
+      referencedRelation: "inventarios"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventario_itens_lote_id_fkey"
+      columns: ["lote_id"]
+isOneToOne: false
+      referencedRelation: "lotes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventario_itens_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"inventarios": {
+                  Row: {
+                    "aberto_em": string,"aberto_por": string,"decidido_em": string | null,"decidido_por": string | null,"descricao": string,"encerrado_em": string | null,"escopo": Database["public"]['Enums']["escopo_inventario"],"id": number,"situacao": Database["public"]['Enums']["situacao_inventario"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aberto_em"?: string,"aberto_por": string,"decidido_em"?: string | null,"decidido_por"?: string | null,"descricao": string,"encerrado_em"?: string | null,"escopo": Database["public"]['Enums']["escopo_inventario"],"id"?: never,"situacao"?: Database["public"]['Enums']["situacao_inventario"]
+                  }
+                  Update: {
+                    "aberto_em"?: string,"aberto_por"?: string,"decidido_em"?: string | null,"decidido_por"?: string | null,"descricao"?: string,"encerrado_em"?: string | null,"escopo"?: Database["public"]['Enums']["escopo_inventario"],"id"?: never,"situacao"?: Database["public"]['Enums']["situacao_inventario"]
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"lotes": {
                   Row: {
                     "codigo": string,"criado_em": string,"id": string,"validade": string | null,"variacao_id": string
@@ -693,7 +771,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "alertas_estoque":
+            "abrir_inventario":
+{ Args: { "p_categorias": (string)[],"p_codigos": (string)[],"p_descricao": string,"p_escopo": Database["public"]['Enums']["escopo_inventario"] }; Returns: number
+                           },
+"alertas_estoque":
 { Args: Record<PropertyKey, never>; Returns: {
               "codigo_interno": string,"dias_para_vencer": number,"estoque_minimo": number,"faixa_dias": number,"lote": string,"lote_id": string,"produto": string,"produto_id": string,"saldo": number,"tipo": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"validade": string,"variacao": string,"variacao_id": string
             }[]
@@ -725,6 +806,9 @@ isOneToOne: false
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
             }[]
                            },
+"cancelar_inventario":
+{ Args: { "p_inventario": number }; Returns: undefined
+                           },
 "catalogo_para_planilha":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -754,6 +838,9 @@ isOneToOne: false
                            },
 "eh_usuario_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"encerrar_contagem":
+{ Args: { "p_inventario": number }; Returns: undefined
                            },
 "entrar_no_estoque":
 { Args: { "p_codigo_lote": string,"p_custo_unitario": number,"p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string,"p_validade": string,"p_variacao": string }; Returns: number
@@ -800,6 +887,9 @@ isOneToOne: false
 "quantidade_para_mensagem":
 { Args: { "p_quantidade": number }; Returns: string
                            },
+"reabrir_contagem":
+{ Args: { "p_inventario": number }; Returns: undefined
+                           },
 "reajustar_precos":
 { Args: { "p_percentual": number,"p_produtos": (string)[] }; Returns: number
                            },
@@ -817,6 +907,24 @@ isOneToOne: false
 "salvar_recebimento_item":
 { Args: { "p_item": string,"p_lotes": Json,"p_quantidade_recebida": number }; Returns: undefined
                            },
+"travar_inventario":
+{ Args: { "p_inventario": number }; Returns: {
+              "aberto_em": string,
+"aberto_por": string,
+"decidido_em": string | null,
+"decidido_por": string | null,
+"descricao": string,
+"encerrado_em": string | null,
+"escopo": Database["public"]['Enums']["escopo_inventario"],
+"id": number,
+"situacao": Database["public"]['Enums']["situacao_inventario"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "inventarios"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "travar_nota_aberta":
 { Args: { "p_nota": string }; Returns: {
               "caminho_xml": string,
@@ -846,10 +954,13 @@ isOneToOne: false
                            },
 "variacao_por_codigo":
 { Args: { "p_codigo": string }; Returns: string
+                           },
+"variacoes_do_inventario":
+{ Args: { "p_inventario": number }; Returns: string[]
                            }
           }
           Enums: {
-            "papel_usuario": "administrador"|"funcionario","situacao_nota": "em_revisao"|"aguardando_administrador"|"confirmada"|"descartada","situacao_solicitacao": "pendente"|"aprovada"|"recusada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno","tipo_venda": "unidade"|"peso"
+            "escopo_inventario": "loja"|"categorias"|"variacoes","papel_usuario": "administrador"|"funcionario","situacao_inventario": "aberto"|"em_revisao"|"aprovado"|"cancelado","situacao_nota": "em_revisao"|"aguardando_administrador"|"confirmada"|"descartada","situacao_solicitacao": "pendente"|"aprovada"|"recusada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno","tipo_venda": "unidade"|"peso"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -969,7 +1080,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "papel_usuario": ["administrador", "funcionario"],"situacao_nota": ["em_revisao", "aguardando_administrador", "confirmada", "descartada"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno"],"tipo_venda": ["unidade", "peso"]
+            "escopo_inventario": ["loja", "categorias", "variacoes"],"papel_usuario": ["administrador", "funcionario"],"situacao_inventario": ["aberto", "em_revisao", "aprovado", "cancelado"],"situacao_nota": ["em_revisao", "aguardando_administrador", "confirmada", "descartada"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno"],"tipo_venda": ["unidade", "peso"]
           }
         }
 } as const
