@@ -114,3 +114,12 @@ export async function criarInventarioTeste(descricao: string, abertoPor: string)
     return Number(rows[0].id)
   })
 }
+
+export async function itensDoInventario(inventarioId: number): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query("select count(*) as total from public.inventario_itens where inventario_id = $1", [
+      inventarioId,
+    ])
+    return Number(rows[0].total)
+  })
+}
