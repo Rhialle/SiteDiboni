@@ -13,6 +13,8 @@ const POR_RESTRICAO: Record<string, string> = {
   // Duas pessoas importando a mesma nota ao mesmo tempo: a segunda esbarra no índice único.
   notas_entrada_chave_key: MENSAGENS.notaRepetida,
   formas_venda_nome_por_variacao: MENSAGENS.formaRepetida,
+  // Dois administradores abrindo inventário ao mesmo tempo: o segundo esbarra no índice.
+  inventarios_um_em_andamento: MENSAGENS.inventarioEmAndamento,
   produto_categorias_categoria_id_fkey: MENSAGENS.categoriaEmUso,
   categorias_categoria_pai_id_fkey: MENSAGENS.categoriaEmUso,
   produto_etiquetas_etiqueta_id_fkey: MENSAGENS.materialEmUso,

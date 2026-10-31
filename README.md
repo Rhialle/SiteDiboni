@@ -11,7 +11,7 @@ O princípio que guia tudo: **um estoque só, compartilhado entre o site e o bal
 
 | Fase | O que entrega | Situação |
 |---|---|---|
-| 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 (login, usuários, configurações), 1.2 (catálogo de produtos), 1.3 (estoque), 1.4 (notas de entrada) e 1.5 (planilha do catálogo) prontos; próximo: 1.6 (inventário) |
+| 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 a 1.6 prontos (login e usuários, catálogo, estoque, notas de entrada, planilha do catálogo e inventário); falta concluir os critérios de pronto fora do código (banco de produção, catálogo real, notas reais, ensaio de contagem e backup) |
 | 2. Balcão | Vendas no balcão saindo do mesmo estoque; contagem oficial da loja inteira | Não iniciada |
 | 3. Loja online e retirada | Site público, pagamento (Pix e cartão), pedidos e retirada | Não iniciada |
 | 4. Gestão | Painel de vendas, conferência de pagamentos, fornecedores, nota fiscal (NFC-e) | Não iniciada |
@@ -77,6 +77,7 @@ Especificação completa: [docs/superpowers/specs/2026-10-21-fase-1-base-design.
 - [Categorias e materiais](docs/manual/categorias-e-materiais.md)
 - [Buscar, filtrar e editar em massa](docs/manual/edicao-em-massa.md)
 - [Planilha do catálogo](docs/manual/planilha-do-catalogo.md) (baixar o modelo, exportar, colunas, "a planilha manda", conferir e importar)
+- [Inventário](docs/manual/inventario.md) (abrir, contar pelo celular às cegas, revisar, aprovar ou cancelar, e o ensaio de uma prateleira)
 - [Estoque](docs/manual/estoque.md) (saldo e lotes, entrada manual, perdas e ajustes, solicitações, extrato e estorno, alertas e conferência diária)
 - [Notas de entrada](docs/manual/notas-de-entrada.md) (importar o XML, ligar itens novos, fator, recebido e lotes, confirmar ou descartar, divergências)
 

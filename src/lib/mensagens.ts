@@ -101,6 +101,16 @@ export const MENSAGENS = {
   validadeComSaldo: "Não dá para mudar o controle de validade: o produto tem estoque.",
   formaRepetida: "Esta variação já tem uma forma de venda com este nome.",
   nadaAImportar: "Nada a importar: a planilha é igual ao catálogo.",
+  inventarioAberto: "Inventário aberto.",
+  inventarioEmAndamento: "Já existe um inventário em andamento: termine ou cancele antes de abrir outro.",
+  contagemSalva: "Contagem salva.",
+  contagemVazia: "Informe a quantidade contada (0 se não há nenhum).",
+  contagemEncerrada: "Contagem encerrada: confira as diferenças.",
+  contagemReaberta: "Contagem reaberta.",
+  inventarioCancelado: "Inventário cancelado.",
+  nenhumInventario: "Nenhum inventário.",
+  buscaInventarioVazia: "Nenhum item do inventário com essa busca.",
+  inventarioEmRevisao: "Em revisão pelo administrador.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -158,6 +168,14 @@ export function mensagemPreviaPlanilha(criados: number, atualizados: number, sem
 
 export function mensagemPlanilhaImportada(criados: number, atualizados: number): string {
   return `Planilha importada: ${criados} criado(s) e ${atualizados} atualizado(s).`
+}
+
+export function mensagemCampoDaContagem(unidade: string): string {
+  return `${unidade}: use um número inteiro (em kg, até 3 casas).`
+}
+
+export function mensagemInventarioAprovado(ajustes: number): string {
+  return `Inventário aprovado: ${ajustes} ajuste(s) no estoque.`
 }
 
 export function mensagemPendencias(itens: string[]): string {

@@ -72,6 +72,7 @@ Em **Estoque**, clique em **Movimentações**. Na página da variação, **Ver e
 
 - Filtros: **Tipo**, **De** e **Até** (datas de São Paulo). Clique em **Filtrar**.
 - Cada linha mostra data e hora, produto, lote, tipo, quantidade (com sinal: **+** entrou, **-** saiu), motivo e quem fez.
+- Os ajustes de um inventário aprovado aparecem como **Ajuste de inventário**, com o motivo **Inventário nº {número}** (veja [Inventário](inventario.md)).
 
 **Estornar (só administrador):**
 

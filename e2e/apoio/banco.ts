@@ -4,8 +4,12 @@ import { Client } from "pg"
 
 const ENDERECO = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 
-// As notas e os fornecedores apontam para as variações, como o estoque: saem juntos, antes do catálogo.
+// O inventário, as notas e os fornecedores apontam para as variações e os lotes, como o estoque: saem
+// juntos, antes do catálogo.
 export const TABELAS_DO_ESTOQUE = [
+  "public.inventario_itens",
+  "public.inventario_escopo",
+  "public.inventarios",
   "public.notas_entrada_item_lotes",
   "public.notas_entrada_itens_valores",
   "public.notas_entrada_itens",
@@ -98,4 +102,28 @@ export async function alterarSaldoDireto(variacaoId: string, diferenca: number):
 // O truncate não passa pelo gatilho que impede apagar movimentações (nem grava histórico).
 export async function limparEstoque(): Promise<void> {
   await comoDono((conexao) => conexao.query(`truncate ${TABELAS_DO_ESTOQUE} restart identity cascade`))
+}
+
+// Um inventário em contagem da loja inteira, direto no banco (pelo site, só o administrador abre).
+export async function criarInventarioTeste(
+  descricao: string,
+  abertoPor: string,
+  situacao: "aberto" | "em_revisao" = "aberto",
+): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query(
+      "insert into public.inventarios (descricao, escopo, aberto_por, situacao) values ($1, 'loja', $2, $3) returning id",
+      [descricao, abertoPor, situacao],
+    )
+    return Number(rows[0].id)
+  })
+}
+
+export async function itensDoInventario(inventarioId: number): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query("select count(*) as total from public.inventario_itens where inventario_id = $1", [
+      inventarioId,
+    ])
+    return Number(rows[0].total)
+  })
 }
