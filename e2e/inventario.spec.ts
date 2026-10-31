@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test"
 
-import { criarInventarioTeste, itensDoInventario } from "./apoio/banco"
+import { criarInventarioTeste, itensDoInventario, movimentarTeste } from "./apoio/banco"
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
   criarCategoriaTeste,
@@ -102,7 +102,8 @@ test("funcionária conta em formas de venda: 3 caixas + 4 pacotes fica Contado: 
 })
 
 test("contagem às cegas: a tela de contagem não mostra o saldo do sistema", async ({ page }) => {
-  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha" })
+  // Código fixo: o gerado (P000137, por exemplo) poderia ter o número que o teste procura.
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha", variacao: { codigo_interno: "FM-1" } })
   await criarEstoqueTeste(variacaoId, { quantidade: 137, custo: 0.05, usuarioId: donaId })
   const inventarioId = await criarInventarioTeste("Prateleira 1", donaId)
   await entrarComoFuncionaria(page)
@@ -144,4 +145,117 @@ test("contar de novo o mesmo item substitui a contagem", async ({ page }) => {
   await contagem.getByRole("button", { name: "Salvar contagem" }).click()
   await expect(contagem).toContainText("Contado: 7 un")
   expect(await itensDoInventario(inventarioId)).toBe(1)
+})
+
+// --- Revisão, aprovação e cancelamento (Task 6) ---
+
+async function clicarConfirmando(page: Page, botao: string) {
+  page.once("dialog", (dialogo) => dialogo.accept())
+  await page.getByRole("button", { name: botao }).click()
+}
+
+async function contarUnidades(page: Page, inventarioId: number, quantidade: string) {
+  await abrirContagem(page, inventarioId, "forminha")
+  const contagem = formulario(page, "Contagem de Forminha – Padrão")
+  await contagem.getByLabel("unidade(s)").fill(quantidade)
+  await contagem.getByRole("button", { name: "Salvar contagem" }).click()
+  await expect(contagem).toContainText(`Contado: ${quantidade} un`)
+}
+
+async function forminhaComEstoque(quantidade: number): Promise<string> {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha", variacao: { codigo_interno: "FM-1" } })
+  await criarEstoqueTeste(variacaoId, { quantidade, custo: 0.05, usuarioId: donaId })
+  return variacaoId
+}
+
+async function encerrar(page: Page) {
+  await clicarConfirmando(page, "Encerrar contagem")
+  await expect(textoNaTela(page, "Contagem encerrada: confira as diferenças.")).toBeVisible()
+}
+
+const situacaoNaTela = (page: Page, texto: string) => page.getByText(texto, { exact: true }).filter({ visible: true })
+
+test("inventário do começo ao fim: abre, conta, encerra, revisa e aprova; o saldo fica igual ao contado", async ({ page }) => {
+  const variacaoId = await forminhaComEstoque(100)
+  await entrarComoAdministrador(page, DONA)
+  await page.goto("/inventario")
+  await campo(page, "Descrição").fill("Prateleira 1")
+  await page.getByRole("button", { name: "Abrir inventário" }).click()
+  await expect(page).toHaveURL(/\/inventario\/\d+$/)
+  await campo(page, "Buscar").fill("forminha")
+  await page.getByRole("button", { name: "Buscar" }).click()
+  const contagem = formulario(page, "Contagem de Forminha – Padrão")
+  await contagem.getByLabel("unidade(s)").fill("90")
+  await contagem.getByRole("button", { name: "Salvar contagem" }).click()
+  await expect(contagem).toContainText("Contado: 90 un")
+
+  await encerrar(page)
+  const diferenca = page.getByRole("table", { name: "Diferenças" }).getByRole("row").filter({ hasText: "Forminha" })
+  await expect(diferenca).toContainText("100 un")
+  await expect(diferenca).toContainText("90 un")
+  await expect(diferenca).toContainText("-10 un")
+  await expect(diferenca).toContainText("R$ 0,50")
+  await clicarConfirmando(page, "Aprovar inventário")
+  await expect(textoNaTela(page, "Inventário aprovado: 1 ajuste(s) no estoque.")).toBeVisible()
+  await expect(situacaoNaTela(page, "Aprovado")).toBeVisible()
+
+  await page.goto(`/estoque/${variacaoId}`)
+  await expect(textoNaTela(page, "Saldo: 90 un")).toBeVisible()
+})
+
+test("movimentação depois da contagem é preservada na aprovação", async ({ page }) => {
+  const variacaoId = await forminhaComEstoque(100)
+  const inventarioId = await criarInventarioTeste("Prateleira 1", donaId)
+  await entrarComoAdministrador(page, DONA)
+  await contarUnidades(page, inventarioId, "90")
+  await movimentarTeste({ variacaoId, tipo: "perda_avaria", quantidade: -5, motivo: "molhou", usuarioId: donaId })
+
+  await encerrar(page)
+  await clicarConfirmando(page, "Aprovar inventário")
+  await expect(textoNaTela(page, "Inventário aprovado: 1 ajuste(s) no estoque.")).toBeVisible()
+  await page.goto(`/estoque/${variacaoId}`)
+  await expect(textoNaTela(page, "Saldo: 85 un")).toBeVisible()
+})
+
+test("aprovação que deixaria saldo negativo mostra o item e não muda nada", async ({ page }) => {
+  const variacaoId = await forminhaComEstoque(10)
+  const inventarioId = await criarInventarioTeste("Prateleira 1", donaId)
+  await entrarComoAdministrador(page, DONA)
+  await contarUnidades(page, inventarioId, "2")
+  await movimentarTeste({ variacaoId, tipo: "perda_avaria", quantidade: -5, motivo: "quebrou", usuarioId: donaId })
+
+  await encerrar(page)
+  await clicarConfirmando(page, "Aprovar inventário")
+  await expect(
+    textoNaTela(page, "Forminha – Padrão (lote GERAL): o ajuste de -8 un deixaria o saldo negativo (há 5 un agora). Nada foi ajustado."),
+  ).toBeVisible()
+  await expect(situacaoNaTela(page, "Em revisão")).toBeVisible()
+  await page.goto(`/estoque/${variacaoId}`)
+  await expect(textoNaTela(page, "Saldo: 5 un")).toBeVisible()
+})
+
+test("cancelar o inventário não muda o estoque e libera abrir outro", async ({ page }) => {
+  const variacaoId = await forminhaComEstoque(10)
+  const inventarioId = await criarInventarioTeste("Prateleira 1", donaId)
+  await entrarComoAdministrador(page, DONA)
+  await contarUnidades(page, inventarioId, "3")
+  await clicarConfirmando(page, "Cancelar inventário")
+  await expect(textoNaTela(page, "Inventário cancelado.")).toBeVisible()
+  await expect(situacaoNaTela(page, "Cancelado")).toBeVisible()
+
+  await page.goto(`/estoque/${variacaoId}`)
+  await expect(textoNaTela(page, "Saldo: 10 un")).toBeVisible()
+  await page.goto("/inventario")
+  await campo(page, "Descrição").fill("Prateleira 2")
+  await page.getByRole("button", { name: "Abrir inventário" }).click()
+  await expect(page).toHaveURL(new RegExp(`/inventario/(?!${inventarioId}$)\\d+$`))
+})
+
+test("funcionária não vê diferenças nem os botões de aprovar", async ({ page }) => {
+  const inventarioId = await criarInventarioTeste("Prateleira 1", donaId, "em_revisao")
+  await entrarComoFuncionaria(page)
+  await page.goto(`/inventario/${inventarioId}`)
+  await expect(textoNaTela(page, "Em revisão pelo administrador.")).toBeVisible()
+  await expect(page.getByRole("table", { name: "Diferenças" })).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Aprovar inventário" })).toHaveCount(0)
 })

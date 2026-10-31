@@ -105,11 +105,15 @@ export async function limparEstoque(): Promise<void> {
 }
 
 // Um inventário em contagem da loja inteira, direto no banco (pelo site, só o administrador abre).
-export async function criarInventarioTeste(descricao: string, abertoPor: string): Promise<number> {
+export async function criarInventarioTeste(
+  descricao: string,
+  abertoPor: string,
+  situacao: "aberto" | "em_revisao" = "aberto",
+): Promise<number> {
   return comoDono(async (conexao) => {
     const { rows } = await conexao.query(
-      "insert into public.inventarios (descricao, escopo, aberto_por) values ($1, 'loja', $2) returning id",
-      [descricao, abertoPor],
+      "insert into public.inventarios (descricao, escopo, aberto_por, situacao) values ($1, 'loja', $2, $3) returning id",
+      [descricao, abertoPor, situacao],
     )
     return Number(rows[0].id)
   })
