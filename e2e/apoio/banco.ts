@@ -4,8 +4,12 @@ import { Client } from "pg"
 
 const ENDERECO = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 
-// As notas e os fornecedores apontam para as variações, como o estoque: saem juntos, antes do catálogo.
+// O inventário, as notas e os fornecedores apontam para as variações e os lotes, como o estoque: saem
+// juntos, antes do catálogo.
 export const TABELAS_DO_ESTOQUE = [
+  "public.inventario_itens",
+  "public.inventario_escopo",
+  "public.inventarios",
   "public.notas_entrada_item_lotes",
   "public.notas_entrada_itens_valores",
   "public.notas_entrada_itens",

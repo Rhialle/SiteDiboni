@@ -102,6 +102,7 @@ export const MENSAGENS = {
   formaRepetida: "Esta variação já tem uma forma de venda com este nome.",
   nadaAImportar: "Nada a importar: a planilha é igual ao catálogo.",
   inventarioAberto: "Inventário aberto.",
+  inventarioEmAndamento: "Já existe um inventário em andamento: termine ou cancele antes de abrir outro.",
   contagemSalva: "Contagem salva.",
   contagemVazia: "Informe a quantidade contada (0 se não há nenhum).",
   contagemEncerrada: "Contagem encerrada: confira as diferenças.",
