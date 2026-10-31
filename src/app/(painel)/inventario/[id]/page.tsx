@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
-import { unidadesDeDigitacao } from "@/lib/estoque/quantidade"
-import { formatarDia } from "@/lib/formatacao"
+import { formatarQuantidade, unidadesDeDigitacao } from "@/lib/estoque/quantidade"
+import { formatarDataHora, formatarDia, formatarMoeda } from "@/lib/formatacao"
 import { ROTULO_SITUACAO_INVENTARIO, TOM_SITUACAO_INVENTARIO } from "@/lib/inventario/rotulos"
 import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { Contagem } from "./contagem"
+import { AcoesDoInventario } from "./revisao"
 
 // Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
 export const instant = false
@@ -24,7 +25,8 @@ function primeiro(valor: string | string[] | undefined): string {
 }
 
 export default async function PaginaDoInventario({ params, searchParams }: PageProps<"/inventario/[id]">) {
-  await exigirUsuario()
+  const usuario = await exigirUsuario()
+  const administrador = usuario.papel === "administrador"
   const inventarioId = Number((await params).id)
   const busca = primeiro((await searchParams).q)
   if (!Number.isSafeInteger(inventarioId)) notFound()
@@ -54,6 +56,16 @@ export default async function PaginaDoInventario({ params, searchParams }: PageP
     : null
   const formasDa = (variacaoId: string) => (formasR?.data ?? []).filter((forma) => forma.variacao_id === variacaoId)
 
+  // As diferenças só para o administrador, na revisão (a contagem é às cegas).
+  const revisaoR =
+    administrador && inventario.situacao === "em_revisao"
+      ? await supabase.rpc("revisao_inventario", { p_inventario: inventarioId })
+      : null
+  if (revisaoR?.error) throw revisaoR.error
+  const resumo = resumoR.data
+  const comSinal = (diferenca: number, tipo: "unidade" | "peso") =>
+    `${diferenca > 0 ? "+" : ""}${formatarQuantidade(diferenca, tipo)}`
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
@@ -63,8 +75,68 @@ export default async function PaginaDoInventario({ params, searchParams }: PageP
           </h1>
           <Selo tom={TOM_SITUACAO_INVENTARIO[inventario.situacao]}>{ROTULO_SITUACAO_INVENTARIO[inventario.situacao]}</Selo>
         </div>
-        <p className="text-sm text-muted-foreground">{resumoR.data?.itens_contados ?? 0} item(ns) contado(s)</p>
+        <p className="text-sm text-muted-foreground">{resumo?.itens_contados ?? 0} item(ns) contado(s)</p>
       </header>
+
+      {/* Sempre no mesmo lugar: a mensagem continua à vista quando a situação muda. */}
+      {administrador ? <AcoesDoInventario inventarioId={inventario.id} situacao={inventario.situacao} /> : null}
+
+      {!emContagem && resumo && (administrador || inventario.situacao !== "em_revisao") ? (
+        <p className="text-sm">
+          {resumo.itens_contados} item(ns) contado(s)
+          {administrador ? `, ${resumo.com_diferenca} com diferença` : ""}; {resumo.variacoes_contadas} de{" "}
+          {resumo.variacoes_no_escopo} variações do escopo contadas
+          {resumo.primeira_contagem && resumo.ultima_contagem
+            ? `; contagem de ${formatarDataHora(resumo.primeira_contagem)} a ${formatarDataHora(resumo.ultima_contagem)}`
+            : ""}
+          .
+        </p>
+      ) : null}
+
+      {inventario.situacao === "em_revisao" && !administrador ? (
+        <p className="text-sm text-muted-foreground">{MENSAGENS.inventarioEmRevisao}</p>
+      ) : null}
+
+      {revisaoR ? (
+        <div className="tabela-vidro overflow-x-auto">
+          <table aria-label="Diferenças" className="w-full text-left text-sm">
+            <thead className="bg-muted/50 text-muted-foreground">
+              <tr>
+                <th className="px-3 py-2 font-medium">Produto</th>
+                <th className="px-3 py-2 font-medium">Variação</th>
+                <th className="px-3 py-2 font-medium">Lote</th>
+                <th className="px-3 py-2 font-medium">Validade</th>
+                <th className="px-3 py-2 font-medium">No sistema na contagem</th>
+                <th className="px-3 py-2 font-medium">Contado</th>
+                <th className="px-3 py-2 font-medium">Diferença</th>
+                <th className="px-3 py-2 font-medium">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(revisaoR.data ?? []).map((item) => (
+                <tr key={item.lote_id} className="border-t">
+                  <td className="px-3 py-2">{item.produto}</td>
+                  <td className="px-3 py-2">{item.variacao}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{item.codigo_lote}</td>
+                  <td className="px-3 py-2">{item.validade ? formatarDia(item.validade) : "—"}</td>
+                  <td className="px-3 py-2 whitespace-nowrap tabular-nums">{formatarQuantidade(item.saldo_no_momento, item.tipo_venda)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap tabular-nums">{formatarQuantidade(item.contado, item.tipo_venda)}</td>
+                  <td className="px-3 py-2 font-medium whitespace-nowrap tabular-nums">{comSinal(item.diferenca, item.tipo_venda)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap tabular-nums">
+                    {item.valor_centavos === null ? "sem custo" : formatarMoeda(item.valor_centavos)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
+      {inventario.situacao === "aprovado" ? (
+        <Link href="/estoque/movimentacoes?tipo=ajuste_inventario" className="link-pilula self-start">
+          Ver ajustes no extrato
+        </Link>
+      ) : null}
 
       {emContagem ? (
         <>
