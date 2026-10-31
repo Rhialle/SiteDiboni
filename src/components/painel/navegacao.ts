@@ -1,4 +1,4 @@
-import { Bell, Boxes, FolderTree, House, Package, ReceiptText, Settings, Users, type LucideIcon } from "lucide-react"
+import { Bell, Boxes, ClipboardList, FolderTree, House, Package, ReceiptText, Settings, Users, type LucideIcon } from "lucide-react"
 
 // Itens do menu do painel. O layout (servidor) monta a lista conforme o papel; menu e abas só desenham.
 export type ItemDoMenu = {
@@ -14,6 +14,7 @@ export const ICONES = {
   estoque: Boxes,
   alertas: Bell,
   notas: ReceiptText,
+  inventario: ClipboardList,
   categorias: FolderTree,
   usuarios: Users,
   configuracoes: Settings,
