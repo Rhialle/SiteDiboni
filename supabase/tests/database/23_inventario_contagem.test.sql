@@ -87,7 +87,7 @@ select throws_ok($$select aprovar_inventario(pg_temp.inv('inv'))$$, 'P0001',
 select tests.entrar_como('00000000-0000-0000-0000-00000000000a', 'aal2');
 
 -- Perda depois da contagem (FM-1 fica com 95); encerrar fecha a contagem
-select registrar_perda_ou_ajuste(pg_temp.var('FM-1'), pg_temp.lote('FM-1', 'GERAL'), 'perda_avaria', 5, 'molhou');
+select registrar_perda_ou_ajuste(pg_temp.var('FM-1'), pg_temp.lote('FM-1', 'GERAL'), 'perda_avaria', -5, 'molhou');
 select encerrar_contagem(pg_temp.inv('inv'));
 select throws_ok($$select contar_item(pg_temp.inv('inv'), pg_temp.var('FM-1'), null, 1)$$, 'P0001',
   'Este inventário não está mais em contagem.', 'em revisão não aceita contagem');
@@ -118,7 +118,7 @@ select is((select situacao::text from inventarios where id = pg_temp.inv('inv'))
 -- R1: o estoque baixou depois da contagem e o ajuste deixaria o saldo negativo
 insert into ids select 'r1', abrir_inventario('R1', 'variacoes', '{}', array['FM-2'])::text;
 select contar_item(pg_temp.inv('r1'), pg_temp.var('FM-2'), null, 2);
-select registrar_perda_ou_ajuste(pg_temp.var('FM-2'), pg_temp.lote('FM-2', 'GERAL'), 'perda_avaria', 5, 'quebrou');
+select registrar_perda_ou_ajuste(pg_temp.var('FM-2'), pg_temp.lote('FM-2', 'GERAL'), 'perda_avaria', -5, 'quebrou');
 select encerrar_contagem(pg_temp.inv('r1'));
 select throws_ok($$select aprovar_inventario(pg_temp.inv('r1'))$$, 'P0001',
   'Forminha de pão – N5 (lote GERAL): o ajuste de -28 un deixaria o saldo negativo (há 25 un agora). Nada foi ajustado.',
