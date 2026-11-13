@@ -1,5 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { buttonVariants } from "@/components/ui/button"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { caminhosDasCategorias, montarArvore } from "@/lib/catalogo/arvore"
@@ -8,16 +10,22 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import { FiltrosProdutos, type Filtros } from "./filtros-produtos"
 import { TabelaProdutos } from "./tabela-produtos"
 
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
-
 const POR_PAGINA = 50
 
 function primeiro(valor: string | string[] | undefined): string {
   return (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? ""
 }
 
-export default async function PaginaProdutos({ searchParams }: PageProps<"/produtos">) {
+// A moldura aparece na hora do clique; a sessão, os filtros da URL e os dados chegam dentro dela.
+export default function PaginaProdutos({ searchParams }: PageProps<"/produtos">) {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Produtos" colunas={5} filtros={6} />}>
+      <Produtos searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function Produtos({ searchParams }: Pick<PageProps<"/produtos">, "searchParams">) {
   const usuario = await exigirUsuario()
   const parametros = await searchParams
   const filtros: Filtros = {

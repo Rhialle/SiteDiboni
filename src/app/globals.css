@@ -332,6 +332,16 @@
     animation: flutuar var(--d, 18s) ease-in-out infinite alternate;
   }
 
+  /* Moldura de carregamento: barra tingida de tinta com o mesmo brilho que atravessa os botões. */
+  .moldura {
+    border-radius: 999px;
+    background-color: rgb(17 26 83 / 0.08);
+    background-image: linear-gradient(100deg, transparent 42%, rgb(255 255 255 / 0.75) 50%, transparent 58%);
+    background-size: 300% 100%;
+    background-position: 100% 0;
+    animation: moldura-brilha 1.5s linear infinite;
+  }
+
   .entra-com-mola {
     animation: surgir 0.8s var(--ease-mola) backwards;
     animation-delay: calc(var(--i, 0) * 90ms + 100ms);
@@ -351,6 +361,12 @@
   }
   to {
     transform: translate(var(--dx, 14px), var(--dy, -18px)) rotate(calc(var(--r, 0deg) + var(--giro, 10deg)));
+  }
+}
+
+@keyframes moldura-brilha {
+  to {
+    background-position: 0 0;
   }
 }
 
@@ -508,25 +524,23 @@
     scale: 0.8;
   }
 
-  /* Cada tela entra subindo e entrando em foco. */
+  /* Cada tela entra subindo e entrando em foco. Curta: a moldura já está na tela quando termina. */
   .entra-tela {
-    animation: tela-entra 0.5s var(--ease-suave) backwards;
+    animation: tela-entra 0.3s var(--ease-suave) backwards;
   }
 
-  /* Linhas da tabela entram em sequência. */
+  /* Linhas da tabela entram em sequência; a última começa em 0,2 s, para os dados não ficarem esperando. */
   .tabela-vidro tbody tr {
-    animation: linha-entra 0.45s var(--ease-suave) backwards;
+    animation: linha-entra 0.3s var(--ease-suave) backwards;
   }
-  .tabela-vidro tbody tr:nth-child(2) { animation-delay: 35ms; }
-  .tabela-vidro tbody tr:nth-child(3) { animation-delay: 70ms; }
-  .tabela-vidro tbody tr:nth-child(4) { animation-delay: 105ms; }
-  .tabela-vidro tbody tr:nth-child(5) { animation-delay: 140ms; }
-  .tabela-vidro tbody tr:nth-child(6) { animation-delay: 175ms; }
-  .tabela-vidro tbody tr:nth-child(7) { animation-delay: 210ms; }
-  .tabela-vidro tbody tr:nth-child(8) { animation-delay: 245ms; }
-  .tabela-vidro tbody tr:nth-child(9) { animation-delay: 280ms; }
-  .tabela-vidro tbody tr:nth-child(10) { animation-delay: 315ms; }
-  .tabela-vidro tbody tr:nth-child(n + 11) { animation-delay: 350ms; }
+  .tabela-vidro tbody tr:nth-child(2) { animation-delay: 25ms; }
+  .tabela-vidro tbody tr:nth-child(3) { animation-delay: 50ms; }
+  .tabela-vidro tbody tr:nth-child(4) { animation-delay: 75ms; }
+  .tabela-vidro tbody tr:nth-child(5) { animation-delay: 100ms; }
+  .tabela-vidro tbody tr:nth-child(6) { animation-delay: 125ms; }
+  .tabela-vidro tbody tr:nth-child(7) { animation-delay: 150ms; }
+  .tabela-vidro tbody tr:nth-child(8) { animation-delay: 175ms; }
+  .tabela-vidro tbody tr:nth-child(n + 9) { animation-delay: 200ms; }
 
   /* Selos e avisos estouram ao aparecer; erros tremem. */
   .estoura {
@@ -585,8 +599,8 @@
 @keyframes tela-entra {
   from {
     opacity: 0;
-    transform: translateY(14px);
-    filter: blur(6px);
+    transform: translateY(10px);
+    filter: blur(4px);
   }
 }
 
