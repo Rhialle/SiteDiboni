@@ -1,5 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { caminhosDasCategorias, montarArvore } from "@/lib/catalogo/arvore"
@@ -10,10 +12,18 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { AbrirInventario } from "./abrir-inventario"
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
+const DESCRICAO = "Conte o estoque e acerte o saldo pelo que foi contado. Só um inventário fica em andamento por vez."
 
-export default async function PaginaInventario() {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaInventario() {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Inventário" descricao={DESCRICAO} filtros={0} colunas={6} />}>
+      <Inventarios />
+    </Suspense>
+  )
+}
+
+async function Inventarios() {
   const usuario = await exigirUsuario()
   const administrador = usuario.papel === "administrador"
   const supabase = await criarClienteServidor()
@@ -35,7 +45,7 @@ export default async function PaginaInventario() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold sm:text-4xl">Inventário</h1>
         <p className="text-sm text-muted-foreground">
-          Conte o estoque e acerte o saldo pelo que foi contado. Só um inventário fica em andamento por vez.
+          {DESCRICAO}
         </p>
       </div>
 

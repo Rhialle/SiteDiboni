@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,16 +17,22 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import { Contagem } from "./contagem"
 import { AcoesDoInventario } from "./revisao"
 
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
-
 type LoteParaContar = { lote_id: string; codigo: string; validade: string | null; contado: number | null }
 
 function primeiro(valor: string | string[] | undefined): string {
   return (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? ""
 }
 
-export default async function PaginaDoInventario({ params, searchParams }: PageProps<"/inventario/[id]">) {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaDoInventario({ params, searchParams }: PageProps<"/inventario/[id]">) {
+  return (
+    <Suspense fallback={<MolduraDeFicha paineis={2} />}>
+      <Inventario params={params} searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/[id]">, "params" | "searchParams">) {
   const usuario = await exigirUsuario()
   const administrador = usuario.papel === "administrador"
   const inventarioId = Number((await params).id)

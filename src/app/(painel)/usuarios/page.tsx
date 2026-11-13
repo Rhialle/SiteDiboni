@@ -1,13 +1,24 @@
+import { Suspense } from "react"
+
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { exigirAdministrador } from "@/lib/auth/sessao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { FormularioConvite } from "./formulario-convite"
 import { TabelaUsuarios } from "./tabela-usuarios"
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
+const DESCRICAO = "Convide quem trabalha na loja. A pessoa recebe um e-mail para criar a própria senha."
 
-export default async function PaginaUsuarios() {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaUsuarios() {
+  return (
+    <Suspense fallback={<MolduraDeFicha titulo="Usuários" descricao={DESCRICAO} tabela={4} />}>
+      <Usuarios />
+    </Suspense>
+  )
+}
+
+async function Usuarios() {
   await exigirAdministrador()
 
   const supabase = await criarClienteServidor()
@@ -22,7 +33,7 @@ export default async function PaginaUsuarios() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold sm:text-4xl">Usuários</h1>
         <p className="text-sm text-muted-foreground">
-          Convide quem trabalha na loja. A pessoa recebe um e-mail para criar a própria senha.
+          {DESCRICAO}
         </p>
       </div>
       <FormularioConvite />

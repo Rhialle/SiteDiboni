@@ -1,5 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,9 +14,6 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import type { Database } from "@/lib/supabase/tipos"
 
 import { BotaoEstornar } from "./botao-estornar"
-
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
 
 const POR_PAGINA = 50
 const SELECT = "campo-escolha"
@@ -33,7 +32,16 @@ function diaSeguinte(dia: string): string {
   return momento.toISOString().slice(0, 10)
 }
 
-export default async function PaginaMovimentacoes({ searchParams }: PageProps<"/estoque/movimentacoes">) {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaMovimentacoes({ searchParams }: PageProps<"/estoque/movimentacoes">) {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Movimentações" descricao={false} filtros={3} colunas={8} />}>
+      <Movimentacoes searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function Movimentacoes({ searchParams }: Pick<PageProps<"/estoque/movimentacoes">, "searchParams">) {
   const usuario = await exigirUsuario()
   const administrador = usuario.papel === "administrador"
   const parametros = await searchParams

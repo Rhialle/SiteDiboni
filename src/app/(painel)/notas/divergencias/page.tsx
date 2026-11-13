@@ -1,19 +1,29 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade } from "@/lib/estoque/quantidade"
 import { formatarData } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
-
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
 
 // "+2 un" quando veio a mais, "-2 un" quando veio a menos.
 function comSinal(diferenca: number, tipo: "unidade" | "peso"): string {
   return `${diferenca > 0 ? "+" : ""}${formatarQuantidade(diferenca, tipo)}`
 }
 
-export default async function PaginaDivergencias() {
+const DESCRICAO = "Itens de notas confirmadas em que o recebido foi diferente da nota, das mais recentes para as mais antigas."
+
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaDivergencias() {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Divergências" descricao={DESCRICAO} filtros={0} colunas={8} />}>
+      <Divergencias />
+    </Suspense>
+  )
+}
+
+async function Divergencias() {
   await exigirUsuario()
   const supabase = await criarClienteServidor()
   const { data, error } = await supabase
@@ -32,7 +42,7 @@ export default async function PaginaDivergencias() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold sm:text-4xl">Divergências</h1>
         <p className="text-sm text-muted-foreground">
-          Itens de notas confirmadas em que o recebido foi diferente da nota, das mais recentes para as mais antigas.
+          {DESCRICAO}
         </p>
       </div>
 

@@ -1,3 +1,6 @@
+import { Suspense } from "react"
+
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { exigirAdministrador } from "@/lib/auth/sessao"
 import { montarArvore } from "@/lib/catalogo/arvore"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
@@ -5,10 +8,18 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import { ArvoreCategorias } from "./arvore-categorias"
 import { ListaMateriais } from "./lista-materiais"
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
+const DESCRICAO = "Organize os produtos por uso (com subcategorias) e marque os materiais."
 
-export default async function PaginaCategorias() {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaCategorias() {
+  return (
+    <Suspense fallback={<MolduraDeFicha titulo="Categorias" descricao={DESCRICAO} paineis={2} />}>
+      <Categorias />
+    </Suspense>
+  )
+}
+
+async function Categorias() {
   await exigirAdministrador()
 
   const supabase = await criarClienteServidor()
@@ -25,7 +36,7 @@ export default async function PaginaCategorias() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold sm:text-4xl">Categorias</h1>
         <p className="text-sm text-muted-foreground">
-          Organize os produtos por uso (com subcategorias) e marque os materiais.
+          {DESCRICAO}
         </p>
       </div>
       <div className="vidro rounded-3xl p-5 sm:p-6">

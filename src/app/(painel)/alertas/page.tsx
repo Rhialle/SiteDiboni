@@ -1,14 +1,12 @@
 import { ArrowDown, Clock, TriangleAlert, type LucideIcon } from "lucide-react"
 import Link from "next/link"
-import type { ReactNode } from "react"
+import { Suspense, type ReactNode } from "react"
 
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade } from "@/lib/estoque/quantidade"
 import { formatarDia } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
-
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
 
 // Cada seção usa a cor da carta do Início: vencendo em sol, vencido em coral, repor em azul.
 const ICONES_DAS_SECOES = {
@@ -49,7 +47,16 @@ function Secao({
 const CABECALHO = "bg-muted/50 text-muted-foreground"
 const CELULA = "px-4 py-3"
 
-export default async function PaginaAlertas() {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaAlertas() {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Alertas" descricao={false} filtros={0} colunas={3} />}>
+      <Alertas />
+    </Suspense>
+  )
+}
+
+async function Alertas() {
   await exigirUsuario()
   const supabase = await criarClienteServidor()
   const { data, error } = await supabase.rpc("alertas_estoque")
