@@ -1,5 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Selo } from "@/components/ui/selo"
@@ -11,16 +13,32 @@ import type { Database } from "@/lib/supabase/tipos"
 
 import { ImportarNotas } from "./importar-notas"
 
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
-
 type Situacao = Database["public"]["Enums"]["situacao_nota"]
 
 function primeiro(valor: string | string[] | undefined): string {
   return (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? ""
 }
 
-export default async function PaginaNotas({ searchParams }: PageProps<"/notas">) {
+const DESCRICAO = "Notas fiscais de compra: importe o XML, confira e dê entrada no estoque."
+
+function Atalho() {
+  return (
+    <Link href="/notas/divergencias" className="link-pilula">
+      Divergências
+    </Link>
+  )
+}
+
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaNotas({ searchParams }: PageProps<"/notas">) {
+  return (
+    <Suspense fallback={<MolduraDeFicha titulo="Notas de entrada" descricao={DESCRICAO} atalhos={<Atalho />} tabela={6} />}>
+      <Notas searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function Notas({ searchParams }: Pick<PageProps<"/notas">, "searchParams">) {
   await exigirUsuario()
   const escolhida = primeiro((await searchParams).situacao)
   const situacao = escolhida in ROTULO_SITUACAO_NOTA ? (escolhida as Situacao) : ""
@@ -43,11 +61,9 @@ export default async function PaginaNotas({ searchParams }: PageProps<"/notas">)
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold sm:text-4xl">Notas de entrada</h1>
-          <p className="text-sm text-muted-foreground">Notas fiscais de compra: importe o XML, confira e dê entrada no estoque.</p>
+          <p className="text-sm text-muted-foreground">{DESCRICAO}</p>
         </div>
-        <Link href="/notas/divergencias" className="link-pilula">
-          Divergências
-        </Link>
+        <Atalho />
       </div>
 
       <ImportarNotas />

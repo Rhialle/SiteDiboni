@@ -1,13 +1,22 @@
+import { Suspense } from "react"
+
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { exigirAdministrador } from "@/lib/auth/sessao"
 import { caminhosDasCategorias, montarArvore } from "@/lib/catalogo/arvore"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { FormularioNovoProduto } from "./formulario-novo-produto"
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaNovoProduto() {
+  return (
+    <Suspense fallback={<MolduraDeFicha titulo="Novo produto" descricao={false} />}>
+      <NovoProduto />
+    </Suspense>
+  )
+}
 
-export default async function PaginaNovoProduto() {
+async function NovoProduto() {
   await exigirAdministrador()
 
   const supabase = await criarClienteServidor()

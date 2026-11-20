@@ -1,3 +1,6 @@
+import { Suspense } from "react"
+
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade } from "@/lib/estoque/quantidade"
@@ -10,11 +13,17 @@ import { BotoesDecisao } from "./botoes-decisao"
 // Pendente em magenta (falta decidir), aprovada em menta, recusada neutra.
 const TOM_DA_SITUACAO: Record<string, "marca" | "ok" | "neutro"> = { pendente: "marca", aprovada: "ok", recusada: "neutro" }
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
-
 // O administrador vê e decide todas; a funcionária vê as dela (a RLS do banco faz esse recorte).
-export default async function PaginaSolicitacoes() {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaSolicitacoes() {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Solicitações" descricao={false} filtros={0} colunas={6} />}>
+      <Solicitacoes />
+    </Suspense>
+  )
+}
+
+async function Solicitacoes() {
   const usuario = await exigirUsuario()
   const administrador = usuario.papel === "administrador"
 

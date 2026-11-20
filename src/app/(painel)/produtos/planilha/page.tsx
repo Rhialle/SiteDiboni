@@ -1,13 +1,23 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { exigirAdministrador } from "@/lib/auth/sessao"
 
 import { ImportarPlanilha } from "./importar-planilha"
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
+const DESCRICAO = "Cadastre e atualize muitos produtos de uma vez. A planilha nunca mexe no estoque nem no custo."
 
-export default async function PaginaPlanilha() {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaPlanilha() {
+  return (
+    <Suspense fallback={<MolduraDeFicha titulo="Planilha do catálogo" descricao={DESCRICAO} paineis={2} />}>
+      <Planilha />
+    </Suspense>
+  )
+}
+
+async function Planilha() {
   await exigirAdministrador()
 
   return (
@@ -15,7 +25,7 @@ export default async function PaginaPlanilha() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold sm:text-4xl">Planilha do catálogo</h1>
         <p className="text-sm text-muted-foreground">
-          Cadastre e atualize muitos produtos de uma vez. A planilha nunca mexe no estoque nem no custo.
+          {DESCRICAO}
         </p>
       </div>
 

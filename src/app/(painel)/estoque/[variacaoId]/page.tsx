@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade, unidadesDeDigitacao } from "@/lib/estoque/quantidade"
@@ -10,10 +12,16 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import { EntradaManual } from "./entrada-manual"
 import { PerdaOuAjuste } from "./perda-ajuste"
 
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaEstoqueDaVariacao({ params }: PageProps<"/estoque/[variacaoId]">) {
+  return (
+    <Suspense fallback={<MolduraDeFicha tabela={4} />}>
+      <EstoqueDaVariacao params={params} />
+    </Suspense>
+  )
+}
 
-export default async function PaginaEstoqueDaVariacao({ params }: PageProps<"/estoque/[variacaoId]">) {
+async function EstoqueDaVariacao({ params }: Pick<PageProps<"/estoque/[variacaoId]">, "params">) {
   const usuario = await exigirUsuario()
   const administrador = usuario.papel === "administrador"
   const { variacaoId } = await params

@@ -1,5 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
+import { MolduraDeLista } from "@/components/painel/moldura"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,16 +10,35 @@ import { formatarQuantidade } from "@/lib/estoque/quantidade"
 import { formatarDia } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
-
 const POR_PAGINA = 50
 
 function primeiro(valor: string | string[] | undefined): string {
   return (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? ""
 }
 
-export default async function PaginaEstoque({ searchParams }: PageProps<"/estoque">) {
+function Atalhos() {
+  return (
+    <nav className="flex flex-wrap gap-2">
+      <Link href="/estoque/movimentacoes" className="link-pilula">
+        Movimentações
+      </Link>
+      <Link href="/estoque/solicitacoes" className="link-pilula">
+        Solicitações
+      </Link>
+    </nav>
+  )
+}
+
+// A moldura aparece na hora do clique; a sessão, a busca da URL e os dados chegam dentro dela.
+export default function PaginaEstoque({ searchParams }: PageProps<"/estoque">) {
+  return (
+    <Suspense fallback={<MolduraDeLista titulo="Estoque" colunas={7} atalhos={<Atalhos />} />}>
+      <Estoque searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function Estoque({ searchParams }: Pick<PageProps<"/estoque">, "searchParams">) {
   await exigirUsuario()
   const parametros = await searchParams
   const q = primeiro(parametros.q)
@@ -46,14 +67,7 @@ export default async function PaginaEstoque({ searchParams }: PageProps<"/estoqu
           <h1 className="text-3xl font-bold sm:text-4xl">Estoque</h1>
           <p className="text-sm text-muted-foreground">{total} variação(ões)</p>
         </div>
-        <nav className="flex flex-wrap gap-2">
-          <Link href="/estoque/movimentacoes" className="link-pilula">
-            Movimentações
-          </Link>
-          <Link href="/estoque/solicitacoes" className="link-pilula">
-            Solicitações
-          </Link>
-        </nav>
+        <Atalhos />
       </div>
 
       {/* Formulário GET: a busca fica na URL. */}

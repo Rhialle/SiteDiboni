@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { caminhosDasCategorias, montarArvore } from "@/lib/catalogo/arvore"
@@ -16,10 +18,16 @@ import { FormasVenda, type FormaVenda } from "./formas-venda"
 import { Grade } from "./grade"
 import { Variacoes } from "./variacoes"
 
-// Depende da sessão (cookies): o servidor espera antes de mostrar a página.
-export const instant = false
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaProduto({ params }: PageProps<"/produtos/[id]">) {
+  return (
+    <Suspense fallback={<MolduraDeFicha paineis={3} />}>
+      <Produto params={params} />
+    </Suspense>
+  )
+}
 
-export default async function PaginaProduto({ params }: PageProps<"/produtos/[id]">) {
+async function Produto({ params }: Pick<PageProps<"/produtos/[id]">, "params">) {
   const { id } = await params
   const usuario = await exigirUsuario()
   const podeEditar = usuario.papel === "administrador"

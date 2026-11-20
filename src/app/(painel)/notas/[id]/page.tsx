@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
+import { MolduraDeFicha } from "@/components/painel/moldura"
 import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade } from "@/lib/estoque/quantidade"
@@ -13,15 +15,21 @@ import { formatarCnpj } from "@/lib/validacao/cnpj"
 import { CriarProdutoDoItem, LigarItem } from "./ligar-item"
 import { AcoesDaNota, Recebimento } from "./recebimento"
 
-// Depende da sessão (cookies) e da URL: o servidor espera antes de mostrar a página.
-export const instant = false
-
 // Unidades base de volta para a unidade da nota (2500 un ÷ 1000 = "2,5" CX), para os campos.
 function naUnidadeDaNota(base: number, fator: number): string {
   return quantidadeDaNota((base / fator).toFixed(4))
 }
 
-export default async function PaginaNota({ params }: PageProps<"/notas/[id]">) {
+// A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
+export default function PaginaNota({ params }: PageProps<"/notas/[id]">) {
+  return (
+    <Suspense fallback={<MolduraDeFicha tabela={6} />}>
+      <Nota params={params} />
+    </Suspense>
+  )
+}
+
+async function Nota({ params }: Pick<PageProps<"/notas/[id]">, "params">) {
   const usuario = await exigirUsuario()
   const administrador = usuario.papel === "administrador"
   const { id } = await params

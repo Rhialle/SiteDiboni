@@ -6,6 +6,7 @@ export const MENSAGENS = {
   desativado: "Este usuário está desativado. Fale com o administrador.",
   linkInvalido: "Este link expirou ou já foi usado. Peça um novo ao administrador.",
   semPermissao: "Você não tem permissão para acessar esta página.",
+  naoEncontrado: "O endereço pode estar errado, ou o item foi apagado. Nada foi alterado.",
   codigoIncorreto: "Código incorreto. Confira o aplicativo e tente de novo.",
   senhaCurta: "A senha precisa ter pelo menos 8 caracteres.",
   senhaIgual: "A nova senha precisa ser diferente da atual.",

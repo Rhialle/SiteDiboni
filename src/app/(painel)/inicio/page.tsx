@@ -1,16 +1,14 @@
 import { ArrowDown, ClipboardCheck, Clock, ReceiptText, TriangleAlert, type LucideIcon } from "lucide-react"
 import Link from "next/link"
-import type { CSSProperties } from "react"
+import { Suspense, type CSSProperties } from "react"
 
+import { Barra, Carregando } from "@/components/painel/moldura"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { avisosDoInicio, MENSAGENS, type AvisoDoInicio } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { NumeroAnimado } from "./numero-animado"
 import { TudoEmDia } from "./tudo-em-dia"
-
-// Depende da sessão (cookies) ou da URL: o servidor espera antes de mostrar a página.
-export const instant = false
 
 // Cada tipo de aviso tem uma cor que diz o que é: vencido em coral, vencendo em sol, repor em azul.
 const CARTAS: Record<Exclude<AvisoDoInicio["tipo"], "conferencia">, { icone: LucideIcon; cor: string; acao: string }> = {
@@ -21,7 +19,43 @@ const CARTAS: Record<Exclude<AvisoDoInicio["tipo"], "conferencia">, { icone: Luc
   notas: { icone: ReceiptText, cor: "icone-magenta", acao: "Ver notas" },
 }
 
-export default async function PaginaInicio() {
+// A moldura aparece na hora do clique; a sessão e as contagens chegam dentro dela.
+export default function PaginaInicio() {
+  return (
+    <Suspense fallback={<MolduraDoInicio />}>
+      <Inicio />
+    </Suspense>
+  )
+}
+
+// Mesmo desenho da tela pronta: título, saudação e as cartas de aviso, duas por linha no celular.
+function MolduraDoInicio() {
+  return (
+    <Carregando className="flex flex-col gap-8">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-4xl font-bold sm:text-[2.5rem]">Início</h1>
+        <div className="flex h-6 items-center">
+          <Barra className="w-44" />
+        </div>
+      </header>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold">Avisos</h2>
+        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 lg:grid-cols-4">
+          {[0, 1].map((i) => (
+            <div key={i} className="vidro flex flex-col gap-3 rounded-[26px] p-4 sm:p-5">
+              <span aria-hidden="true" className="moldura block size-11 rounded-[14px] sm:size-12 sm:rounded-[16px]" />
+              <Barra className="h-12 w-14 rounded-[14px] sm:h-[3.75rem]" />
+              <Barra className="w-full" />
+              <Barra className="w-2/3" />
+            </div>
+          ))}
+        </div>
+      </section>
+    </Carregando>
+  )
+}
+
+async function Inicio() {
   const usuario = await exigirUsuario()
   const supabase = await criarClienteServidor()
   // As contagens seguem quem está vendo: a funcionária conta só as solicitações dela e não vê a conferência.
