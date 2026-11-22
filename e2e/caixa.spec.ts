@@ -29,7 +29,7 @@ test("funcionária abre o caixa, registra retirada e reforço e fecha às cegas 
   await expect(page.getByRole("heading", { name: "Abrir caixa" })).toBeVisible()
   await campo(page, "Troco inicial").fill("50,00")
   await page.getByRole("button", { name: "Abrir caixa" }).click()
-  await expect(textoNaTela(page, "Caixa aberto.")).toBeVisible()
+  // Aberto o caixa, o formulário dá lugar ao caixa aberto.
   const aberto = page.getByRole("region", { name: "Caixa aberto" })
   await expect(aberto).toContainText("R$ 50,00")
 

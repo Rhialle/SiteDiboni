@@ -22,7 +22,8 @@ export function MenuLateral({ itens, pessoa }: { itens: ItemDoMenu[]; pessoa: Re
         <Link href="/inicio" className="mb-7 self-start rounded-full px-1.5">
           <MarcaDiBoni claro />
         </Link>
-        <nav aria-label="Menu" className="flex flex-col gap-1">
+        {/* Com muitos itens (o administrador tem 12), o menu rola e quem está usando fica sempre à vista. */}
+        <nav aria-label="Menu" className="flex min-h-0 flex-col gap-1 overflow-y-auto">
           {principais.map((item) => (
             <ItemDoMenuLateral key={item.href} item={item} ativo={estaAtivo(caminho, item.href)} />
           ))}
