@@ -28,7 +28,7 @@ Em **Inventário**, na caixa **Abrir inventário**:
 
 Na página do inventário (situação **Em contagem**):
 
-1. Em **Buscar**, digite o nome, o código interno ou o código de barras e clique em **Buscar**. Sem busca, aparecem os primeiros itens do escopo.
+1. Em **Buscar**, digite o nome, o código interno ou o código de barras e clique em **Buscar**. Sem busca, aparecem os primeiros itens do escopo. A busca mostra no máximo 30 variações; quando chega a 30, aparece **Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código.**
 2. Cada produto achado mostra o que contar:
    - **produto sem controle de validade**: um formulário só (**Contagem de {produto} – {variação}**);
    - **produto com validade**: um formulário por lote (**Lote {código}, vence em {dd/mm/aaaa}**).
@@ -42,6 +42,7 @@ Detalhes:
 - **Contar de novo** o mesmo item substitui a contagem anterior.
 - **Para zerar** um item (não tem nenhum), conte **0**. **Item que ninguém contou não muda.**
 - **Lote que não está na lista** (achou na prateleira um lote que o sistema não conhece): preencha a **Validade** (obrigatória), o **Código do lote** (opcional; vazio vira `INV-AAAA-MM-DD`) e a contagem. O lote é criado na hora.
+- **O que falta contar**: embaixo dos itens fica **Ver as {n} variações não contadas**. Toque para abrir a lista (produto, variação e código, sem saldo) e toque numa linha para buscar aquele item e contar na hora. Uma variação conta como contada quando pelo menos um lote dela foi contado. Quando tudo foi contado, a lista some.
 
 ### Por que não aparece o saldo do sistema?
 
@@ -56,6 +57,7 @@ Quando a contagem terminar, clique em **Encerrar contagem** e confirme. Aparece 
 A página mostra:
 
 - **o resumo**: quantos itens foram contados, quantos com diferença, quantas variações do escopo foram contadas e a **primeira e a última contagem** (o tempo gasto);
+- **Ver as {n} variações não contadas**: as variações do escopo que ninguém contou. Elas **não geram ajuste** na aprovação; se alguma devia estar zerada, clique em **Voltar a contar** e conte **0**;
 - **a tabela Diferenças**, uma linha por item contado: **No sistema na contagem**, **Contado**, **Diferença** (com sinal: **-10 un** faltou, **+10 un** sobrou) e **Valor** (diferença × custo médio; "sem custo" se a variação nunca teve entrada com custo).
 
 Se algo parecer errado (alguém contou no lugar errado), clique em **Voltar a contar**: a contagem reabre, e o que já foi contado continua lá.
