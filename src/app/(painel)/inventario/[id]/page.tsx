@@ -66,6 +66,7 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
   if (revisaoR?.error) throw revisaoR.error
   if (naoContadasR?.error) throw naoContadasR.error
   const naoContadas = naoContadasR?.data ?? []
+  const totalNaoContadas = naoContadas[0]?.total ?? 0
   const itens = itensR?.data ?? []
 
   const formasR = itens.length
@@ -113,7 +114,7 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
         <p className="text-sm text-muted-foreground">{MENSAGENS.inventarioEmRevisao}</p>
       ) : null}
 
-      {revisaoR ? <FaltaContar variacoes={naoContadas} buscar={false} /> : null}
+      {revisaoR ? <FaltaContar variacoes={naoContadas} total={totalNaoContadas} buscar={false} /> : null}
 
       {revisaoR ? (
         <div className="tabela-vidro overflow-x-auto">
@@ -216,7 +217,7 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
           {itens.length === LIMITE_BUSCA_INVENTARIO ? (
             <p className="text-sm text-muted-foreground">{MENSAGENS.buscaInventarioLimite}</p>
           ) : null}
-          <FaltaContar variacoes={naoContadas} buscar />
+          <FaltaContar variacoes={naoContadas} total={totalNaoContadas} buscar />
         </>
       ) : null}
 
