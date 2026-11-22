@@ -167,3 +167,23 @@ export async function caixaFechadoTeste(
     return Number(rows[0].id)
   })
 }
+
+export async function codigoDeBarrasDaFormaTeste(formaId: string, codigo: string): Promise<void> {
+  await comoDono((conexao) => conexao.query("update public.formas_venda set codigo_barras = $2 where id = $1", [formaId, codigo]))
+}
+
+// Uma venda feita como a pessoa (as regras do banco valem), paga em Pix, no caixa aberto.
+export async function venderTeste(usuarioId: string, formaId: string, quantidade: number, totalCentavos: number): Promise<number> {
+  return comoDono(async (conexao) => {
+    await conexao.query("begin")
+    await conexao.query("select tests.entrar_como($1, 'aal1')", [usuarioId])
+    const { rows } = await conexao.query(
+      `select numero from public.registrar_venda(
+         jsonb_build_array(jsonb_build_object('forma_venda_id', $1::uuid, 'quantidade', $2::int)), 0,
+         jsonb_build_array(jsonb_build_object('forma', 'pix', 'valor_centavos', $3::int)), $3::int)`,
+      [formaId, quantidade, totalCentavos],
+    )
+    await conexao.query("commit")
+    return Number(rows[0].numero)
+  })
+}
