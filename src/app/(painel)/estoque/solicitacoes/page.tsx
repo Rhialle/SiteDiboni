@@ -24,14 +24,12 @@ export default function PaginaSolicitacoes() {
 }
 
 async function Solicitacoes() {
-  const usuario = await exigirUsuario()
-  const administrador = usuario.papel === "administrador"
-
   const supabase = await criarClienteServidor()
   const colunas =
     "id, tipo, quantidade, motivo, situacao, solicitado_em, solicitado_por, lotes(codigo, validade), variacoes(nome, produtos(nome, tipo_venda))"
   // Todas as pendentes, por mais antigas que sejam; das decididas, só as 100 mais recentes.
-  const [pendentesR, decididasR, usuariosR] = await Promise.all([
+  const [usuario, pendentesR, decididasR, usuariosR] = await Promise.all([
+    exigirUsuario(),
     supabase.from("solicitacoes_ajuste").select(colunas).eq("situacao", "pendente").order("solicitado_em", { ascending: false }),
     supabase
       .from("solicitacoes_ajuste")
@@ -43,6 +41,7 @@ async function Solicitacoes() {
   ])
   if (pendentesR.error) throw pendentesR.error
   if (decididasR.error) throw decididasR.error
+  const administrador = usuario.papel === "administrador"
 
   const nomes = new Map((usuariosR.data ?? []).map((u) => [u.id, u.nome]))
   const solicitacoes = [...(pendentesR.data ?? []), ...(decididasR.data ?? [])]

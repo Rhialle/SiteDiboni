@@ -22,12 +22,11 @@ export default function PaginaEstoqueDaVariacao({ params }: PageProps<"/estoque/
 }
 
 async function EstoqueDaVariacao({ params }: Pick<PageProps<"/estoque/[variacaoId]">, "params">) {
-  const usuario = await exigirUsuario()
-  const administrador = usuario.papel === "administrador"
   const { variacaoId } = await params
 
   const supabase = await criarClienteServidor()
-  const [variacaoR, saldosR, formasR, custoR] = await Promise.all([
+  const [usuario, variacaoR, saldosR, formasR, custoR] = await Promise.all([
+    exigirUsuario(),
     supabase
       .from("variacoes")
       .select("id, nome, codigo_interno, estoque_minimo, produtos(id, nome, tipo_venda, controla_validade)")
@@ -35,11 +34,10 @@ async function EstoqueDaVariacao({ params }: Pick<PageProps<"/estoque/[variacaoI
       .maybeSingle(),
     supabase.from("saldos").select("quantidade, lotes(id, codigo, validade)").eq("variacao_id", variacaoId).gt("quantidade", 0),
     supabase.from("formas_venda").select("id, nome, fator, peso_variavel, ativa").eq("variacao_id", variacaoId),
-    // Custo só para o administrador (a tabela também só abre para ele).
-    administrador
-      ? supabase.from("custos_variacao").select("custo_medio").eq("variacao_id", variacaoId).maybeSingle()
-      : null,
+    // A tabela de custo só abre para o administrador: para a funcionária vem vazia, e a tela só mostra o custo a ele.
+    supabase.from("custos_variacao").select("custo_medio").eq("variacao_id", variacaoId).maybeSingle(),
   ])
+  const administrador = usuario.papel === "administrador"
   // Endereço com id inválido ou de variação que não existe.
   if (variacaoR.error || !variacaoR.data) notFound()
   if (saldosR.error) throw saldosR.error
@@ -55,7 +53,7 @@ async function EstoqueDaVariacao({ params }: Pick<PageProps<"/estoque/[variacaoI
     .sort((a, b) => (a.validade ?? "9999-12-31").localeCompare(b.validade ?? "9999-12-31"))
   const total = lotes.reduce((soma, l) => soma + l.quantidade, 0)
   const disponivel = lotes.filter((l) => !vencido(l.validade)).reduce((soma, l) => soma + l.quantidade, 0)
-  const custo = custoR?.data?.custo_medio
+  const custo = administrador ? custoR.data?.custo_medio : undefined
   const unidades = unidadesDeDigitacao(tipo, formasR.data ?? [])
 
   return (

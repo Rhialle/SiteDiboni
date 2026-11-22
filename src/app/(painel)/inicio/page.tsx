@@ -56,10 +56,12 @@ function MolduraDoInicio() {
 }
 
 async function Inicio() {
-  const usuario = await exigirUsuario()
   const supabase = await criarClienteServidor()
   // As contagens seguem quem está vendo: a funcionária conta só as solicitações dela e não vê a conferência.
-  const { data: contagens, error } = await supabase.rpc("avisos_inicio").single()
+  const [usuario, { data: contagens, error }] = await Promise.all([
+    exigirUsuario(),
+    supabase.rpc("avisos_inicio").single(),
+  ])
   if (error) throw error
   const avisos = avisosDoInicio(contagens)
   const cartas = avisos.filter((aviso) => aviso.tipo !== "conferencia")

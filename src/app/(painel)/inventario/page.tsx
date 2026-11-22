@@ -24,19 +24,20 @@ export default function PaginaInventario() {
 }
 
 async function Inventarios() {
-  const usuario = await exigirUsuario()
-  const administrador = usuario.papel === "administrador"
   const supabase = await criarClienteServidor()
-  const [inventariosR, usuariosR, categoriasR] = await Promise.all([
+  // As categorias são lidas por todos; só o administrador recebe o formulário de abrir.
+  const [usuario, inventariosR, usuariosR, categoriasR] = await Promise.all([
+    exigirUsuario(),
     supabase
       .from("inventarios")
       .select("id, descricao, escopo, situacao, aberto_por, aberto_em")
       .order("aberto_em", { ascending: false })
       .limit(100),
     supabase.from("usuarios").select("id, nome"),
-    administrador ? supabase.from("categorias").select("id, nome, categoria_pai_id, ordem") : null,
+    supabase.from("categorias").select("id, nome, categoria_pai_id, ordem"),
   ])
   if (inventariosR.error) throw inventariosR.error
+  const administrador = usuario.papel === "administrador"
   const nomes = new Map((usuariosR.data ?? []).map((u) => [u.id, u.nome]))
   const inventarios = inventariosR.data ?? []
 
@@ -49,7 +50,7 @@ async function Inventarios() {
         </p>
       </div>
 
-      {administrador ? <AbrirInventario categorias={caminhosDasCategorias(montarArvore(categoriasR?.data ?? []))} /> : null}
+      {administrador ? <AbrirInventario categorias={caminhosDasCategorias(montarArvore(categoriasR.data ?? []))} /> : null}
 
       {inventarios.length === 0 ? (
         <p className="text-sm text-muted-foreground">{MENSAGENS.nenhumInventario}</p>

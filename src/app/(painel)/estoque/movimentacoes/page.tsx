@@ -42,8 +42,6 @@ export default function PaginaMovimentacoes({ searchParams }: PageProps<"/estoqu
 }
 
 async function Movimentacoes({ searchParams }: Pick<PageProps<"/estoque/movimentacoes">, "searchParams">) {
-  const usuario = await exigirUsuario()
-  const administrador = usuario.papel === "administrador"
   const parametros = await searchParams
   const filtros = {
     tipo: primeiro(parametros.tipo) in ROTULO_TIPO_MOVIMENTACAO ? primeiro(parametros.tipo) : "",
@@ -64,8 +62,9 @@ async function Movimentacoes({ searchParams }: Pick<PageProps<"/estoque/moviment
   if (filtros.de) consulta = consulta.gte("criado_em", `${filtros.de}T00:00:00-03:00`)
   if (filtros.ate) consulta = consulta.lt("criado_em", `${diaSeguinte(filtros.ate)}T00:00:00-03:00`)
   if (filtros.variacao) consulta = consulta.eq("variacao_id", filtros.variacao)
-  const { data, count, error } = await consulta
+  const [usuario, { data, count, error }] = await Promise.all([exigirUsuario(), consulta])
   if (error) throw error
+  const administrador = usuario.papel === "administrador"
 
   const movimentacoes = data ?? []
   const paginas = Math.max(1, Math.ceil((count ?? 0) / POR_PAGINA))
