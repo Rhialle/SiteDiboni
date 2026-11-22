@@ -907,7 +907,7 @@ isOneToOne: false
                            },
 "avisos_inicio":
 { Args: Record<PropertyKey, never>; Returns: {
-              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"notas_aguardando": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
+              "abaixo_minimo": number,"caixa_aberto_desde": string,"caixas_com_diferenca": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"notas_aguardando": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number,"vendas_sem_saldo": number
             }[]
                            },
 "buscar_estoque":

@@ -8,6 +8,8 @@ export const ROTULO_TIPO_MOVIMENTACAO: Record<string, string> = {
   perda_avaria: "Perda por avaria",
   quebra_pesagem: "Quebra de pesagem",
   estorno: "Estorno",
+  venda: "Venda",
+  entrada_venda_sem_saldo: "Entrada de venda sem saldo",
 }
 
 export const ROTULO_SITUACAO_SOLICITACAO: Record<string, string> = {

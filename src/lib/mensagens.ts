@@ -121,6 +121,13 @@ export const MENSAGENS = {
   dinheiroContado: "Informe o dinheiro contado na gaveta.",
   semCaixaAberto: "Não há caixa aberto.",
   caixaConferido: "Caixa marcado como conferido.",
+  limiteDescontoInvalido: "Informe o limite de desconto em %, de 0 a 100.",
+  vendaCancelada: "Venda cancelada.",
+  semSaldoConferido: "Marcado como conferido.",
+  semFormaDeVenda: "Este produto não tem forma de venda ativa.",
+  nadaEncontradoNoBalcao: "Nenhum produto à venda com este código ou nome.",
+  balcaoSemSaldo: "Sem saldo no sistema: a venda passa e o produto vai para a lista do administrador conferir.",
+  balcaoSoVencido: "O estoque deste produto no sistema está vencido. Confira a validade na embalagem.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -188,6 +195,10 @@ export function mensagemInventarioAprovado(ajustes: number): string {
   return `Inventário aprovado: ${ajustes} ajuste(s) no estoque.`
 }
 
+export function mensagemDescontoAcimaDoLimite(limite: number): string {
+  return `Desconto acima de ${limite}%: só o administrador pode dar.`
+}
+
 export function mensagemNaoContadas(quantidade: number): string {
   return quantidade === 1 ? "Ver a 1 variação não contada" : `Ver as ${quantidade} variações não contadas`
 }
@@ -209,10 +220,22 @@ export type ContagensDoInicio = {
   conferencia_em: string | null
   conferencia_divergencias: number | null
   notas_aguardando: number
+  vendas_sem_saldo: number
+  caixas_com_diferenca: number
+  caixa_aberto_desde: string | null
 }
 
 export type AvisoDoInicio = {
-  tipo: "vencidos" | "vencendo" | "abaixoDoMinimo" | "solicitacoes" | "notas" | "conferencia"
+  tipo:
+    | "vencidos"
+    | "vencendo"
+    | "abaixoDoMinimo"
+    | "solicitacoes"
+    | "notas"
+    | "semSaldo"
+    | "caixaDiferenca"
+    | "conferencia"
+    | "caixaAberto"
   // Número em destaque na carta e o texto que vem depois dele; a conferência não tem número.
   quantidade: number | null
   resto: string
@@ -254,6 +277,16 @@ export function avisosDoInicio(c: ContagensDoInicio): AvisoDoInicio[] {
         "/notas?situacao=aguardando_administrador",
       ),
     )
+  }
+  if (c.vendas_sem_saldo > 0) {
+    avisos.push(avisoDeContagem("semSaldo", c.vendas_sem_saldo, "venda(s) sem saldo a conferir", "/vendas/sem-saldo"))
+  }
+  if (c.caixas_com_diferenca > 0) {
+    avisos.push(avisoDeContagem("caixaDiferenca", c.caixas_com_diferenca, "caixa(s) com diferença a conferir", "/caixa"))
+  }
+  if (c.caixa_aberto_desde) {
+    const texto = `O caixa está aberto desde ${formatarData(c.caixa_aberto_desde)}: feche o caixa do dia.`
+    avisos.push({ tipo: "caixaAberto", quantidade: null, resto: texto, texto, link: "/caixa" })
   }
   if (c.conferencia_em && c.conferencia_divergencias) {
     const texto = `A conferência de ${formatarData(c.conferencia_em)} achou ${c.conferencia_divergencias} diferença(s) entre saldo e movimentações.`
