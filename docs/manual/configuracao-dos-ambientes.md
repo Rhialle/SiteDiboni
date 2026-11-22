@@ -32,6 +32,7 @@ Em **Settings** e depois **Environment Variables**:
 2. aplique o banco nele ("Aplicar banco na produção");
 3. crie o seu usuário nele;
 4. troque as 3 variáveis de Production para os valores dele e publique de novo.
+5. troque a origem da [cópia de segurança](copia-de-seguranca.md#trocar-a-origem-para-a-produção) para a produção.
 
 As chaves ficam no Supabase, em **Project Settings** e depois **API Keys**. Depois de mudar variáveis, é preciso publicar de novo (**Deployments**, depois **Redeploy**).
 

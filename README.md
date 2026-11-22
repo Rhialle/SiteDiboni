@@ -80,6 +80,7 @@ Especificação completa: [docs/superpowers/specs/2026-10-21-fase-1-base-design.
 - [Inventário](docs/manual/inventario.md) (abrir, contar pelo celular às cegas, revisar, aprovar ou cancelar, e o ensaio de uma prateleira)
 - [Estoque](docs/manual/estoque.md) (saldo e lotes, entrada manual, perdas e ajustes, solicitações, extrato e estorno, alertas e conferência diária)
 - [Notas de entrada](docs/manual/notas-de-entrada.md) (importar o XML, ligar itens novos, fator, recebido e lotes, confirmar ou descartar, divergências)
+- [Cópia de segurança](docs/manual/copia-de-seguranca.md) (a cópia mensal automática no GitHub, baixar, fazer uma na hora, se ficar vermelha e restaurar de verdade)
 
 ## Como rodar no computador (para quem programa)
 
