@@ -981,7 +981,7 @@ isOneToOne: false
                            },
 "variacoes_nao_contadas":
 { Args: { "p_inventario": number }; Returns: {
-              "codigo_interno": string,"produto": string,"variacao": string,"variacao_id": string
+              "codigo_interno": string,"produto": string,"total": number,"variacao": string,"variacao_id": string
             }[]
                            }
           }
