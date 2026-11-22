@@ -37,9 +37,7 @@ async function Venda({ params }: Pick<PageProps<"/vendas/[numero]">, "params">) 
       .eq("numero", numero)
       .maybeSingle(),
   ])
-  // DIAGNÓSTICO TEMPORÁRIO: mostra o erro do banco (desfeito no commit seguinte).
-  if (vendaR.error) return <pre aria-label="Erro do banco">{JSON.stringify(vendaR.error)}</pre>
-  if (!vendaR.data) notFound()
+  if (vendaR.error || !vendaR.data) notFound()
   const venda = vendaR.data
   const administrador = usuario.papel === "administrador"
 

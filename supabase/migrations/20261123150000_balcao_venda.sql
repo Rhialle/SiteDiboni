@@ -22,6 +22,10 @@ create table public.vendas (
   check ((situacao = 'cancelada') = (cancelada_em is not null))
 );
 
+-- A sequência do número pertence à coluna: limpar a tabela com "restart identity" (como os testes
+-- fazem) recomeça a numeração junto.
+alter sequence public.vendas_numero owned by public.vendas.numero;
+
 create index vendas_caixa on public.vendas (caixa_id);
 create index vendas_vendida_em on public.vendas (vendida_em desc);
 

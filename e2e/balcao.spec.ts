@@ -109,7 +109,7 @@ test("3 pacotes com a faixa, pagos em dinheiro com troco, e o comprovante", asyn
   await expect(pagamento).toContainText("Troco R$ 9,50")
   await pagamento.getByRole("button", { name: "Concluir venda" }).click()
   const concluida = page.getByRole("status", { name: "Venda concluída" })
-  await expect(concluida).toContainText("Venda nº 1")
+  await expect(concluida).toContainText(/Venda nº 1$|Venda nº 1\D/)
   await expect(concluida).toContainText("Troco R$ 9,50")
   await expect(textoNaTela(page, "Nenhum item na venda.")).toBeVisible()
 
@@ -133,7 +133,7 @@ test("venda dividida em Pix e dinheiro", async ({ page }) => {
   await pagamento.getByRole("button", { name: "Dividir o pagamento" }).click()
   await pagamento.getByLabel("Forma de pagamento").nth(1).selectOption("dinheiro")
   await pagamento.getByRole("button", { name: "Concluir venda" }).click()
-  await expect(page.getByRole("status", { name: "Venda concluída" })).toContainText("Venda nº 1")
+  await expect(page.getByRole("status", { name: "Venda concluída" })).toContainText(/Venda nº 1$|Venda nº 1\D/)
 })
 
 test("desconto acima de 10% pela funcionária mostra o limite e não deixa receber", async ({ page }) => {
@@ -159,7 +159,7 @@ test("venda sem saldo avisa na linha e conclui", async ({ page }) => {
   await expect(linhas(page, "Tampa – Padrão")).toContainText("Sem saldo no sistema")
   await page.getByRole("button", { name: "Receber (F2)" }).click()
   await page.getByRole("region", { name: "Pagamento" }).getByRole("button", { name: "Concluir venda" }).click()
-  await expect(page.getByRole("status", { name: "Venda concluída" })).toContainText("Venda nº 1")
+  await expect(page.getByRole("status", { name: "Venda concluída" })).toContainText(/Venda nº 1$|Venda nº 1\D/)
 })
 
 test("produto só com estoque vencido avisa e pede para conferir a validade", async ({ page }) => {
