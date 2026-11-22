@@ -268,3 +268,83 @@ test("abrir um inventário em revisão não cria lote nenhum no estoque", async 
   await expect(textoNaTela(page, "Em revisão pelo administrador.")).toBeVisible()
   expect(await lotesDaVariacao(variacaoId)).toBe(0)
 })
+
+// --- Aviso dos 30 itens e o que falta contar ---
+
+const AVISO_DOS_30 = "Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código."
+const naoContadas = (page: Page) => page.getByText(/não contada/).filter({ visible: true })
+
+test("busca com 30 variações avisa que mostra só as 30 primeiras", async ({ page }) => {
+  for (let i = 1; i <= 31; i++) await criarProdutoTeste({ nome: `Item ${String(i).padStart(2, "0")}` })
+  const inventarioId = await criarInventarioTeste("Loja", donaId)
+  await entrarComoFuncionaria(page)
+  await abrirContagem(page, inventarioId, "")
+  await expect(textoNaTela(page, AVISO_DOS_30)).toBeVisible()
+})
+
+test("busca com menos de 30 variações não mostra o aviso", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Forminha" })
+  await criarProdutoTeste({ nome: "Tampa" })
+  const inventarioId = await criarInventarioTeste("Loja", donaId)
+  await entrarComoFuncionaria(page)
+  await abrirContagem(page, inventarioId, "")
+  await expect(page.getByRole("region", { name: "Forminha – Padrão" })).toBeVisible()
+  await expect(textoNaTela(page, AVISO_DOS_30)).toHaveCount(0)
+})
+
+test("quem conta vê o que falta contar e toca para buscar", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Forminha" })
+  await criarProdutoTeste({ nome: "Tampa", variacao: { codigo_interno: "TP-1" } })
+  const inventarioId = await criarInventarioTeste("Loja", donaId)
+  await entrarComoFuncionaria(page)
+  await contarUnidades(page, inventarioId, "5")
+
+  await page.reload()
+  await page.getByText("Ver a 1 variação não contada").click()
+  const linha = page.getByRole("link", { name: /Tampa – Padrão/ })
+  await expect(linha).toContainText("TP-1")
+  await linha.click()
+  await expect(page).toHaveURL(/[?&]q=TP-1/)
+  await expect(page.getByRole("region", { name: "Tampa – Padrão" })).toBeVisible()
+})
+
+test("administrador vê o que faltou contar na revisão; a funcionária não", async ({ page, browser }) => {
+  await criarProdutoTeste({ nome: "Forminha" })
+  await criarProdutoTeste({ nome: "Tampa" })
+  const inventarioId = await criarInventarioTeste("Loja", donaId, "em_revisao")
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/inventario/${inventarioId}`)
+  await expect(textoNaTela(page, "Ver as 2 variações não contadas")).toBeVisible()
+
+  const contexto = await browser.newContext({ baseURL: "http://localhost:3000" })
+  const func = await contexto.newPage()
+  await entrarComoFuncionaria(func)
+  await func.goto(`/inventario/${inventarioId}`)
+  await expect(textoNaTela(func, "Em revisão pelo administrador.")).toBeVisible()
+  await expect(naoContadas(func)).toHaveCount(0)
+  await contexto.close()
+})
+
+test("com tudo contado, a lista some", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Forminha" })
+  const inventarioId = await criarInventarioTeste("Loja", donaId)
+  await entrarComoFuncionaria(page)
+  await contarUnidades(page, inventarioId, "5")
+  await page.reload()
+  await expect(page.getByRole("region", { name: "Forminha – Padrão" })).toBeVisible()
+  await expect(naoContadas(page)).toHaveCount(0)
+})
+
+test("inventário cancelado não mostra a lista", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Forminha" })
+  await criarProdutoTeste({ nome: "Tampa" })
+  const inventarioId = await criarInventarioTeste("Loja", donaId)
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/inventario/${inventarioId}`)
+  await clicarConfirmando(page, "Cancelar inventário")
+  await expect(textoNaTela(page, "Inventário cancelado.")).toBeVisible()
+  await page.reload()
+  await expect(situacaoNaTela(page, "Cancelado")).toBeVisible()
+  await expect(naoContadas(page)).toHaveCount(0)
+})
+
