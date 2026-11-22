@@ -71,6 +71,19 @@ describe("lerNotaXml", () => {
     expect(nota.itens[0].valores).toMatchObject({ valorProduto: "90.00", ipi: "4.50" })
   })
 
+  it("lê CNPJ alfanumérico do emitente, do destinatário e na chave sem perder as letras", () => {
+    const chave = "17261012345678000A08550010000001231000001231"
+    const alfanumerica = modelo("nota-simples.xml")
+      .replaceAll("17261004252011000110550010000001231000001239", chave)
+      .replace("<emit><CNPJ>04252011000110</CNPJ>", "<emit><CNPJ>12345678000A08</CNPJ>")
+      .replace("<dest><CNPJ>11222333000181</CNPJ>", "<dest><CNPJ>12ABC34501DE35</CNPJ>")
+    expect(lida(alfanumerica)).toMatchObject({
+      chave,
+      emitente: { cnpj: "12345678000A08", nome: "Doces Exemplo Ltda" },
+      destinatarioCnpj: "12ABC34501DE35",
+    })
+  })
+
   it("destinatário com CPF fica sem CNPJ (o banco recusa: não é para a loja)", () => {
     const comCpf = modelo("nota-simples.xml").replace("<dest><CNPJ>11222333000181</CNPJ>", "<dest><CPF>12345678909</CPF>")
     expect(lida(comCpf).destinatarioCnpj).toBe("")

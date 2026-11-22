@@ -34,7 +34,9 @@ export function FormularioConfiguracoes({
         <Input
           id={`${id}-cnpj`}
           name="cnpj"
-          inputMode="numeric"
+          // O CNPJ pode ter letras (formato alfanumérico de 2026): teclado comum, em maiúsculas.
+          autoCapitalize="characters"
+          spellCheck={false}
           placeholder="00.000.000/0000-00"
           defaultValue={valores.cnpj}
         />

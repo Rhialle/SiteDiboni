@@ -35,6 +35,16 @@ test("CNPJ com máscara é salvo e reaparece formatado", async ({ page }) => {
   expect((await lerConfiguracoes()).cnpj_loja).toBe("11222333000181")
 })
 
+test("CNPJ alfanumérico digitado em minúsculas é salvo em maiúsculas e reaparece formatado", async ({ page }) => {
+  await campo(page, "CNPJ da loja").fill("12.abc.345/01de-35")
+  await page.getByRole("button", { name: "Salvar" }).click()
+  await expect(page.getByText("Configurações salvas.")).toBeVisible()
+
+  await page.reload()
+  await expect(campo(page, "CNPJ da loja")).toHaveValue("12.ABC.345/01DE-35")
+  expect((await lerConfiguracoes()).cnpj_loja).toBe("12ABC34501DE35")
+})
+
 test("CNPJ inválido mostra a mensagem e não salva", async ({ page }) => {
   await campo(page, "CNPJ da loja").fill("11.222.333/0001-82")
   await page.getByRole("button", { name: "Salvar" }).click()
