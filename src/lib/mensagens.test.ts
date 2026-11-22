@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { avisosDoInicio, mensagemNaoContadas, mensagemNotaImportada } from "./mensagens"
+import { avisosDoInicio, mensagemListaCortada, mensagemNaoContadas, mensagemNotaImportada } from "./mensagens"
 
 const SEM_NADA = {
   vencendo: 0,
@@ -95,5 +95,11 @@ describe("mensagemNaoContadas", () => {
 
   it("várias ficam no plural", () => {
     expect(mensagemNaoContadas(28)).toBe("Ver as 28 variações não contadas")
+  })
+})
+
+describe("mensagemListaCortada", () => {
+  it("diz quantas aparecem e como ver as outras", () => {
+    expect(mensagemListaCortada(1000)).toBe("Mostrando as primeiras 1000. Conte estas e as outras aparecem.")
   })
 })

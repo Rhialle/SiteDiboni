@@ -1,6 +1,6 @@
 -- Inventário: as variações do escopo que ainda não foram contadas (só leitura, sem saldo).
 begin;
-select plan(9);
+select plan(10);
 
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000000a', 'dona@loja.test');
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000000b', 'func@loja.test');
@@ -45,6 +45,10 @@ select is(pg_temp.faltam(), 'FM-2,TP-1', 'contadas saem da lista; um lote contad
 select is(
   (select produto || ' / ' || variacao from variacoes_nao_contadas(pg_temp.inv('inv')) where codigo_interno = 'TP-1'),
   'Tampa / Padrão', 'traz o nome do produto e da variação');
+
+select is(
+  (select array_agg(distinct total) from variacoes_nao_contadas(pg_temp.inv('inv'))), array[2::bigint],
+  'cada linha traz o total de não contadas (a lista pode chegar cortada pelo limite de linhas)');
 
 select throws_ok($$select variacoes_nao_contadas(999999)$$, 'P0001', 'Inventário não encontrado.', 'inventário inexistente');
 

@@ -184,6 +184,10 @@ export function mensagemNaoContadas(quantidade: number): string {
   return quantidade === 1 ? "Ver a 1 variação não contada" : `Ver as ${quantidade} variações não contadas`
 }
 
+export function mensagemListaCortada(mostradas: number): string {
+  return `Mostrando as primeiras ${mostradas}. Conte estas e as outras aparecem.`
+}
+
 export function mensagemPendencias(itens: string[]): string {
   return `Para ficar ativo falta: ${itens.join(", ")}.`
 }
