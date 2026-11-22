@@ -29,6 +29,7 @@ export const MENSAGENS = {
   materialEmUso: "Este material está em produtos e não pode ser apagado.",
   codigoBarrasInvalido: "Código de barras inválido.",
   codigoBarrasRepetido: "Este código de barras já está em outra variação.",
+  codigoBarrasEmUso: "Este código de barras já está em outra variação ou forma de venda.",
   codigoInternoRepetido: "Este código interno já está em outra variação.",
   ncmInvalido: "O NCM precisa ter 8 dígitos.",
   cestInvalido: "O CEST precisa ter 7 dígitos.",

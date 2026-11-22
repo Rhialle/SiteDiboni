@@ -50,7 +50,7 @@ async function Produto({ params }: Pick<PageProps<"/produtos/[id]">, "params">) 
       supabase
         .from("formas_venda")
         .select(
-          "id, variacao_id, nome, fator, preco_centavos, peso_variavel, ativa, faixas_preco(id, quantidade_minima, preco_centavos), variacoes!inner(produto_id)",
+          "id, variacao_id, nome, fator, preco_centavos, peso_variavel, ativa, codigo_barras, faixas_preco(id, quantidade_minima, preco_centavos), variacoes!inner(produto_id)",
         )
         .eq("variacoes.produto_id", id)
         .order("nome"),
@@ -70,6 +70,7 @@ async function Produto({ params }: Pick<PageProps<"/produtos/[id]">, "params">) 
     preco_centavos: forma.preco_centavos,
     peso_variavel: forma.peso_variavel,
     ativa: forma.ativa,
+    codigo_barras: forma.codigo_barras,
     faixas: [...forma.faixas_preco].sort((a, b) => a.quantidade_minima - b.quantidade_minima),
   }))
   const fotos = (fotosR.data ?? []).map((foto) => ({
