@@ -250,11 +250,14 @@ begin
   end if;
 
   -- As linhas, com o preço recalculado e o que está à venda conferido.
-  create temp table if not exists pg_temp.linhas_da_venda (
-    ordem integer, forma uuid, variacao uuid, quantidade bigint, base bigint, unitario integer, total integer,
-    validade date, nome text
-  ) on commit drop;
-  delete from pg_temp.linhas_da_venda;
+  if to_regclass('pg_temp.linhas_da_venda') is null then
+    create temp table linhas_da_venda (
+      ordem integer, forma uuid, variacao uuid, quantidade bigint, base bigint, unitario integer, total integer,
+      validade date, nome text
+    ) on commit drop;
+  else
+    delete from pg_temp.linhas_da_venda;
+  end if;
   insert into pg_temp.linhas_da_venda
   select i.ordem, f.id, f.variacao_id, (i.item ->> 'quantidade')::bigint,
     case when f.peso_variavel then (i.item ->> 'quantidade')::bigint else (i.item ->> 'quantidade')::bigint * f.fator end,

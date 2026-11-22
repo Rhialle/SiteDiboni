@@ -165,14 +165,14 @@ select is((select count(*) from movimentacoes_custos), 0::bigint, 'a funcionári
 select throws_ok(format($$select cancelar_venda(%s, 'erro')$$, (select venda_id from v3)), 'P0001',
   'Você não tem permissão para acessar esta página.', 'a funcionária não cancela');
 select tests.entrar_como('00000000-0000-0000-0000-00000000000a', 'aal2');
-select is((select count(*) from vendas_sem_saldo()), 2::bigint, 'duas vendas sem saldo a conferir');
+select is((select count(*) from vendas_sem_saldo()), 3::bigint, 'três vendas sem saldo a conferir (Tampa, Granulado e Pote)');
 select throws_ok(
   format($$select estornar_movimentacao(%s, 'errado')$$,
     (select id from movimentacoes where tipo = 'venda' and origem_id = (select venda_id from v3)::text)),
   'P0001', 'Movimentação de venda só sai pelo cancelamento da venda.', 'estorno avulso de venda é recusado');
 select lives_ok(format($$select cancelar_venda(%s, 'cliente desistiu')$$, (select venda_id from v3)), 'o administrador cancela a venda sem saldo');
 select is(pg_temp.saldo('TP-1'), 2::bigint, 'a Tampa volta ao saldo de antes da venda');
-select is((select count(*) from vendas_sem_saldo()), 1::bigint, 'a venda cancelada sai da lista');
+select is((select count(*) from vendas_sem_saldo()), 2::bigint, 'a venda cancelada sai da lista');
 select throws_ok(format($$select cancelar_venda(%s, 'de novo')$$, (select venda_id from v3)), 'P0001',
   'Esta venda já foi cancelada.', 'não cancela duas vezes');
 select ok((select count(*) from movimentacoes_custos mc join movimentacoes m on m.id = mc.movimentacao_id
@@ -181,8 +181,8 @@ select ok((select count(*) from movimentacoes_custos mc join movimentacoes m on 
 -- O caixa: esperado com as vendas concluídas, sem a cancelada
 create temp table fechamento as select * from fechar_caixa(9050, 2050, null, null);
 select results_eq(
-  $$select forma::text, esperado_centavos from fechamento order by forma$$,
-  $$values ('dinheiro', 9050), ('cartao_credito', 2050), ('cartao_debito', 0), ('pix', 27345)$$,
+  $$select forma::text, esperado_centavos from fechamento order by forma::text$$,
+  $$values ('cartao_credito', 2050), ('cartao_debito', 0), ('dinheiro', 9050), ('pix', 27345)$$,
   'esperado: troco + dinheiro das vendas; crédito; Pix das vendas, sem a cancelada');
 
 select * from finish();
