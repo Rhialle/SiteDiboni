@@ -112,6 +112,7 @@ export const MENSAGENS = {
   nenhumInventario: "Nenhum inventário.",
   buscaInventarioVazia: "Nenhum item do inventário com essa busca.",
   inventarioEmRevisao: "Em revisão pelo administrador.",
+  buscaInventarioLimite: "Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {
@@ -177,6 +178,14 @@ export function mensagemCampoDaContagem(unidade: string): string {
 
 export function mensagemInventarioAprovado(ajustes: number): string {
   return `Inventário aprovado: ${ajustes} ajuste(s) no estoque.`
+}
+
+export function mensagemNaoContadas(quantidade: number): string {
+  return quantidade === 1 ? "Ver a 1 variação não contada" : `Ver as ${quantidade} variações não contadas`
+}
+
+export function mensagemListaCortada(mostradas: number): string {
+  return `Mostrando as primeiras ${mostradas}. Conte estas e as outras aparecem.`
 }
 
 export function mensagemPendencias(itens: string[]): string {

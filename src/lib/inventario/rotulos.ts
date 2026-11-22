@@ -25,3 +25,6 @@ export const ROTULO_ESCOPO_INVENTARIO: Record<Escopo, string> = {
   categorias: "Categorias",
   variacoes: "Variações",
 }
+
+// A busca da contagem (itens_para_contar) devolve no máximo esta quantidade de variações.
+export const LIMITE_BUSCA_INVENTARIO = 30
