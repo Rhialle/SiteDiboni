@@ -76,7 +76,9 @@ jobs:
           # Mesmas versões do banco, do login e do Storage da origem (gravadas pelo "supabase link"):
           # sem isso, as tabelas de login do Supabase local podem ter colunas a menos que a cópia.
           mkdir -p "$RUNNER_TEMP/restaurar/supabase/.temp"
-          cp supabase/.temp/*-version supabase/.temp/storage-migration "$RUNNER_TEMP/restaurar/supabase/.temp/"
+          for arquivo in supabase/.temp/*-version supabase/.temp/storage-migration; do
+            if [ -f "$arquivo" ]; then cp "$arquivo" "$RUNNER_TEMP/restaurar/supabase/.temp/"; fi
+          done
           ls "$RUNNER_TEMP/restaurar/supabase/.temp"
           npx supabase --workdir "$RUNNER_TEMP/restaurar" start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor
 
