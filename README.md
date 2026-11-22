@@ -12,7 +12,7 @@ O princípio que guia tudo: **um estoque só, compartilhado entre o site e o bal
 | Fase | O que entrega | Situação |
 |---|---|---|
 | 1. Base | Produtos, estoque (com lote, validade e peso), importação de notas e planilhas, usuários | Em construção: 1.1 a 1.6 prontos (login e usuários, catálogo, estoque, notas de entrada, planilha do catálogo e inventário); falta concluir os critérios de pronto fora do código (banco de produção, catálogo real, notas reais, ensaio de contagem e backup) |
-| 2. Balcão | Vendas no balcão saindo do mesmo estoque; contagem oficial da loja inteira | Não iniciada |
+| 2. Balcão | Vendas no balcão saindo do mesmo estoque; contagem oficial da loja inteira | Em construção: 2.1 (caixa e venda) pronta; faltam a câmera do celular (2.2), a contagem oficial e o começo do uso (2.3) e troca e devolução (2.4) |
 | 3. Loja online e retirada | Site público, pagamento (Pix e cartão), pedidos e retirada | Não iniciada |
 | 4. Gestão | Painel de vendas, conferência de pagamentos, fornecedores, nota fiscal (NFC-e) | Não iniciada |
 
@@ -80,6 +80,7 @@ Especificação completa: [docs/superpowers/specs/2026-10-21-fase-1-base-design.
 - [Inventário](docs/manual/inventario.md) (abrir, contar pelo celular às cegas, revisar, aprovar ou cancelar, e o ensaio de uma prateleira)
 - [Estoque](docs/manual/estoque.md) (saldo e lotes, entrada manual, perdas e ajustes, solicitações, extrato e estorno, alertas e conferência diária)
 - [Notas de entrada](docs/manual/notas-de-entrada.md) (importar o XML, ligar itens novos, fator, recebido e lotes, confirmar ou descartar, divergências)
+- [Balcão: caixa e venda](docs/manual/balcao.md) (abrir e fechar o caixa às cegas, vender com o leitor ou pela busca, desconto, pagamento e troco, comprovante, venda sem saldo, cancelar)
 
 ## Como rodar no computador (para quem programa)
 
