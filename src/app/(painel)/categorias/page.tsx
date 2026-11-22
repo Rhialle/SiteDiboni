@@ -20,11 +20,10 @@ export default function PaginaCategorias() {
 }
 
 async function Categorias() {
-  await exigirAdministrador()
-
   const supabase = await criarClienteServidor()
-  const [{ data: categorias, error: erroCategorias }, { data: materiais, error: erroMateriais }] =
+  const [, { data: categorias, error: erroCategorias }, { data: materiais, error: erroMateriais }] =
     await Promise.all([
+      exigirAdministrador(),
       supabase.from("categorias").select("id, nome, categoria_pai_id, ordem"),
       supabase.from("etiquetas").select("id, nome").order("nome"),
     ])

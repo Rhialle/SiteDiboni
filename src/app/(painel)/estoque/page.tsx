@@ -39,19 +39,21 @@ export default function PaginaEstoque({ searchParams }: PageProps<"/estoque">) {
 }
 
 async function Estoque({ searchParams }: Pick<PageProps<"/estoque">, "searchParams">) {
-  await exigirUsuario()
   const parametros = await searchParams
   const q = primeiro(parametros.q)
   const soComSaldo = primeiro(parametros.saldo) === "sim"
   const pagina = Math.max(1, Number(primeiro(parametros.pagina)) || 1)
 
   const supabase = await criarClienteServidor()
-  const { data, error } = await supabase.rpc("buscar_estoque", {
-    p_termo: q || undefined,
-    p_so_com_saldo: soComSaldo,
-    p_limite: POR_PAGINA,
-    p_deslocamento: (pagina - 1) * POR_PAGINA,
-  })
+  const [, { data, error }] = await Promise.all([
+    exigirUsuario(),
+    supabase.rpc("buscar_estoque", {
+      p_termo: q || undefined,
+      p_so_com_saldo: soComSaldo,
+      p_limite: POR_PAGINA,
+      p_deslocamento: (pagina - 1) * POR_PAGINA,
+    }),
+  ])
   if (error) throw error
 
   const linhas = data ?? []

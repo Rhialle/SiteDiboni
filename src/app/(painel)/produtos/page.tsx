@@ -26,7 +26,6 @@ export default function PaginaProdutos({ searchParams }: PageProps<"/produtos">)
 }
 
 async function Produtos({ searchParams }: Pick<PageProps<"/produtos">, "searchParams">) {
-  const usuario = await exigirUsuario()
   const parametros = await searchParams
   const filtros: Filtros = {
     q: primeiro(parametros.q),
@@ -39,7 +38,8 @@ async function Produtos({ searchParams }: Pick<PageProps<"/produtos">, "searchPa
   const pagina = Math.max(1, Number(primeiro(parametros.pagina)) || 1)
 
   const supabase = await criarClienteServidor()
-  const [busca, categoriasR, materiaisR] = await Promise.all([
+  const [usuario, busca, categoriasR, materiaisR] = await Promise.all([
+    exigirUsuario(),
     supabase.rpc("buscar_produtos", {
       p_termo: filtros.q || undefined,
       p_categoria: filtros.categoria || undefined,

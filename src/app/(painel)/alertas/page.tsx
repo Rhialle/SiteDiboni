@@ -57,9 +57,8 @@ export default function PaginaAlertas() {
 }
 
 async function Alertas() {
-  await exigirUsuario()
   const supabase = await criarClienteServidor()
-  const { data, error } = await supabase.rpc("alertas_estoque")
+  const [, { data, error }] = await Promise.all([exigirUsuario(), supabase.rpc("alertas_estoque")])
   if (error) throw error
 
   const alertas = data ?? []

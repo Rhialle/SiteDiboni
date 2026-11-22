@@ -21,14 +21,11 @@ export default function PaginaConfiguracoes() {
 }
 
 async function Configuracoes() {
-  await exigirAdministrador()
-
   const supabase = await criarClienteServidor()
-  const { data: configuracoes, error } = await supabase
-    .from("configuracoes")
-    .select("cnpj_loja, limite_ajuste_centavos, dias_alerta_validade")
-    .eq("id", 1)
-    .single()
+  const [, { data: configuracoes, error }] = await Promise.all([
+    exigirAdministrador(),
+    supabase.from("configuracoes").select("cnpj_loja, limite_ajuste_centavos, dias_alerta_validade").eq("id", 1).single(),
+  ])
   if (error) throw error
 
   return (

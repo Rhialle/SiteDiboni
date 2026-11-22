@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test"
 
-import { criarInventarioTeste, itensDoInventario, movimentarTeste } from "./apoio/banco"
+import { criarInventarioTeste, itensDoInventario, lotesDaVariacao, movimentarTeste } from "./apoio/banco"
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
   criarCategoriaTeste,
@@ -258,4 +258,13 @@ test("funcionária não vê diferenças nem os botões de aprovar", async ({ pag
   await expect(textoNaTela(page, "Em revisão pelo administrador.")).toBeVisible()
   await expect(page.getByRole("table", { name: "Diferenças" })).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Aprovar inventário" })).toHaveCount(0)
+})
+
+test("abrir um inventário em revisão não cria lote nenhum no estoque", async ({ page }) => {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha sem lote" })
+  const inventarioId = await criarInventarioTeste("Prateleira 1", donaId, "em_revisao")
+  await entrarComoFuncionaria(page)
+  await page.goto(`/inventario/${inventarioId}`)
+  await expect(textoNaTela(page, "Em revisão pelo administrador.")).toBeVisible()
+  expect(await lotesDaVariacao(variacaoId)).toBe(0)
 })

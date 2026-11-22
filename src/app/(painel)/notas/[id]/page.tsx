@@ -30,12 +30,12 @@ export default function PaginaNota({ params }: PageProps<"/notas/[id]">) {
 }
 
 async function Nota({ params }: Pick<PageProps<"/notas/[id]">, "params">) {
-  const usuario = await exigirUsuario()
-  const administrador = usuario.papel === "administrador"
   const { id } = await params
 
+  // Primeira rodada: a sessão, a nota, os itens e os valores, ao mesmo tempo.
   const supabase = await criarClienteServidor()
-  const [notaR, itensR, usuariosR] = await Promise.all([
+  const [usuario, notaR, itensR, usuariosR, valoresR] = await Promise.all([
+    exigirUsuario(),
     supabase
       .from("notas_entrada")
       .select("id, numero, serie, emitida_em, situacao, importada_por, importada_em, fornecedores(nome, cnpj)")
@@ -49,7 +49,13 @@ async function Nota({ params }: Pick<PageProps<"/notas/[id]">, "params">) {
       .eq("nota_id", id)
       .order("numero_item"),
     supabase.from("usuarios").select("id, nome"),
+    // A tabela de valores só abre para o administrador: para a funcionária vem vazia.
+    supabase
+      .from("notas_entrada_itens_valores")
+      .select("item_id, custo_total, custo_unitario_base, notas_entrada_itens!inner(nota_id)")
+      .eq("notas_entrada_itens.nota_id", id),
   ])
+  const administrador = usuario.papel === "administrador"
   // Endereço com id inválido ou de nota que não existe.
   if (notaR.error || !notaR.data) notFound()
   if (itensR.error) throw itensR.error
@@ -63,24 +69,14 @@ async function Nota({ params }: Pick<PageProps<"/notas/[id]">, "params">) {
     item.variacoes && item.fator ? [{ ...item, variacao: item.variacoes, fator: item.fator }] : [],
   )
 
-  // Valores só para o administrador (a tabela também só abre para ele). A sugestão de ligação é a
-  // variação com o mesmo código de barras do XML.
+  // Segunda rodada, só para o administrador: a sugestão de ligação é a variação com o mesmo
+  // código de barras do XML.
   const codigosDeBarras = semLigacao.flatMap((item) => (item.codigo_barras ? [item.codigo_barras] : []))
-  const [valoresR, sugestoesR] = administrador
-    ? await Promise.all([
-        supabase
-          .from("notas_entrada_itens_valores")
-          .select("item_id, custo_total, custo_unitario_base")
-          .in(
-            "item_id",
-            itens.map((item) => item.id),
-          ),
-        codigosDeBarras.length
-          ? supabase.from("variacoes").select("nome, codigo_barras, produtos(nome)").in("codigo_barras", codigosDeBarras)
-          : null,
-      ])
-    : [null, null]
-  const valores = new Map((valoresR?.data ?? []).map((v) => [v.item_id, v]))
+  const sugestoesR =
+    administrador && codigosDeBarras.length
+      ? await supabase.from("variacoes").select("nome, codigo_barras, produtos(nome)").in("codigo_barras", codigosDeBarras)
+      : null
+  const valores = new Map((administrador ? (valoresR.data ?? []) : []).map((v) => [v.item_id, v]))
   const sugestoes = new Map((sugestoesR?.data ?? []).map((s) => [s.codigo_barras, s]))
 
   return (

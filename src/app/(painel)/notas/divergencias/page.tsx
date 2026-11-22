@@ -24,16 +24,18 @@ export default function PaginaDivergencias() {
 }
 
 async function Divergencias() {
-  await exigirUsuario()
   const supabase = await criarClienteServidor()
-  const { data, error } = await supabase
-    .from("divergencias_fornecedor")
-    .select(
-      "nota_id, fornecedor, numero, confirmada_em, numero_item, descricao, quantidade_base_nota, quantidade_base_recebida, diferenca, produto, variacao, tipo_venda",
-    )
-    .order("confirmada_em", { ascending: false })
-    .order("numero_item")
-    .limit(200)
+  const [, { data, error }] = await Promise.all([
+    exigirUsuario(),
+    supabase
+      .from("divergencias_fornecedor")
+      .select(
+        "nota_id, fornecedor, numero, confirmada_em, numero_item, descricao, quantidade_base_nota, quantidade_base_recebida, diferenca, produto, variacao, tipo_venda",
+      )
+      .order("confirmada_em", { ascending: false })
+      .order("numero_item")
+      .limit(200),
+  ])
   if (error) throw error
   const divergencias = data ?? []
 

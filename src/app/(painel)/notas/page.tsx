@@ -39,7 +39,6 @@ export default function PaginaNotas({ searchParams }: PageProps<"/notas">) {
 }
 
 async function Notas({ searchParams }: Pick<PageProps<"/notas">, "searchParams">) {
-  await exigirUsuario()
   const escolhida = primeiro((await searchParams).situacao)
   const situacao = escolhida in ROTULO_SITUACAO_NOTA ? (escolhida as Situacao) : ""
 
@@ -50,7 +49,11 @@ async function Notas({ searchParams }: Pick<PageProps<"/notas">, "searchParams">
     .order("importada_em", { ascending: false })
     .limit(100)
   if (situacao) consulta = consulta.eq("situacao", situacao)
-  const [notasR, usuariosR] = await Promise.all([consulta, supabase.from("usuarios").select("id, nome")])
+  const [, notasR, usuariosR] = await Promise.all([
+    exigirUsuario(),
+    consulta,
+    supabase.from("usuarios").select("id, nome"),
+  ])
   if (notasR.error) throw notasR.error
 
   const nomes = new Map((usuariosR.data ?? []).map((u) => [u.id, u.nome]))

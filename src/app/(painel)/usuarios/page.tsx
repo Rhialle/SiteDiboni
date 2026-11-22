@@ -19,13 +19,11 @@ export default function PaginaUsuarios() {
 }
 
 async function Usuarios() {
-  await exigirAdministrador()
-
   const supabase = await criarClienteServidor()
-  const { data: usuarios, error } = await supabase
-    .from("usuarios")
-    .select("id, nome, email, papel, ativo, criado_em")
-    .order("nome")
+  const [, { data: usuarios, error }] = await Promise.all([
+    exigirAdministrador(),
+    supabase.from("usuarios").select("id, nome, email, papel, ativo, criado_em").order("nome"),
+  ])
   if (error) throw error
 
   return (

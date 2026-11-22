@@ -2,7 +2,9 @@ import { expect, test, type Page } from "@playwright/test"
 
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
+  criarProdutoTeste,
   criarUsuarioTeste,
+  limparCatalogo,
   limparUsuarios,
   ultimoLinkPorEmail,
   type DadosUsuarioTeste,
@@ -102,6 +104,28 @@ test("funcionária desativada com a sessão aberta cai no /entrar", async ({ pag
   await expect(func).toHaveURL(/\/entrar\?motivo=desativado/)
   await expect(func.getByText(DESATIVADO)).toBeVisible()
   await contexto.close()
+})
+
+test("funcionária desativada com a ficha do estoque aberta cai no /entrar, sem \"não encontrado\"", async ({
+  page,
+  browser,
+}) => {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha desativada" })
+  const contexto = await browser.newContext({ baseURL: "http://localhost:3000" })
+  const func = await contexto.newPage()
+  await entrar(func, FUNC.email, FUNC.senha)
+  await expect(func.getByRole("heading", { name: "Início" })).toBeVisible()
+  await func.goto(`/estoque/${variacaoId}`)
+  await expect(func.getByRole("heading", { name: "Forminha desativada" })).toBeVisible()
+
+  await entrarComoAdministrador(page, DONA)
+  await desativarFuncionaria(page)
+
+  await func.reload()
+  await expect(func).toHaveURL(/\/entrar\?motivo=desativado/)
+  await expect(func.getByText(DESATIVADO)).toBeVisible()
+  await contexto.close()
+  await limparCatalogo()
 })
 
 test("funcionária desativada não consegue entrar de novo", async ({ page }) => {

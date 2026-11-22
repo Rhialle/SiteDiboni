@@ -119,6 +119,13 @@ export async function criarInventarioTeste(
   })
 }
 
+export async function lotesDaVariacao(variacaoId: string): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query("select count(*) as total from public.lotes where variacao_id = $1", [variacaoId])
+    return Number(rows[0].total)
+  })
+}
+
 export async function itensDoInventario(inventarioId: number): Promise<number> {
   return comoDono(async (conexao) => {
     const { rows } = await conexao.query("select count(*) as total from public.inventario_itens where inventario_id = $1", [
