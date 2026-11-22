@@ -114,6 +114,7 @@ test("funcionária desativada com a ficha do estoque aberta cai no /entrar, sem 
   const contexto = await browser.newContext({ baseURL: "http://localhost:3000" })
   const func = await contexto.newPage()
   await entrar(func, FUNC.email, FUNC.senha)
+  await expect(func.getByRole("heading", { name: "Início" })).toBeVisible()
   await func.goto(`/estoque/${variacaoId}`)
   await expect(func.getByRole("heading", { name: "Forminha desativada" })).toBeVisible()
 
