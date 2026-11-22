@@ -37,42 +37,41 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
   const busca = primeiro((await searchParams).q)
   if (!Number.isSafeInteger(inventarioId)) notFound()
 
-  // Primeira rodada: a sessão, o inventário, o resumo e os itens para contar, ao mesmo tempo.
-  // Os itens são buscados antes de saber a situação e só são usados com a contagem aberta.
+  // Primeira rodada: a sessão, o inventário e o resumo, ao mesmo tempo.
   const supabase = await criarClienteServidor()
-  const [usuario, inventarioR, resumoR, itensBuscadosR] = await Promise.all([
+  const [usuario, inventarioR, resumoR] = await Promise.all([
     exigirUsuario(),
     supabase.from("inventarios").select("id, descricao, situacao").eq("id", inventarioId).maybeSingle(),
     supabase.rpc("resumo_inventario", { p_inventario: inventarioId }).single(),
-    supabase.rpc("itens_para_contar", { p_inventario: inventarioId, p_busca: busca }),
   ])
   const administrador = usuario.papel === "administrador"
   if (inventarioR.error || !inventarioR.data) notFound()
   const inventario = inventarioR.data
   const emContagem = inventario.situacao === "aberto"
 
-  const itensR = emContagem ? itensBuscadosR : null
-  if (itensR?.error) throw itensR.error
-  const itens = itensR?.data ?? []
-
-  // Segunda rodada: as formas dos itens e, só para o administrador na revisão, as diferenças
-  // (a contagem é às cegas).
-  const [formasR, revisaoR] = await Promise.all([
-    itens.length
-      ? supabase
-          .from("formas_venda")
-          .select("id, variacao_id, nome, fator, peso_variavel, ativa")
-          .in(
-            "variacao_id",
-            itens.map((item) => item.variacao_id),
-          )
-      : null,
+  // Segunda rodada, conforme a situação: os itens para contar só com a contagem aberta (a função
+  // cria o lote GERAL das variações achadas, e um inventário encerrado não deve gravar nada); as
+  // diferenças só para o administrador na revisão (a contagem é às cegas).
+  const [itensR, revisaoR] = await Promise.all([
+    emContagem ? supabase.rpc("itens_para_contar", { p_inventario: inventarioId, p_busca: busca }) : null,
     administrador && inventario.situacao === "em_revisao"
       ? supabase.rpc("revisao_inventario", { p_inventario: inventarioId })
       : null,
   ])
-  const formasDa = (variacaoId: string) => (formasR?.data ?? []).filter((forma) => forma.variacao_id === variacaoId)
+  if (itensR?.error) throw itensR.error
   if (revisaoR?.error) throw revisaoR.error
+  const itens = itensR?.data ?? []
+
+  const formasR = itens.length
+    ? await supabase
+        .from("formas_venda")
+        .select("id, variacao_id, nome, fator, peso_variavel, ativa")
+        .in(
+          "variacao_id",
+          itens.map((item) => item.variacao_id),
+        )
+    : null
+  const formasDa = (variacaoId: string) => (formasR?.data ?? []).filter((forma) => forma.variacao_id === variacaoId)
   const resumo = resumoR.data
   const comSinal = (diferenca: number, tipo: "unidade" | "peso") =>
     `${diferenca > 0 ? "+" : ""}${formatarQuantidade(diferenca, tipo)}`
