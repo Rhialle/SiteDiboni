@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { avisosDoInicio, mensagemNotaImportada } from "./mensagens"
+import { avisosDoInicio, mensagemNaoContadas, mensagemNotaImportada } from "./mensagens"
 
 const SEM_NADA = {
   vencendo: 0,
@@ -85,5 +85,15 @@ describe("mensagemNotaImportada", () => {
     expect(mensagemNotaImportada("456", "Embalagens Exemplo Ltda", 3)).toBe(
       "Nota 456 de Embalagens Exemplo Ltda: importada, aguardando o administrador ligar 3 item(ns).",
     )
+  })
+})
+
+describe("mensagemNaoContadas", () => {
+  it("uma variação fica no singular", () => {
+    expect(mensagemNaoContadas(1)).toBe("Ver a 1 variação não contada")
+  })
+
+  it("várias ficam no plural", () => {
+    expect(mensagemNaoContadas(28)).toBe("Ver as 28 variações não contadas")
   })
 })
