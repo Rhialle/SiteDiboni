@@ -7,6 +7,11 @@ const ENDERECO = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 // O inventário, as notas e os fornecedores apontam para as variações e os lotes, como o estoque: saem
 // juntos, antes do catálogo.
 export const TABELAS_DO_ESTOQUE = [
+  "public.venda_pagamentos",
+  "public.venda_itens",
+  "public.vendas",
+  "public.caixa_movimentos",
+  "public.caixas",
   "public.inventario_itens",
   "public.inventario_escopo",
   "public.inventarios",
