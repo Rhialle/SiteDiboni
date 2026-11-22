@@ -181,6 +181,7 @@ test("a venda em andamento volta depois de recarregar e some depois de concluir"
   await abrirCaixaTeste(funcId)
   await entrarNoBalcao(page)
   await bipar(page, "7891000000014")
+  await expect(linhas(page, "Forminha – N4")).toHaveCount(1)
   await page.reload()
   await expect(linhas(page, "Forminha – N4")).toHaveCount(1)
   await page.getByRole("button", { name: "Receber (F2)" }).click()

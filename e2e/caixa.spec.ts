@@ -64,7 +64,8 @@ test("administrador vê o caixa com diferença e marca como conferido", async ({
   await expect(linha).toContainText("Com diferença")
   await page.goto(`/caixa/${caixaId}`)
   await page.getByRole("button", { name: "Marcar como conferido" }).click()
-  await expect(textoNaTela(page, "Caixa marcado como conferido.")).toBeVisible()
+  // Conferido, o botão dá lugar ao aviso (a tela recarrega).
+  await expect(textoNaTela(page, "Conferido pelo administrador.")).toBeVisible()
   await page.goto("/caixa")
   await expect(page.getByRole("table", { name: "Caixas fechados" }).getByRole("row").nth(1)).toContainText("Conferido")
 })
