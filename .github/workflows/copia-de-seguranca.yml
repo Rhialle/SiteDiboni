@@ -74,7 +74,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/restaurar"
           npx supabase --workdir "$RUNNER_TEMP/restaurar" init
           # Portas 553xx em vez das 543xx: às vezes a máquina do GitHub já tem a 54322 ocupada.
-          sed -i -E 's/543([0-9]{2})/553/g' "$RUNNER_TEMP/restaurar/supabase/config.toml"
+          sed -i -E 's/\b543([0-9]{2})\b/553\1/g' "$RUNNER_TEMP/restaurar/supabase/config.toml"
           grep -nE '^port|_port' "$RUNNER_TEMP/restaurar/supabase/config.toml" | head -8
           # Mesmas versões do banco, do login e do Storage da origem (gravadas pelo "supabase link"):
           # sem isso, as tabelas de login do Supabase local podem ter colunas a menos que a cópia.
