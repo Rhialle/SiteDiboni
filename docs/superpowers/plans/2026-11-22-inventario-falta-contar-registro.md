@@ -4,7 +4,7 @@ Registro gravado durante a execução do [plano](2026-11-22-inventario-falta-con
 
 ## Resultado
 
-Concluído no ramo `inventario-falta-contar` em 2026-11-22. Migrações novas (já aplicadas no banco de teste pelo CI do ramo): `20261122130000_inventario_nao_contadas.sql` e `20261122140000_inventario_nao_contadas_total.sql`.
+Concluído no ramo `inventario-falta-contar` em 2026-11-22: CI verde no run 45048829017 (468 testes de banco, 166 unitários, 15 de concorrência, 117 de tela). Migrações novas (já aplicadas no banco de teste pelo CI do ramo): `20261122130000_inventario_nao_contadas.sql` e `20261122140000_inventario_nao_contadas_total.sql`.
 
 - **Tela de contagem:** com 30 variações na busca aparece "Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código."; embaixo dos itens, "Ver as N variações não contadas", que abre a lista (produto, variação e código, sem saldo); tocar numa linha busca o item.
 - **Revisão (administrador):** a mesma lista, sem link, antes da tabela Diferenças.
@@ -16,7 +16,7 @@ Concluído no ramo `inventario-falta-contar` em 2026-11-22. Migrações novas (j
 - Task 1: banco RED no CI 45043397078 (função inexistente, 9/9) → GREEN no CI 45044526085 (467 testes de banco); tipos baixados do artefato.
 - Task 2: unitários RED local (`mensagemNaoContadas is not a function`) → GREEN (165).
 - Task 3: tela RED no CI 45044526085 (os 3 testes que procuram o aviso ou a lista; os 3 de guarda passaram) → GREEN no CI 45045857856 (117 testes de tela, 467 de banco).
-- Correção da revisão: RED no CI 45046365243 (`column "total" does not exist`) → GREEN no CI do envio seguinte.
+- Correção da revisão: RED no CI 45046365243 (`column "total" does not exist`) → GREEN no CI 45047546340 (468 de banco; tipos baixados do artefato).
 
 ## Decisões tomadas fora do plano
 
