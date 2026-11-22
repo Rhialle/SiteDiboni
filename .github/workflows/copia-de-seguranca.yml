@@ -21,7 +21,9 @@ jobs:
       # segredos SUPABASE_ACCESS_TOKEN_PRODUCAO e SUPABASE_REF_PRODUCAO (veja o manual).
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       REF_ORIGEM: ${{ secrets.SUPABASE_REF_TESTE }}
-      BANCO_RESTAURADO: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      # No Supabase local, o superusuário é supabase_admin (o postgres não pode aplicar alguns
+      # ajustes que vêm nos papéis da cópia, como log_min_messages).
+      BANCO_RESTAURADO: postgresql://supabase_admin:postgres@127.0.0.1:54322/postgres
     defaults:
       run:
         shell: bash
