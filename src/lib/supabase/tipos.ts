@@ -978,6 +978,11 @@ isOneToOne: false
                            },
 "variacoes_do_inventario":
 { Args: { "p_inventario": number }; Returns: string[]
+                           },
+"variacoes_nao_contadas":
+{ Args: { "p_inventario": number }; Returns: {
+              "codigo_interno": string,"produto": string,"variacao": string,"variacao_id": string
+            }[]
                            }
           }
           Enums: {
