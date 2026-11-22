@@ -10,11 +10,12 @@ import { Selo } from "@/components/ui/selo"
 import { exigirUsuario } from "@/lib/auth/sessao"
 import { formatarQuantidade, unidadesDeDigitacao } from "@/lib/estoque/quantidade"
 import { formatarDataHora, formatarDia, formatarMoeda } from "@/lib/formatacao"
-import { ROTULO_SITUACAO_INVENTARIO, TOM_SITUACAO_INVENTARIO } from "@/lib/inventario/rotulos"
+import { LIMITE_BUSCA_INVENTARIO, ROTULO_SITUACAO_INVENTARIO, TOM_SITUACAO_INVENTARIO } from "@/lib/inventario/rotulos"
 import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { Contagem } from "./contagem"
+import { FaltaContar } from "./falta-contar"
 import { AcoesDoInventario } from "./revisao"
 
 type LoteParaContar = { lote_id: string; codigo: string; validade: string | null; contado: number | null }
@@ -52,14 +53,19 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
   // Segunda rodada, conforme a situação: os itens para contar só com a contagem aberta (a função
   // cria o lote GERAL das variações achadas, e um inventário encerrado não deve gravar nada); as
   // diferenças só para o administrador na revisão (a contagem é às cegas).
-  const [itensR, revisaoR] = await Promise.all([
+  // A lista do que falta contar vai para quem conta e para o administrador na revisão.
+  const emRevisaoDoAdministrador = administrador && inventario.situacao === "em_revisao"
+  const [itensR, revisaoR, naoContadasR] = await Promise.all([
     emContagem ? supabase.rpc("itens_para_contar", { p_inventario: inventarioId, p_busca: busca }) : null,
-    administrador && inventario.situacao === "em_revisao"
-      ? supabase.rpc("revisao_inventario", { p_inventario: inventarioId })
+    emRevisaoDoAdministrador ? supabase.rpc("revisao_inventario", { p_inventario: inventarioId }) : null,
+    emContagem || emRevisaoDoAdministrador
+      ? supabase.rpc("variacoes_nao_contadas", { p_inventario: inventarioId })
       : null,
   ])
   if (itensR?.error) throw itensR.error
   if (revisaoR?.error) throw revisaoR.error
+  if (naoContadasR?.error) throw naoContadasR.error
+  const naoContadas = naoContadasR?.data ?? []
   const itens = itensR?.data ?? []
 
   const formasR = itens.length
@@ -106,6 +112,8 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
       {inventario.situacao === "em_revisao" && !administrador ? (
         <p className="text-sm text-muted-foreground">{MENSAGENS.inventarioEmRevisao}</p>
       ) : null}
+
+      {revisaoR ? <FaltaContar variacoes={naoContadas} buscar={false} /> : null}
 
       {revisaoR ? (
         <div className="tabela-vidro overflow-x-auto">
@@ -205,6 +213,10 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
               )
             })
           )}
+          {itens.length === LIMITE_BUSCA_INVENTARIO ? (
+            <p className="text-sm text-muted-foreground">{MENSAGENS.buscaInventarioLimite}</p>
+          ) : null}
+          <FaltaContar variacoes={naoContadas} buscar />
         </>
       ) : null}
 
