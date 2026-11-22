@@ -16,8 +16,6 @@ if (!arquivo || !url) {
 }
 
 const esperado = contarLinhasDoCopy(readFileSync(arquivo, "utf8"))
-// FALHA FORÇADA (temporária): prova que a conferência fica vermelha. Desfeita no commit seguinte.
-esperado["public.tabela_que_nao_existe"] = 1
 const obtido = {}
 for (const tabela of Object.keys(esperado)) {
   const [esquema, nome] = tabela.split(".")
