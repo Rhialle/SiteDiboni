@@ -24,22 +24,24 @@ type EstadoSessao =
 const lerSessao = cache(async (): Promise<EstadoSessao> => {
   const supabase = await criarClienteServidor()
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error?.code === "user_banned") return { tipo: "inativo" }
-  if (!data.user) return { tipo: "sem-sessao" }
+  // A sessão é assinada com chave assimétrica: o próprio servidor confere a assinatura,
+  // sem ir ao servidor de login. O nível de duas etapas vem dentro dela.
+  const { data } = await supabase.auth.getClaims()
+  const claims = data?.claims
+  if (!claims?.sub) return { tipo: "sem-sessao" }
 
-  // Toda conta tem linha em usuarios; se o banco não a devolve, o usuário está desativado.
+  // Toda conta tem linha em usuarios, e o banco esconde a linha de quem está desativado:
+  // é aqui que a desativação aparece, na mesma hora.
   const { data: linha } = await supabase
     .from("usuarios")
     .select("id, nome, email, papel")
-    .eq("id", data.user.id)
+    .eq("id", claims.sub)
     .maybeSingle()
   if (!linha) return { tipo: "inativo" }
 
-  const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
   return {
     tipo: "ativo",
-    usuario: { ...linha, nivel: nivel?.currentLevel === "aal2" ? "aal2" : "aal1" },
+    usuario: { ...linha, nivel: claims.aal === "aal2" ? "aal2" : "aal1" },
   }
 })
 
