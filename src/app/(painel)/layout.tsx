@@ -22,6 +22,9 @@ export default async function LayoutPainel({ children }: { children: ReactNode }
 
   const itens: ItemDoMenu[] = [
     { href: "/inicio", rotulo: "Início", icone: "inicio", grupo: "principal" },
+    { href: "/balcao", rotulo: "Balcão", icone: "balcao", grupo: "principal" },
+    { href: "/caixa", rotulo: "Caixa", icone: "caixa", grupo: "principal" },
+    { href: "/vendas", rotulo: "Vendas", icone: "vendas", grupo: "principal" },
     { href: "/produtos", rotulo: "Produtos", icone: "produtos", grupo: "principal" },
     { href: "/estoque", rotulo: "Estoque", icone: "estoque", grupo: "principal" },
     { href: "/alertas", rotulo: "Alertas", icone: "alertas", grupo: "principal" },

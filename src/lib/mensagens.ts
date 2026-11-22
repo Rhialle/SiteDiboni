@@ -114,6 +114,13 @@ export const MENSAGENS = {
   buscaInventarioVazia: "Nenhum item do inventário com essa busca.",
   inventarioEmRevisao: "Em revisão pelo administrador.",
   buscaInventarioLimite: "Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código.",
+  valorInvalido: "Informe o valor em reais, por exemplo 50,00.",
+  caixaAberto: "Caixa aberto.",
+  retiradaRegistrada: "Retirada registrada.",
+  reforcoRegistrado: "Reforço registrado.",
+  dinheiroContado: "Informe o dinheiro contado na gaveta.",
+  semCaixaAberto: "Não há caixa aberto.",
+  caixaConferido: "Caixa marcado como conferido.",
 } as const
 
 export function mensagemConviteEnviado(email: string): string {

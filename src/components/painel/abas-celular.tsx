@@ -11,11 +11,17 @@ import { ICONES, estaAtivo, type ItemDoMenu } from "./navegacao"
 
 const MOLA = { type: "spring", stiffness: 420, damping: 32 } as const
 
+const SO_NO_COMPUTADOR = new Set(["/balcao", "/caixa", "/vendas"])
+
 // Menu do celular: barra de vidro flutuante com os quatro itens principais; o resto fica em "Mais".
 export function AbasCelular({ itens, rodapeDoMais }: { itens: ItemDoMenu[]; rodapeDoMais: ReactNode }) {
   const caminho = usePathname()
   const [aberto, setAberto] = useState(false)
-  const principais = itens.filter((item) => item.grupo === "principal").slice(0, 4)
+  // O balcão é usado no computador: no celular, as abas de baixo continuam Início, Produtos, Estoque e
+  // Alertas, e Balcão, Caixa e Vendas ficam no "Mais".
+  const principais = itens
+    .filter((item) => item.grupo === "principal" && !SO_NO_COMPUTADOR.has(item.href))
+    .slice(0, 4)
   const extras = itens.filter((item) => !principais.includes(item))
   const maisAtivo = aberto || extras.some((item) => estaAtivo(caminho, item.href))
 
