@@ -4,7 +4,7 @@ Fica em **Notas**, no menu. É por aqui que a mercadoria comprada com nota fisca
 
 Todos os usuários importam, conferem e confirmam notas. Só o administrador liga itens novos a produtos e vê os valores (custo total e custo por unidade).
 
-**Antes da primeira nota:** o **CNPJ da loja** precisa estar em **Configurações**. Sem ele, a importação mostra **Informe o CNPJ da loja em Configurações antes de importar notas.**
+**Antes da primeira nota:** o **CNPJ da loja** precisa estar em **Configurações**. Sem ele, a importação mostra **Informe o CNPJ da loja em Configurações antes de importar notas.** Pode digitar com ou sem pontuação. O CNPJ novo da Receita, com letras (como `12.ABC.345/01DE-35`), também é aceito, tanto o da loja quanto o dos fornecedores. As letras podem ser digitadas em minúsculas: o sistema guarda em maiúsculas.
 
 O caminho de uma nota:
 
