@@ -139,3 +139,31 @@ export async function itensDoInventario(inventarioId: number): Promise<number> {
     return Number(rows[0].total)
   })
 }
+
+// Balcão: um caixa aberto direto no banco (pelo site, quem abre é a tela do Caixa).
+export async function abrirCaixaTeste(usuarioId: string, trocoCentavos = 0): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query(
+      "insert into public.caixas (aberto_por, troco_inicial_centavos) values ($1, $2) returning id",
+      [usuarioId, trocoCentavos],
+    )
+    return Number(rows[0].id)
+  })
+}
+
+// Um caixa já fechado, com o esperado e o contado do dinheiro.
+export async function caixaFechadoTeste(
+  usuarioId: string,
+  dados: { esperadoCentavos: number; contadoCentavos: number },
+): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query(
+      `insert into public.caixas (situacao, aberto_por, troco_inicial_centavos, fechado_por, fechado_em,
+         esperado_dinheiro_centavos, informado_dinheiro_centavos, esperado_credito_centavos,
+         esperado_debito_centavos, esperado_pix_centavos)
+       values ('fechado', $1, 0, $1, now(), $2, $3, 0, 0, 0) returning id`,
+      [usuarioId, dados.esperadoCentavos, dados.contadoCentavos],
+    )
+    return Number(rows[0].id)
+  })
+}
