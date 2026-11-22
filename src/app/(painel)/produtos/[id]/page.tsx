@@ -29,77 +29,78 @@ export default function PaginaProduto({ params }: PageProps<"/produtos/[id]">) {
 
 async function Produto({ params }: Pick<PageProps<"/produtos/[id]">, "params">) {
   const { id } = await params
-  const usuario = await exigirUsuario()
-  const podeEditar = usuario.papel === "administrador"
 
+  // Primeira rodada: a sessão e tudo o que só depende do produto, ao mesmo tempo.
   const supabase = await criarClienteServidor()
-  const [produtoR, variacoesR, categoriasR, materiaisR, ligadasR, marcadosR] = await Promise.all([
-    supabase.from("produtos_com_situacao").select("*").eq("id", id).maybeSingle(),
-    supabase
-      .from("variacoes")
-      .select("id, nome, codigo_interno, codigo_barras, comprimento_mm, largura_mm, altura_mm, capacidade_ml, estoque_minimo, ativa")
-      .eq("produto_id", id)
-      .order("criado_em")
-      .order("nome"),
-    supabase.from("categorias").select("id, nome, categoria_pai_id, ordem"),
-    supabase.from("etiquetas").select("id, nome").order("nome"),
-    supabase.from("produto_categorias").select("categoria_id").eq("produto_id", id),
-    supabase.from("produto_etiquetas").select("etiqueta_id").eq("produto_id", id),
-  ])
+  const [usuario, produtoR, variacoesR, categoriasR, materiaisR, ligadasR, marcadosR, formasR, fotosR] =
+    await Promise.all([
+      exigirUsuario(),
+      supabase.from("produtos_com_situacao").select("*").eq("id", id).maybeSingle(),
+      supabase
+        .from("variacoes")
+        .select("id, nome, codigo_interno, codigo_barras, comprimento_mm, largura_mm, altura_mm, capacidade_ml, estoque_minimo, ativa")
+        .eq("produto_id", id)
+        .order("criado_em")
+        .order("nome"),
+      supabase.from("categorias").select("id, nome, categoria_pai_id, ordem"),
+      supabase.from("etiquetas").select("id, nome").order("nome"),
+      supabase.from("produto_categorias").select("categoria_id").eq("produto_id", id),
+      supabase.from("produto_etiquetas").select("etiqueta_id").eq("produto_id", id),
+      // As formas são buscadas pelo produto da variação, sem esperar a lista de variações.
+      supabase
+        .from("formas_venda")
+        .select(
+          "id, variacao_id, nome, fator, preco_centavos, peso_variavel, ativa, faixas_preco(id, quantidade_minima, preco_centavos), variacoes!inner(produto_id)",
+        )
+        .eq("variacoes.produto_id", id)
+        .order("nome"),
+      supabase.from("fotos").select("id, caminho, ordem").eq("produto_id", id).order("ordem"),
+    ])
+  const podeEditar = usuario.papel === "administrador"
   const produto = produtoR.data
   if (!produto) notFound()
-  for (const r of [variacoesR, categoriasR, materiaisR, ligadasR, marcadosR]) if (r.error) throw r.error
+  for (const r of [variacoesR, categoriasR, materiaisR, ligadasR, marcadosR, formasR, fotosR]) if (r.error) throw r.error
 
   const variacoes = variacoesR.data ?? []
-  const { data: formasBrutas, error: erroFormas } = await supabase
-    .from("formas_venda")
-    .select("id, variacao_id, nome, fator, preco_centavos, peso_variavel, ativa, faixas_preco(id, quantidade_minima, preco_centavos)")
-    .in("variacao_id", variacoes.map((v) => v.id))
-    .order("nome")
-  if (erroFormas) throw erroFormas
-  const formas: FormaVenda[] = (formasBrutas ?? []).map(({ faixas_preco, ...forma }) => ({
-    ...forma,
-    faixas: [...faixas_preco].sort((a, b) => a.quantidade_minima - b.quantidade_minima),
+  const formas: FormaVenda[] = (formasR.data ?? []).map((forma) => ({
+    id: forma.id,
+    variacao_id: forma.variacao_id,
+    nome: forma.nome,
+    fator: forma.fator,
+    preco_centavos: forma.preco_centavos,
+    peso_variavel: forma.peso_variavel,
+    ativa: forma.ativa,
+    faixas: [...forma.faixas_preco].sort((a, b) => a.quantidade_minima - b.quantidade_minima),
   }))
-
-  const ids = variacoes.map((v) => v.id)
-  const [fotosR, compatR] = await Promise.all([
-    supabase.from("fotos").select("id, caminho, ordem").eq("produto_id", id).order("ordem"),
-    ids.length
-      ? supabase
-          .from("compatibilidades")
-          .select("id, descricao, variacao_a_id, variacao_b_id")
-          .or(`variacao_a_id.in.(${ids.join(",")}),variacao_b_id.in.(${ids.join(",")})`)
-      : Promise.resolve({ data: [], error: null }),
-  ])
-  if (fotosR.error) throw fotosR.error
-  if (compatR.error) throw compatR.error
-
   const fotos = (fotosR.data ?? []).map((foto) => ({
     id: foto.id,
     url: supabase.storage.from("fotos-produtos").getPublicUrl(foto.caminho).data.publicUrl,
   }))
 
+  // Segunda rodada: as compatibilidades das variações daqui, já com as duas pontas.
+  const ids = variacoes.map((v) => v.id)
+  const PONTA = "id, nome, codigo_interno, produto_id, produtos(nome)"
+  const { data: compat, error: erroCompat } = ids.length
+    ? await supabase
+        .from("compatibilidades")
+        .select(
+          `id, descricao, variacao_a_id, variacao_b_id, a:variacoes!compatibilidades_variacao_a_id_fkey(${PONTA}), b:variacoes!compatibilidades_variacao_b_id_fkey(${PONTA})`,
+        )
+        .or(`variacao_a_id.in.(${ids.join(",")}),variacao_b_id.in.(${ids.join(",")})`)
+    : { data: [], error: null }
+  if (erroCompat) throw erroCompat
+
   // Para cada ligação, o lado que não é deste produto.
   const ladosDaqui = new Map(variacoes.map((v) => [v.id, v.nome]))
-  const ligacoes = (compatR.data ?? []).map((c) => {
+  const compatibilidades: Compatibilidade[] = (compat ?? []).flatMap((c) => {
     const aquiEhA = ladosDaqui.has(c.variacao_a_id)
-    return { ...c, daqui: aquiEhA ? c.variacao_a_id : c.variacao_b_id, outra: aquiEhA ? c.variacao_b_id : c.variacao_a_id }
-  })
-  const { data: outras, error: erroOutras } = ligacoes.length
-    ? await supabase
-        .from("variacoes")
-        .select("id, nome, codigo_interno, produto_id, produtos(nome)")
-        .in("id", ligacoes.map((l) => l.outra))
-    : { data: [], error: null }
-  if (erroOutras) throw erroOutras
-  const compatibilidades: Compatibilidade[] = ligacoes.flatMap((l) => {
-    const outra = (outras ?? []).find((o) => o.id === l.outra)
+    const daqui = aquiEhA ? c.variacao_a_id : c.variacao_b_id
+    const outra = aquiEhA ? c.b : c.a
     return outra
       ? [{
-          id: l.id,
-          descricao: l.descricao,
-          daqui: ladosDaqui.get(l.daqui) ?? "",
+          id: c.id,
+          descricao: c.descricao,
+          daqui: ladosDaqui.get(daqui) ?? "",
           outra: { produtoId: outra.produto_id, produto: outra.produtos.nome, variacao: outra.nome, codigo: outra.codigo_interno },
         }]
       : []
