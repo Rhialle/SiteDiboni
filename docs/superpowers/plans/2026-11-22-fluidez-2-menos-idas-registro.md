@@ -14,7 +14,7 @@ A primeira medição do antes foi às 10:48. Para comparar no mesmo horário, o 
 | `/produtos` | 828 ms | 586 ms | 512 ms | −74 ms |
 | `/estoque` | 512 ms | 539 ms | 294 ms | −245 ms |
 | `/inventario` | 572 ms | 541 ms | 269 ms | −272 ms |
-| `/inventario/1` (aprovado) | 778 ms | 858 ms | 409 ms | −449 ms |
+| `/inventario/1` (em contagem) | 778 ms | 858 ms | 409 ms | −449 ms |
 | `/produtos/[id]` (ficha) | 1.100 ms | 853 ms | 755 ms | −98 ms |
 
 Leitura: as telas cuja consulta é leve (Estoque, lista e ficha do inventário) caíram quase à metade. Em Início, Produtos e na ficha do produto o ganho foi menor: ali o tempo que sobra parece vir das próprias consultas (as funções `avisos_inicio` e `buscar_produtos`, e o volume da ficha), não das esperas em fila. A variação entre medições do mesmo site chega a ~250 ms (Produtos: 828 e 586 ms), então diferenças abaixo de ~100 ms não são conclusivas.
