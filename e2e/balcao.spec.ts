@@ -217,3 +217,28 @@ test("o desconto da venda anterior não fica no campo", async ({ page }) => {
   await expect(page.getByLabel("Desconto")).toHaveValue("")
 })
 
+test("o botão Câmera abre a câmera e Fechar desliga", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  const janela = page.getByRole("dialog", { name: "Ler código de barras" })
+  await expect(janela.locator("video")).toBeVisible()
+  await janela.getByRole("button", { name: "Fechar" }).click()
+  await expect(janela).toHaveCount(0)
+  await expect(page.locator("video")).toHaveCount(0)
+})
+
+test("com a câmera bloqueada, aparece como liberar", async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("negado", "NotAllowedError"))
+  })
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  await expect(page.getByRole("dialog", { name: "Ler código de barras" })).toContainText(
+    "Libere a câmera nas configurações do navegador para ler o código.",
+  )
+})
+

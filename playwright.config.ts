@@ -14,7 +14,16 @@ export default defineConfig({
     timezoneId: "America/Sao_Paulo",
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        // Câmera falsa (fase 2.2): o botão Câmera abre um vídeo de teste, sem pedir permissão.
+        launchOptions: { args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] },
+      },
+    },
+  ],
   webServer: {
     // No CI o build já foi feito no passo anterior.
     command: process.env.CI ? "npm run start" : "npm run build && npm run start",
