@@ -28,7 +28,7 @@ Em **Inventário**, na caixa **Abrir inventário**:
 
 Na página do inventário (situação **Em contagem**):
 
-1. Em **Buscar**, digite o nome, o código interno ou o código de barras e clique em **Buscar**. Sem busca, aparecem os primeiros itens do escopo. A busca mostra no máximo 30 variações; quando chega a 30, aparece **Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código.**
+1. Em **Buscar**, digite o nome, o código interno ou o código de barras e clique em **Buscar**, ou toque em **Câmera** e mire no código de barras da embalagem (o da unidade ou o do pacote): o produto aparece sozinho. No primeiro uso, o celular pede para liberar a câmera; no iPhone, a primeira leitura demora um pouco mais. Sem busca, aparecem os primeiros itens do escopo. A busca mostra no máximo 30 variações; quando chega a 30, aparece **Mostrando os 30 primeiros. Para achar outro item, busque pelo nome ou pelo código.**
 2. Cada produto achado mostra o que contar:
    - **produto sem controle de validade**: um formulário só (**Contagem de {produto} – {variação}**);
    - **produto com validade**: um formulário por lote (**Lote {código}, vence em {dd/mm/aaaa}**).

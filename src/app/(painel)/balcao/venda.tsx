@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useId, useRef, useState, useTransition, type KeyboardEvent } from "react"
 
+import { LeitorDeCodigo } from "@/components/leitor/leitor-de-codigo"
 import { MensagemDeErro } from "@/components/tela-de-acesso"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -166,8 +167,8 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
     campo.current?.focus()
   }
 
-  function procurar() {
-    const texto = termo.trim()
+  function procurar(lido?: string) {
+    const texto = (lido ?? termo).trim()
     if (!texto) return
     // O campo se limpa na hora: a próxima bipada não se junta a esta, mesmo antes da resposta.
     setTermo("")
@@ -278,6 +279,10 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
           placeholder="Bipe o código de barras ou digite o nome"
           className="h-12 max-w-xl text-lg"
         />
+        {/* Reserva do leitor USB: o código lido entra como se tivesse sido bipado. */}
+        <div>
+          <LeitorDeCodigo aoLer={(codigo) => procurar(codigo)} />
+        </div>
         <MensagemDeErro>{erro}</MensagemDeErro>
         {resultados.length > 0 ? (
           <ul aria-label="Resultados da busca" className="vidro flex max-w-xl flex-col rounded-2xl p-2 text-sm">

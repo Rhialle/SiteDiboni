@@ -14,12 +14,14 @@
     "db:tipos": "supabase gen types typescript --local > src/lib/supabase/tipos.ts",
     "test:e2e": "playwright test",
     "test:concorrencia": "vitest run --config vitest.concorrencia.config.mts",
-    "deps:regenerar": "node scripts/regenerar-lock.mjs"
+    "deps:regenerar": "node scripts/regenerar-lock.mjs",
+    "postinstall": "node scripts/copiar-leitor.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
+    "barcode-detector": "3.2.3",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
     "exceljs": "^4.4.0",
