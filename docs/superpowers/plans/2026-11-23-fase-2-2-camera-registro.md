@@ -42,4 +42,4 @@ Pequenos, deixados para depois (`minor (deferred)`):
 
 ## Fora do código
 
-- **Teste no celular de verdade:** pendente com o usuário (iPhone e Android, três produtos, se leu e quanto tempo levou).
+- **Teste no celular de verdade (2026-11-23):** o usuário testou na prévia do ramo; a câmera leu no iPhone e no Android.
