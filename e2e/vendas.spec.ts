@@ -62,7 +62,8 @@ test("a venda aparece na lista e no detalhe; só o administrador vê o custo e c
   await campo(page, "Motivo do cancelamento").fill("cliente desistiu")
   page.once("dialog", (dialogo) => dialogo.accept())
   await page.getByRole("button", { name: "Cancelar venda" }).click()
-  await expect(textoNaTela(page, "Venda cancelada.")).toBeVisible()
+  // Cancelada, o formulário dá lugar à data e ao motivo (a tela recarrega).
+  await expect(textoNaTela(page, "Cancelada em")).toContainText("cliente desistiu")
   await page.goto(`/estoque/${variacaoId}`)
   await expect(textoNaTela(page, "Saldo: 10 un")).toBeVisible()
 })
