@@ -19,7 +19,7 @@ export async function buscarParaVenda(termo: string): Promise<{ itens: ItemParaV
 }
 
 export async function concluirVenda(
-  envio: ReturnType<typeof paraEnvio>,
+  envio: ReturnType<typeof paraEnvio> & { p_chave: string },
 ): Promise<{ numero: number; trocoCentavos: number } | { erro: string }> {
   await exigirUsuario()
   const supabase = await criarClienteServidor()

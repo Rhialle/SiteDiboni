@@ -40,16 +40,26 @@ type Variacao = {
   controlaValidade: boolean
   tipoVenda: "unidade" | "peso"
 }
-type Guardada = { linhas: LinhaDoCarrinho[]; variacoes: Record<string, Variacao>; desconto: Desconto; conferidas: string[] }
+// A chave identifica a venda: se a internet cair na resposta e a pessoa concluir de novo, o banco
+// devolve a venda já gravada em vez de gravar outra.
+type Guardada = {
+  chave: string
+  linhas: LinhaDoCarrinho[]
+  variacoes: Record<string, Variacao>
+  desconto: Desconto
+  conferidas: string[]
+}
 
-const VAZIA: Guardada = { linhas: [], variacoes: {}, desconto: { tipo: "reais", valor: 0 }, conferidas: [] }
+function novaVenda(): Guardada {
+  return { chave: crypto.randomUUID(), linhas: [], variacoes: {}, desconto: { tipo: "reais", valor: 0 }, conferidas: [] }
+}
 
 function lerGuardada(): Guardada {
   try {
     const texto = window.localStorage.getItem(CHAVE)
-    return texto ? { ...VAZIA, ...(JSON.parse(texto) as Guardada) } : VAZIA
+    return texto ? { ...novaVenda(), ...(JSON.parse(texto) as Partial<Guardada>) } : novaVenda()
   } catch {
-    return VAZIA
+    return novaVenda()
   }
 }
 
@@ -139,12 +149,19 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
       quantidade: opcao.pesoVariavel ? 0 : 1,
       validadeSemSaldo: null,
     }
-    mudar({
-      ...venda,
-      linhas: opcao.pesoVariavel && venda.linhas.some((l) => l.formaVendaId === opcao.id) ? venda.linhas : adicionar(venda.linhas, linha),
-      variacoes: { ...venda.variacoes, [item.variacao_id]: variacao },
+    // Pela forma de função: duas bipadas seguidas, com respostas fora de ordem, entram as duas.
+    setVenda((atual) => {
+      const nova = {
+        ...atual,
+        linhas:
+          opcao.pesoVariavel && atual.linhas.some((l) => l.formaVendaId === opcao.id)
+            ? atual.linhas
+            : adicionar(atual.linhas, linha),
+        variacoes: { ...atual.variacoes, [item.variacao_id]: variacao },
+      }
+      guardar(nova)
+      return nova
     })
-    setTermo("")
     setResultados([])
     campo.current?.focus()
   }
@@ -152,6 +169,8 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
   function procurar() {
     const texto = termo.trim()
     if (!texto) return
+    // O campo se limpa na hora: a próxima bipada não se junta a esta, mesmo antes da resposta.
+    setTermo("")
     setErro("")
     iniciar(async () => {
       const resposta = await buscarParaVenda(texto)
@@ -209,9 +228,15 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
   function concluir() {
     setErro("")
     iniciar(async () => {
-      const resposta = await concluirVenda(paraEnvio(venda.linhas, desconto, pagamentos))
+      let resposta: Awaited<ReturnType<typeof concluirVenda>>
+      try {
+        resposta = await concluirVenda({ ...paraEnvio(venda.linhas, desconto, pagamentos), p_chave: venda.chave })
+      } catch {
+        // A venda continua guardada com a mesma chave: concluir de novo não grava em dobro.
+        return setErro(MENSAGENS.balcaoSemConexao)
+      }
       if ("erro" in resposta) return setErro(resposta.erro)
-      mudar(VAZIA)
+      mudar(novaVenda())
       setRecebendo(false)
       setConcluida(resposta)
       campo.current?.focus()
@@ -220,7 +245,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
 
   function descartar() {
     if (!window.confirm("Descartar a venda em andamento?")) return
-    mudar(VAZIA)
+    mudar(novaVenda())
     setRecebendo(false)
     campo.current?.focus()
   }
@@ -368,7 +393,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
           <label className="flex flex-col gap-1">
             Desconto
             <Input
-              key={venda.desconto.tipo}
+              key={`${venda.chave}-${venda.desconto.tipo}`}
               inputMode="decimal"
               defaultValue={
                 venda.desconto.valor

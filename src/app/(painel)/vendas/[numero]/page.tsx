@@ -41,19 +41,28 @@ async function Venda({ params }: Pick<PageProps<"/vendas/[numero]">, "params">) 
   const venda = vendaR.data
   const administrador = usuario.papel === "administrador"
 
-  // Saídas e entradas por lote; o custo só abre para o administrador (a tabela também).
-  const [movimentosR, custosR] = await Promise.all([
-    supabase
-      .from("extrato_movimentacoes")
-      .select("id, tipo, quantidade, lote, produto, variacao, tipo_venda, estornada")
-      .eq("origem", "venda")
-      .eq("origem_id", String(venda.id))
-      .order("id"),
-    supabase.from("movimentacoes_custos").select("movimentacao_id, custo_unitario"),
-  ])
+  // Saídas e entradas por lote.
+  const movimentosR = await supabase
+    .from("extrato_movimentacoes")
+    .select("id, tipo, quantidade, lote, produto, variacao, tipo_venda, estornada")
+    .eq("origem", "venda")
+    .eq("origem_id", String(venda.id))
+    .order("id")
   if (movimentosR.error) throw movimentosR.error
   const movimentos = movimentosR.data ?? []
-  const custos = new Map((administrador ? (custosR.data ?? []) : []).map((c) => [c.movimentacao_id, c.custo_unitario]))
+  // O custo só abre para o administrador (a tabela também), e só o destas movimentações: a tabela
+  // inteira passaria do limite de 1.000 linhas por consulta.
+  const custosR =
+    administrador && movimentos.length > 0
+      ? await supabase
+          .from("movimentacoes_custos")
+          .select("movimentacao_id, custo_unitario")
+          .in(
+            "movimentacao_id",
+            movimentos.map((m) => m.id).filter((id): id is number => id !== null),
+          )
+      : null
+  const custos = new Map((custosR?.data ?? []).map((c) => [c.movimentacao_id, c.custo_unitario]))
 
   return (
     <div className="flex flex-col gap-6">

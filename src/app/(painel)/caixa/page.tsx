@@ -9,6 +9,7 @@ import { formatarDataHora, formatarMoeda } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { AbrirCaixa, FecharCaixa, MovimentoCaixa } from "./formularios"
+import { VendasDoCaixa } from "./vendas-do-caixa"
 
 type Movimento = { tipo: keyof typeof ROTULO_MOVIMENTO_CAIXA; valor_centavos: number; motivo: string; em: string }
 
@@ -32,6 +33,10 @@ async function Caixa() {
   if (fechadosR.error) throw fechadosR.error
   const aberto = abertoR.data?.[0]
   const fechados = fechadosR.data ?? []
+  const vendasR = aberto
+    ? await supabase.from("vendas").select("id, numero, vendida_em, total_centavos, situacao, cancelada_em").eq("caixa_id", aberto.id).order("numero", { ascending: false })
+    : null
+  if (vendasR?.error) throw vendasR.error
   const movimentos = (aberto?.movimentos ?? []) as Movimento[]
 
   return (
@@ -62,6 +67,8 @@ async function Caixa() {
                 ))}
               </ul>
             ) : null}
+            <h3 className="font-semibold">Vendas do dia</h3>
+            <VendasDoCaixa vendas={vendasR?.data ?? []} fechadoEm={null} />
             <MovimentoCaixa />
             <Link href="/balcao" className="link-pilula self-start">
               Ir para o balcão

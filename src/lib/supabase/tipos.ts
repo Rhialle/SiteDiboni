@@ -793,14 +793,14 @@ isOneToOne: false
                   ]
                 },"vendas": {
                   Row: {
-                    "caixa_id": number,"cancelada_em": string | null,"cancelada_por": string | null,"desconto_centavos": number,"id": number,"motivo_cancelamento": string | null,"numero": number,"situacao": Database["public"]['Enums']["situacao_venda"],"subtotal_centavos": number,"total_centavos": number,"vendida_em": string,"vendida_por": string
+                    "caixa_id": number,"cancelada_em": string | null,"cancelada_por": string | null,"chave": string | null,"desconto_centavos": number,"id": number,"motivo_cancelamento": string | null,"numero": number,"situacao": Database["public"]['Enums']["situacao_venda"],"subtotal_centavos": number,"total_centavos": number,"vendida_em": string,"vendida_por": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "caixa_id": number,"cancelada_em"?: string | null,"cancelada_por"?: string | null,"desconto_centavos": number,"id"?: never,"motivo_cancelamento"?: string | null,"numero"?: number,"situacao"?: Database["public"]['Enums']["situacao_venda"],"subtotal_centavos": number,"total_centavos": number,"vendida_em"?: string,"vendida_por": string
+                    "caixa_id": number,"cancelada_em"?: string | null,"cancelada_por"?: string | null,"chave"?: string | null,"desconto_centavos": number,"id"?: never,"motivo_cancelamento"?: string | null,"numero"?: number,"situacao"?: Database["public"]['Enums']["situacao_venda"],"subtotal_centavos": number,"total_centavos": number,"vendida_em"?: string,"vendida_por": string
                   }
                   Update: {
-                    "caixa_id"?: number,"cancelada_em"?: string | null,"cancelada_por"?: string | null,"desconto_centavos"?: number,"id"?: never,"motivo_cancelamento"?: string | null,"numero"?: number,"situacao"?: Database["public"]['Enums']["situacao_venda"],"subtotal_centavos"?: number,"total_centavos"?: number,"vendida_em"?: string,"vendida_por"?: string
+                    "caixa_id"?: number,"cancelada_em"?: string | null,"cancelada_por"?: string | null,"chave"?: string | null,"desconto_centavos"?: number,"id"?: never,"motivo_cancelamento"?: string | null,"numero"?: number,"situacao"?: Database["public"]['Enums']["situacao_venda"],"subtotal_centavos"?: number,"total_centavos"?: number,"vendida_em"?: string,"vendida_por"?: string
                   }
                   Relationships: [
                     {
@@ -1072,7 +1072,7 @@ isOneToOne: false
 { Args: { "p_lote": string,"p_motivo": string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_variacao": string }; Returns: string
                            },
 "registrar_venda":
-{ Args: { "p_desconto_centavos": number,"p_itens": Json,"p_pagamentos": Json,"p_total_centavos": number }; Returns: {
+{ Args: { "p_chave"?: string,"p_desconto_centavos": number,"p_itens": Json,"p_pagamentos": Json,"p_total_centavos": number }; Returns: {
               "numero": number,"troco_centavos": number,"venda_id": number
             }[]
                            },

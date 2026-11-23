@@ -126,6 +126,7 @@ export const MENSAGENS = {
   semSaldoConferido: "Marcado como conferido.",
   semFormaDeVenda: "Este produto não tem forma de venda ativa.",
   nadaEncontradoNoBalcao: "Nenhum produto à venda com este código ou nome.",
+  balcaoSemConexao: "Sem conexão com o sistema: confira a internet e clique em Concluir venda de novo. A venda não sai em dobro.",
   balcaoSemSaldo: "Sem saldo no sistema: a venda passa e o produto vai para a lista do administrador conferir.",
   balcaoSoVencido: "O estoque deste produto no sistema está vencido. Confira a validade na embalagem.",
 } as const

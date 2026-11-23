@@ -26,7 +26,12 @@ export function CancelarVenda({ vendaId, numero }: { vendaId: number; numero: nu
         variant="outline"
         disabled={enviando}
         onClick={(evento) => {
-          if (!window.confirm(`Cancelar a venda nº ${numero}? O estoque volta e ela sai do caixa.`)) evento.preventDefault()
+          if (
+            !window.confirm(
+              `Cancelar a venda nº ${numero}? O estoque volta. Com o caixa dela aberto, ela sai do esperado; com o caixa já fechado, o fechamento guardado não muda e a venda fica marcada nele.`,
+            )
+          )
+            evento.preventDefault()
         }}
       >
         Cancelar venda

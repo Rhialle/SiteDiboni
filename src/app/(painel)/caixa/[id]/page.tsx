@@ -9,6 +9,7 @@ import { formatarDataHora, formatarMoeda } from "@/lib/formatacao"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
 import { ConferirCaixa } from "../formularios"
+import { VendasDoCaixa } from "../vendas-do-caixa"
 
 // A moldura aparece na hora do clique; a sessão e os dados chegam dentro dela.
 export default function PaginaFechamento({ params }: PageProps<"/caixa/[id]">) {
@@ -24,10 +25,11 @@ async function Fechamento({ params }: Pick<PageProps<"/caixa/[id]">, "params">) 
   if (!Number.isSafeInteger(caixaId)) notFound()
 
   const supabase = await criarClienteServidor()
-  const [usuario, resumoR, fechadosR] = await Promise.all([
+  const [usuario, resumoR, fechadosR, vendasR] = await Promise.all([
     exigirUsuario(),
     supabase.rpc("resumo_fechamento", { p_caixa: caixaId }),
     supabase.rpc("caixas_fechados"),
+    supabase.from("vendas").select("id, numero, vendida_em, total_centavos, situacao, cancelada_em").eq("caixa_id", caixaId).order("numero", { ascending: false }),
   ])
   // Caixa que não existe, ainda aberto ou que a pessoa não pode ver.
   if (resumoR.error) notFound()
@@ -71,6 +73,13 @@ async function Fechamento({ params }: Pick<PageProps<"/caixa/[id]">, "params">) 
           </tbody>
         </table>
       </div>
+
+      <section aria-labelledby="vendas-do-caixa" className="flex flex-col gap-3">
+        <h2 id="vendas-do-caixa" className="text-xl font-semibold">
+          Vendas
+        </h2>
+        <VendasDoCaixa vendas={vendasR.data ?? []} fechadoEm={caixa.fechado_em} />
+      </section>
 
       {usuario.papel === "administrador" && caixa.com_diferenca && !caixa.conferido ? (
         <ConferirCaixa caixaId={caixaId} />
