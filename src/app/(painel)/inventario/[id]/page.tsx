@@ -14,6 +14,7 @@ import { LIMITE_BUSCA_INVENTARIO, ROTULO_SITUACAO_INVENTARIO, TOM_SITUACAO_INVEN
 import { MENSAGENS } from "@/lib/mensagens"
 import { criarClienteServidor } from "@/lib/supabase/servidor"
 
+import { CameraDaContagem } from "./busca-com-camera"
 import { Contagem } from "./contagem"
 import { FaltaContar } from "./falta-contar"
 import { AcoesDoInventario } from "./revisao"
@@ -168,6 +169,7 @@ async function Inventario({ params, searchParams }: Pick<PageProps<"/inventario/
             <Button type="submit" variant="outline">
               Buscar
             </Button>
+            <CameraDaContagem />
           </form>
 
           {itens.length === 0 ? (

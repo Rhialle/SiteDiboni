@@ -348,3 +348,15 @@ test("inventário cancelado não mostra a lista", async ({ page }) => {
   await expect(naoContadas(page)).toHaveCount(0)
 })
 
+test("a contagem tem o botão Câmera, que abre e fecha a câmera", async ({ page }) => {
+  await criarProdutoTeste({ nome: "Forminha" })
+  const inventarioId = await criarInventarioTeste("Loja", donaId)
+  await entrarComoFuncionaria(page)
+  await abrirContagem(page, inventarioId, "")
+  await page.getByRole("button", { name: "Câmera" }).click()
+  const janela = page.getByRole("dialog", { name: "Ler código de barras" })
+  await expect(janela.locator("video")).toBeVisible()
+  await janela.getByRole("button", { name: "Fechar" }).click()
+  await expect(janela).toHaveCount(0)
+})
+

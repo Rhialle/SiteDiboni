@@ -18,6 +18,7 @@ Em **Balcão**, o cursor fica no campo **Código ou nome**.
 - **Com o leitor de código de barras:** bipe o produto. Ele entra na venda com quantidade 1; bipar de novo soma 1.
   - O código da **unidade** põe a forma de menor quantidade (ex.: Unidade).
   - O código do **pacote ou da caixa** (cadastrado na ficha do produto, em **Código de barras da forma**) põe essa forma (ex.: Pacote com 100).
+- **Leitor com defeito:** toque em **Câmera** (no computador, usa a webcam, se houver) e mire no código de barras: o produto entra como se tivesse sido bipado. **Fechar** (ou Esc) fecha a câmera, e o cursor volta ao campo **Código ou nome**, pronto para o leitor.
 - **Sem código:** digite o código interno (ex.: FM-1) e Enter, ou parte do nome e Enter: aparece a lista, e é só clicar no produto.
 - **Forma:** se o produto tem várias formas de venda, escolha na linha (Unidade, Pacote com 100…).
 - **Quantidade:** mude na linha. O preço da faixa de quantidade entra sozinho (ex.: a partir de 3 pacotes).

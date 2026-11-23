@@ -49,6 +49,37 @@ async function forminha() {
   return variacaoId
 }
 
+// Guarda cada câmera aberta pela página (window.__cameras), para conferir que todas desligaram.
+// Com atrasarPrimeira, a primeira câmera demora 1,5 s para abrir (como o aviso de permissão).
+async function gravarCameras(page: Page, { atrasarPrimeira = false } = {}) {
+  await page.addInitScript((atrasar) => {
+    const dispositivos = navigator.mediaDevices
+    const original = dispositivos.getUserMedia.bind(dispositivos)
+    const janela = window as unknown as { __cameras: MediaStream[] }
+    janela.__cameras = []
+    let primeira = true
+    dispositivos.getUserMedia = async (pedido) => {
+      const esperar = atrasar && primeira
+      primeira = false
+      if (esperar) await new Promise((r) => setTimeout(r, 1500))
+      const camera = await original(pedido)
+      janela.__cameras.push(camera)
+      return camera
+    }
+  }, atrasarPrimeira)
+}
+
+const camerasAbertas = (page: Page) =>
+  page.evaluate(() => (window as unknown as { __cameras: MediaStream[] }).__cameras.length)
+
+const camerasLigadas = (page: Page) =>
+  page.evaluate(
+    () =>
+      (window as unknown as { __cameras: MediaStream[] }).__cameras
+        .flatMap((camera) => camera.getTracks())
+        .filter((trilha) => trilha.readyState !== "ended").length,
+  )
+
 async function entrarNoBalcao(page: Page) {
   await entrar(page, FUNC.email, FUNC.senha)
   await expect(page.getByRole("heading", { name: "Início" })).toBeVisible()
@@ -217,3 +248,86 @@ test("o desconto da venda anterior não fica no campo", async ({ page }) => {
   await expect(page.getByLabel("Desconto")).toHaveValue("")
 })
 
+test("o botão Câmera abre a câmera e Fechar desliga", async ({ page }) => {
+  await gravarCameras(page)
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  const janela = page.getByRole("dialog", { name: "Ler código de barras" })
+  await expect(janela.locator("video")).toBeVisible()
+  await janela.getByRole("button", { name: "Fechar" }).click()
+  await expect(janela).toHaveCount(0)
+  await expect(page.locator("video")).toHaveCount(0)
+  await expect.poll(() => camerasLigadas(page)).toBe(0)
+})
+
+test("com a câmera bloqueada, aparece como liberar", async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("negado", "NotAllowedError"))
+  })
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  await expect(page.getByRole("dialog", { name: "Ler código de barras" })).toContainText(
+    "Libere a câmera nas configurações do navegador para ler o código.",
+  )
+})
+
+
+test("fechar e abrir a câmera enquanto ela abre não deixa câmera ligada", async ({ page }) => {
+  await gravarCameras(page, { atrasarPrimeira: true })
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  const janela = page.getByRole("dialog", { name: "Ler código de barras" })
+  await page.getByRole("button", { name: "Câmera" }).click()
+  await janela.getByRole("button", { name: "Fechar" }).click()
+  await page.getByRole("button", { name: "Câmera" }).click()
+  await expect.poll(() => camerasAbertas(page), { timeout: 5000 }).toBe(2)
+  await janela.getByRole("button", { name: "Fechar" }).click()
+  await expect(janela).toHaveCount(0)
+  await expect.poll(() => camerasLigadas(page)).toBe(0)
+})
+
+test("se o leitor não carrega, aparece o aviso e a câmera desliga", async ({ page }) => {
+  await gravarCameras(page)
+  await page.route("**/leitor/zxing_reader.wasm", (rota) => rota.abort())
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  await expect(page.getByRole("dialog", { name: "Ler código de barras" })).toContainText(
+    "Não deu para carregar o leitor. Confira a internet e tente de novo.",
+  )
+  await expect.poll(() => camerasLigadas(page)).toBe(0)
+})
+
+test("com a câmera ocupada por outro aplicativo, o aviso não manda às configurações", async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("ocupada", "NotReadableError"))
+  })
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  await expect(page.getByRole("dialog", { name: "Ler código de barras" })).toContainText(
+    "Não deu para abrir a câmera. Feche outros aplicativos que usam a câmera e tente de novo.",
+  )
+})
+
+test("Esc fecha a câmera e o cursor volta ao campo Código ou nome", async ({ page }) => {
+  await gravarCameras(page)
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await page.getByRole("button", { name: "Câmera" }).click()
+  const janela = page.getByRole("dialog", { name: "Ler código de barras" })
+  await expect(janela.locator("video")).toBeVisible()
+  await expect(janela.getByRole("button", { name: "Fechar" })).toBeFocused()
+  await page.keyboard.press("Escape")
+  await expect(janela).toHaveCount(0)
+  await expect(campo(page, "Código ou nome")).toBeFocused()
+  await expect.poll(() => camerasLigadas(page)).toBe(0)
+})
