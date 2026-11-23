@@ -1,19 +1,21 @@
 import { expect, test, type Page } from "@playwright/test"
 
-import { caixaFechadoTeste, limparEstoque } from "./apoio/banco"
+import { abrirCaixaTeste, caixaFechadoTeste, cancelarVendaTeste, fecharCaixaTeste, limparEstoque, venderTeste } from "./apoio/banco"
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
-import { criarUsuarioTeste, limparUsuarios, type DadosUsuarioTeste } from "./apoio/supabase"
+import { criarFormaTeste, criarProdutoTeste, criarUsuarioTeste, limparCatalogo, limparUsuarios, type DadosUsuarioTeste } from "./apoio/supabase"
 
 const DONA: DadosUsuarioTeste = { email: "dona@loja.test", senha: "SenhaDona123", nome: "Dona", papel: "administrador" }
 const FUNC: DadosUsuarioTeste = { email: "func@loja.test", senha: "SenhaFunc123", nome: "Func", papel: "funcionario" }
 
 let donaId = ""
+let funcId = ""
 
 test.beforeEach(async () => {
   await limparEstoque()
   await limparUsuarios()
+  await limparCatalogo()
   donaId = await criarUsuarioTeste(DONA)
-  await criarUsuarioTeste(FUNC)
+  funcId = await criarUsuarioTeste(FUNC)
 })
 
 const textoNaTela = (page: Page, texto: string) => page.getByText(texto).filter({ visible: true })
@@ -83,3 +85,22 @@ test("o menu tem Balcão, Caixa e Vendas", async ({ page }) => {
     await expect(page.getByRole("link", { name: nome, exact: true }).first()).toBeVisible()
   }
 })
+
+test("as vendas aparecem no caixa; a cancelada depois do fechamento fica marcada no fechamento", async ({ page }) => {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Tampa" })
+  const formaId = await criarFormaTeste(variacaoId, { nome: "Unidade", fator: 1, preco_centavos: 50 })
+  const caixaId = await abrirCaixaTeste(funcId)
+  await venderTeste(funcId, formaId, 2, 100)
+
+  await entrarComoFuncionaria(page)
+  await page.goto("/caixa")
+  await expect(page.getByRole("table", { name: "Vendas do caixa" })).toContainText("R$ 1,00")
+
+  await fecharCaixaTeste(funcId, 0)
+  await cancelarVendaTeste(donaId, 1, "cliente devolveu")
+  await page.context().clearCookies()
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/caixa/${caixaId}`)
+  await expect(page.getByRole("table", { name: "Vendas do caixa" })).toContainText("Cancelada depois do fechamento")
+})
+

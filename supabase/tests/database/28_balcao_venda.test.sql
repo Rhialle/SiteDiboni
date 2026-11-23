@@ -1,7 +1,7 @@
 -- Balcão, parte 2: a venda (preço, desconto, pagamento, saída pelo vencimento, venda sem saldo,
 -- cancelamento) e o caixa contando as vendas.
 begin;
-select plan(43);
+select plan(45);
 
 set constraints all immediate;
 
@@ -144,6 +144,16 @@ create temp table v5 as select * from registrar_venda(
     jsonb_build_object('forma', 'cartao_credito', 'valor_centavos', 2050)), 4050);
 select is((select count(*) from venda_pagamentos where venda_id = (select venda_id from v5)), 2::bigint, 'venda dividida em Pix e crédito');
 
+-- A mesma chave (a tela repete o envio quando a internet falha) não grava duas vendas
+create temp table v6 as select * from registrar_venda(
+  jsonb_build_array(pg_temp.item(pg_temp.forma('FM-1', 'Unidade'), 1)), 0, pg_temp.pix(20), 20,
+  '00000000-0000-0000-0000-0000000000c1');
+create temp table v6b as select * from registrar_venda(
+  jsonb_build_array(pg_temp.item(pg_temp.forma('FM-1', 'Unidade'), 1)), 0, pg_temp.pix(20), 20,
+  '00000000-0000-0000-0000-0000000000c1');
+select is((select numero from v6b), (select numero from v6), 'repetir com a mesma chave devolve a mesma venda');
+select is((select count(*) from vendas where chave = '00000000-0000-0000-0000-0000000000c1'), 1::bigint, 'e não grava outra');
+
 -- Produto inativo não vende
 select throws_ok(
   format($$select * from registrar_venda(jsonb_build_array(pg_temp.item(%L, 1)), 0, pg_temp.pix(100), 100)$$, pg_temp.forma('CX-1', 'Unidade')),
@@ -182,7 +192,7 @@ select ok((select count(*) from movimentacoes_custos mc join movimentacoes m on 
 create temp table fechamento as select * from fechar_caixa(9050, 2050, null, null);
 select results_eq(
   $$select forma::text, esperado_centavos from fechamento order by forma::text$$,
-  $$values ('cartao_credito', 2050), ('cartao_debito', 0), ('dinheiro', 9050), ('pix', 27345)$$,
+  $$values ('cartao_credito', 2050), ('cartao_debito', 0), ('dinheiro', 9050), ('pix', 27365)$$,
   'esperado: troco + dinheiro das vendas; crédito; Pix das vendas, sem a cancelada');
 
 select * from finish();

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test"
 
-import { abrirCaixaTeste, limparEstoque, venderTeste } from "./apoio/banco"
+import { abrirCaixaTeste, limparEstoque, muitasEntradasTeste, venderTeste } from "./apoio/banco"
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
   criarEstoqueTeste,
@@ -94,3 +94,16 @@ test("Configurações guarda o limite de desconto e a largura do cupom", async (
   await expect(campo(page, "Limite de desconto da funcionária (%)")).toHaveValue("15")
   await expect(page.getByRole("radio", { name: "58 mm" })).toBeChecked()
 })
+
+test("o custo aparece no detalhe da venda mesmo com mais de 1.000 custos guardados na loja", async ({ page }) => {
+  const { variacaoId, formaId } = await tampa(10)
+  await muitasEntradasTeste(variacaoId, donaId, 1001)
+  await abrirCaixaTeste(funcId)
+  await venderTeste(funcId, formaId, 2, 100)
+  await entrarComoAdministrador(page, DONA)
+  await page.goto("/vendas/1")
+  const saida = page.getByRole("table", { name: "Movimentações da venda" }).getByRole("row").filter({ hasText: "Venda" })
+  await expect(saida).toContainText("R$")
+  await expect(saida).not.toContainText("sem custo")
+})
+

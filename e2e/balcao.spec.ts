@@ -190,3 +190,30 @@ test("a venda em andamento volta depois de recarregar e some depois de concluir"
   await page.reload()
   await expect(textoNaTela(page, "Nenhum item na venda.")).toBeVisible()
 })
+
+test("código que não existe sai do campo, e duas bipadas seguidas entram as duas", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7890000000000")
+  await expect(textoNaTela(page, "Nenhum produto à venda com este código ou nome.")).toBeVisible()
+  await expect(campo(page, "Código ou nome")).toHaveValue("")
+  await bipar(page, "7891000000014")
+  await bipar(page, "7891000000014")
+  await expect(linhas(page, "Forminha – N4").getByLabel("Quantidade")).toHaveValue("2")
+})
+
+test("o desconto da venda anterior não fica no campo", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7891000000021")
+  await expect(linhas(page, "Forminha – N4")).toHaveCount(1)
+  await page.getByLabel("Desconto").fill("1,00")
+  await expect(total(page)).toHaveText("R$ 14,00")
+  await page.getByRole("button", { name: "Receber (F2)" }).click()
+  await page.getByRole("region", { name: "Pagamento" }).getByRole("button", { name: "Concluir venda" }).click()
+  await expect(page.getByRole("status", { name: "Venda concluída" })).toBeVisible()
+  await expect(page.getByLabel("Desconto")).toHaveValue("")
+})
+
