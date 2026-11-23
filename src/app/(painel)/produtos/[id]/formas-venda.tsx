@@ -12,6 +12,7 @@ import { formatarMoeda, formatarReais } from "@/lib/formatacao"
 import {
   alterarFormaAtiva,
   apagarFaixa,
+  salvarCodigoBarrasForma,
   salvarFaixa,
   salvarFormaVenda,
   salvarPrecoPorKg,
@@ -26,6 +27,7 @@ export type FormaVenda = {
   preco_centavos: number
   peso_variavel: boolean
   ativa: boolean
+  codigo_barras: string | null
   faixas: { id: string; quantidade_minima: number; preco_centavos: number }[]
 }
 
@@ -101,6 +103,13 @@ function Forma({ produtoId, forma, podeEditar }: { produtoId: string; forma: For
       <p>
         {formatarMoeda(forma.preco_centavos)} · {forma.fator} un. {forma.ativa ? null : <span className="text-muted-foreground">(inativa)</span>}
       </p>
+      {podeEditar ? (
+        <CodigoBarrasDaForma produtoId={produtoId} forma={forma} />
+      ) : forma.codigo_barras ? (
+        <p className="text-muted-foreground">
+          Código de barras: <span className="font-mono">{forma.codigo_barras}</span>
+        </p>
+      ) : null}
       {forma.faixas.length > 0 ? (
         <ul className="flex flex-col gap-1">
           {forma.faixas.map((faixa) => (
@@ -152,6 +161,33 @@ function Forma({ produtoId, forma, podeEditar }: { produtoId: string; forma: For
   )
 }
 
+function CodigoBarrasDaForma({ produtoId, forma }: { produtoId: string; forma: FormaVenda }) {
+  const id = useId()
+  const [estado, acao, enviando] = useActionState(salvarCodigoBarrasForma.bind(null, produtoId, forma.id), INICIAL)
+
+  return (
+    <form action={acao} className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-col gap-1">
+        <Label htmlFor={`${id}-codigo`}>Código de barras da forma</Label>
+        <Input
+          id={`${id}-codigo`}
+          name="codigo_barras"
+          inputMode="numeric"
+          defaultValue={forma.codigo_barras ?? ""}
+          placeholder="O do pacote ou da caixa"
+          className="w-52 font-mono"
+        />
+      </div>
+      <Button type="submit" size="sm" variant="outline" disabled={enviando}>
+        Salvar código
+      </Button>
+      <div className="w-full">
+        <Retorno estado={estado} />
+      </div>
+    </form>
+  )
+}
+
 function NovaForma({ produtoId, variacaoId }: { produtoId: string; variacaoId: string }) {
   const id = useId()
   const [estado, acao, enviando] = useActionState(salvarFormaVenda.bind(null, produtoId, variacaoId), INICIAL)
@@ -169,6 +205,10 @@ function NovaForma({ produtoId, variacaoId }: { produtoId: string; variacaoId: s
       <div className="flex flex-col gap-1">
         <Label htmlFor={`${id}-preco`}>Preço (R$)</Label>
         <Input id={`${id}-preco`} name="preco" inputMode="decimal" required className="w-28" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label htmlFor={`${id}-codigo`}>Código de barras (opcional)</Label>
+        <Input id={`${id}-codigo`} name="codigo_barras" inputMode="numeric" className="w-44 font-mono" />
       </div>
       <Button type="submit" size="sm" disabled={enviando}>
         Adicionar forma

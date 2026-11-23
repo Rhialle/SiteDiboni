@@ -23,7 +23,43 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "categorias": {
+            "caixa_movimentos": {
+                  Row: {
+                    "caixa_id": number,"em": string,"id": number,"motivo": string,"tipo": Database["public"]['Enums']["tipo_movimento_caixa"],"usuario_id": string,"valor_centavos": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "caixa_id": number,"em"?: string,"id"?: never,"motivo": string,"tipo": Database["public"]['Enums']["tipo_movimento_caixa"],"usuario_id": string,"valor_centavos": number
+                  }
+                  Update: {
+                    "caixa_id"?: number,"em"?: string,"id"?: never,"motivo"?: string,"tipo"?: Database["public"]['Enums']["tipo_movimento_caixa"],"usuario_id"?: string,"valor_centavos"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "caixa_movimentos_caixa_id_fkey"
+      columns: ["caixa_id"]
+isOneToOne: false
+      referencedRelation: "caixas"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"caixas": {
+                  Row: {
+                    "aberto_em": string,"aberto_por": string,"conferido_em": string | null,"conferido_por": string | null,"esperado_credito_centavos": number | null,"esperado_debito_centavos": number | null,"esperado_dinheiro_centavos": number | null,"esperado_pix_centavos": number | null,"fechado_em": string | null,"fechado_por": string | null,"id": number,"informado_credito_centavos": number | null,"informado_debito_centavos": number | null,"informado_dinheiro_centavos": number | null,"informado_pix_centavos": number | null,"situacao": Database["public"]['Enums']["situacao_caixa"],"troco_inicial_centavos": number,"linhas_do_fechamento": {
+              "diferenca_centavos": number,"esperado_centavos": number,"forma": Database["public"]['Enums']["forma_pagamento"],"informado_centavos": number
+            } | null
+                  }
+                  ComputedFields: "linhas_do_fechamento"
+                  Insert: {
+                    "aberto_em"?: string,"aberto_por": string,"conferido_em"?: string | null,"conferido_por"?: string | null,"esperado_credito_centavos"?: number | null,"esperado_debito_centavos"?: number | null,"esperado_dinheiro_centavos"?: number | null,"esperado_pix_centavos"?: number | null,"fechado_em"?: string | null,"fechado_por"?: string | null,"id"?: never,"informado_credito_centavos"?: number | null,"informado_debito_centavos"?: number | null,"informado_dinheiro_centavos"?: number | null,"informado_pix_centavos"?: number | null,"situacao"?: Database["public"]['Enums']["situacao_caixa"],"troco_inicial_centavos": number
+                  }
+                  Update: {
+                    "aberto_em"?: string,"aberto_por"?: string,"conferido_em"?: string | null,"conferido_por"?: string | null,"esperado_credito_centavos"?: number | null,"esperado_debito_centavos"?: number | null,"esperado_dinheiro_centavos"?: number | null,"esperado_pix_centavos"?: number | null,"fechado_em"?: string | null,"fechado_por"?: string | null,"id"?: never,"informado_credito_centavos"?: number | null,"informado_debito_centavos"?: number | null,"informado_dinheiro_centavos"?: number | null,"informado_pix_centavos"?: number | null,"situacao"?: Database["public"]['Enums']["situacao_caixa"],"troco_inicial_centavos"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"categorias": {
                   Row: {
                     "categoria_pai_id": string | null,"id": string,"nome": string,"ordem": number
                   }
@@ -71,14 +107,14 @@ isOneToOne: false
                   ]
                 },"configuracoes": {
                   Row: {
-                    "atualizado_em": string,"cnpj_loja": string | null,"dias_alerta_validade": (number)[],"id": number,"limite_ajuste_centavos": number
+                    "atualizado_em": string,"cnpj_loja": string | null,"dias_alerta_validade": (number)[],"id": number,"largura_cupom_mm": number,"limite_ajuste_centavos": number,"limite_desconto_percentual": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "atualizado_em"?: string,"cnpj_loja"?: string | null,"dias_alerta_validade"?: (number)[],"id"?: number,"limite_ajuste_centavos"?: number
+                    "atualizado_em"?: string,"cnpj_loja"?: string | null,"dias_alerta_validade"?: (number)[],"id"?: number,"largura_cupom_mm"?: number,"limite_ajuste_centavos"?: number,"limite_desconto_percentual"?: number
                   }
                   Update: {
-                    "atualizado_em"?: string,"cnpj_loja"?: string | null,"dias_alerta_validade"?: (number)[],"id"?: number,"limite_ajuste_centavos"?: number
+                    "atualizado_em"?: string,"cnpj_loja"?: string | null,"dias_alerta_validade"?: (number)[],"id"?: number,"largura_cupom_mm"?: number,"limite_ajuste_centavos"?: number,"limite_desconto_percentual"?: number
                   }
                   Relationships: [
                     
@@ -139,14 +175,14 @@ isOneToOne: false
                   ]
                 },"formas_venda": {
                   Row: {
-                    "ativa": boolean,"fator": number,"id": string,"nome": string,"peso_variavel": boolean,"preco_centavos": number,"variacao_id": string
+                    "ativa": boolean,"codigo_barras": string | null,"fator": number,"id": string,"nome": string,"peso_variavel": boolean,"preco_centavos": number,"variacao_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "ativa"?: boolean,"fator": number,"id"?: string,"nome": string,"peso_variavel"?: boolean,"preco_centavos": number,"variacao_id": string
+                    "ativa"?: boolean,"codigo_barras"?: string | null,"fator": number,"id"?: string,"nome": string,"peso_variavel"?: boolean,"preco_centavos": number,"variacao_id": string
                   }
                   Update: {
-                    "ativa"?: boolean,"fator"?: number,"id"?: string,"nome"?: string,"peso_variavel"?: boolean,"preco_centavos"?: number,"variacao_id"?: string
+                    "ativa"?: boolean,"codigo_barras"?: string | null,"fator"?: number,"id"?: string,"nome"?: string,"peso_variavel"?: boolean,"preco_centavos"?: number,"variacao_id"?: string
                   }
                   Relationships: [
                     {
@@ -703,6 +739,78 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"venda_itens": {
+                  Row: {
+                    "conferido_em": string | null,"conferido_por": string | null,"forma_venda_id": string,"id": number,"preco_unitario_centavos": number,"quantidade": number,"quantidade_base": number,"quantidade_sem_saldo_base": number,"total_centavos": number,"variacao_id": string,"venda_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "conferido_em"?: string | null,"conferido_por"?: string | null,"forma_venda_id": string,"id"?: never,"preco_unitario_centavos": number,"quantidade": number,"quantidade_base": number,"quantidade_sem_saldo_base"?: number,"total_centavos": number,"variacao_id": string,"venda_id": number
+                  }
+                  Update: {
+                    "conferido_em"?: string | null,"conferido_por"?: string | null,"forma_venda_id"?: string,"id"?: never,"preco_unitario_centavos"?: number,"quantidade"?: number,"quantidade_base"?: number,"quantidade_sem_saldo_base"?: number,"total_centavos"?: number,"variacao_id"?: string,"venda_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "venda_itens_forma_venda_id_fkey"
+      columns: ["forma_venda_id"]
+isOneToOne: false
+      referencedRelation: "formas_venda"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "venda_itens_variacao_id_fkey"
+      columns: ["variacao_id"]
+isOneToOne: false
+      referencedRelation: "variacoes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "venda_itens_venda_id_fkey"
+      columns: ["venda_id"]
+isOneToOne: false
+      referencedRelation: "vendas"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"venda_pagamentos": {
+                  Row: {
+                    "forma": Database["public"]['Enums']["forma_pagamento"],"id": number,"recebido_centavos": number | null,"troco_centavos": number,"valor_centavos": number,"venda_id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "forma": Database["public"]['Enums']["forma_pagamento"],"id"?: never,"recebido_centavos"?: number | null,"troco_centavos"?: number,"valor_centavos": number,"venda_id": number
+                  }
+                  Update: {
+                    "forma"?: Database["public"]['Enums']["forma_pagamento"],"id"?: never,"recebido_centavos"?: number | null,"troco_centavos"?: number,"valor_centavos"?: number,"venda_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "venda_pagamentos_venda_id_fkey"
+      columns: ["venda_id"]
+isOneToOne: false
+      referencedRelation: "vendas"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"vendas": {
+                  Row: {
+                    "caixa_id": number,"cancelada_em": string | null,"cancelada_por": string | null,"chave": string | null,"desconto_centavos": number,"id": number,"motivo_cancelamento": string | null,"numero": number,"situacao": Database["public"]['Enums']["situacao_venda"],"subtotal_centavos": number,"total_centavos": number,"vendida_em": string,"vendida_por": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "caixa_id": number,"cancelada_em"?: string | null,"cancelada_por"?: string | null,"chave"?: string | null,"desconto_centavos": number,"id"?: never,"motivo_cancelamento"?: string | null,"numero"?: number,"situacao"?: Database["public"]['Enums']["situacao_venda"],"subtotal_centavos": number,"total_centavos": number,"vendida_em"?: string,"vendida_por": string
+                  }
+                  Update: {
+                    "caixa_id"?: number,"cancelada_em"?: string | null,"cancelada_por"?: string | null,"chave"?: string | null,"desconto_centavos"?: number,"id"?: never,"motivo_cancelamento"?: string | null,"numero"?: number,"situacao"?: Database["public"]['Enums']["situacao_venda"],"subtotal_centavos"?: number,"total_centavos"?: number,"vendida_em"?: string,"vendida_por"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "vendas_caixa_id_fkey"
+      columns: ["caixa_id"]
+isOneToOne: false
+      referencedRelation: "caixas"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"verificacoes_integridade": {
                   Row: {
                     "divergencias": NonNullable<Json>,"executada_em": string,"id": number
@@ -771,7 +879,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "abrir_inventario":
+            "abrir_caixa":
+{ Args: { "p_troco_inicial_centavos": number }; Returns: number
+                           },
+"abrir_inventario":
 { Args: { "p_categorias": (string)[],"p_codigos": (string)[],"p_descricao": string,"p_escopo": Database["public"]['Enums']["escopo_inventario"] }; Returns: number
                            },
 "alertas_estoque":
@@ -796,7 +907,7 @@ isOneToOne: false
                            },
 "avisos_inicio":
 { Args: Record<PropertyKey, never>; Returns: {
-              "abaixo_minimo": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"notas_aguardando": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number
+              "abaixo_minimo": number,"caixa_aberto_desde": string,"caixas_com_diferenca": number,"conferencia_divergencias": number,"conferencia_em": string,"faixa_maior": number,"notas_aguardando": number,"solicitacoes_pendentes": number,"vencendo": number,"vencidos": number,"vendas_sem_saldo": number
             }[]
                            },
 "buscar_estoque":
@@ -804,13 +915,31 @@ isOneToOne: false
               "codigo_interno": string,"controla_validade": boolean,"estoque_minimo": number,"produto": string,"produto_id": string,"proxima_validade": string,"saldo_disponivel": number,"saldo_total": number,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacao": string,"variacao_id": string
             }[]
                            },
+"buscar_para_venda":
+{ Args: { "p_termo": string }; Returns: {
+              "codigo_interno": string,"controla_validade": boolean,"disponivel": number,"forma_exata": string,"formas": Json,"produto": string,"so_vencido": boolean,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"variacao": string,"variacao_id": string
+            }[]
+                           },
 "buscar_produtos":
 { Args: { "p_categoria"?: string,"p_controla_validade"?: boolean,"p_deslocamento"?: number,"p_etiqueta"?: string,"p_limite"?: number,"p_situacao"?: string,"p_termo"?: string,"p_tipo_venda"?: Database["public"]['Enums']["tipo_venda"] }; Returns: {
               "id": string,"menor_preco_centavos": number,"nome": string,"situacao": string,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"total": number,"variacoes": number
             }[]
                            },
+"caixa_aberto":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "aberto_em": string,"aberto_por": string,"id": number,"movimentos": Json,"troco_inicial_centavos": number,"vendas": number
+            }[]
+                           },
+"caixas_fechados":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "aberto_em": string,"com_diferenca": boolean,"conferido": boolean,"diferenca_dinheiro_centavos": number,"fechado_em": string,"fechado_por": string,"id": number
+            }[]
+                           },
 "cancelar_inventario":
 { Args: { "p_inventario": number }; Returns: undefined
+                           },
+"cancelar_venda":
+{ Args: { "p_motivo": string,"p_venda": number }; Returns: undefined
                            },
 "catalogo_para_planilha":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -818,11 +947,17 @@ isOneToOne: false
 "cnpj_valido":
 { Args: { "cnpj": string }; Returns: boolean
                            },
+"conferir_caixa":
+{ Args: { "p_caixa": number }; Returns: undefined
+                           },
 "conferir_integridade_estoque":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "conferir_lotes_item":
 { Args: { "p_item": string }; Returns: undefined
+                           },
+"conferir_venda_sem_saldo":
+{ Args: { "p_item": number }; Returns: undefined
                            },
 "confirmar_nota":
 { Args: { "p_nota": string }; Returns: undefined
@@ -851,8 +986,18 @@ isOneToOne: false
 "entrar_no_estoque":
 { Args: { "p_codigo_lote": string,"p_custo_unitario": number,"p_motivo": string,"p_origem"?: string,"p_origem_id"?: string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_usuario": string,"p_validade": string,"p_variacao": string }; Returns: number
                            },
+"esperado_do_caixa":
+{ Args: { "p_caixa": number }; Returns: {
+              "esperado_centavos": number,"forma": Database["public"]['Enums']["forma_pagamento"]
+            }[]
+                           },
 "estornar_movimentacao":
 { Args: { "p_motivo": string,"p_movimentacao": number }; Returns: number
+                           },
+"fechar_caixa":
+{ Args: { "p_credito_centavos"?: number,"p_debito_centavos"?: number,"p_dinheiro_centavos": number,"p_pix_centavos"?: number }; Returns: {
+              "diferenca_centavos": number,"esperado_centavos": number,"forma": Database["public"]['Enums']["forma_pagamento"],"informado_centavos": number
+            }[]
                            },
 "gerar_codigo_lote":
 { Args: { "p_prefixo": string,"p_variacao": string }; Returns: string
@@ -880,6 +1025,14 @@ isOneToOne: false
 "ligar_item_nota":
 { Args: { "p_fator": number,"p_item": string,"p_variacao": string }; Returns: undefined
                            },
+"linhas_do_fechamento":
+{ Args: { "p_caixa": Omit<Database["public"]['Tables']["caixas"]['Row'], Database["public"]['Tables']["caixas"]['ComputedFields']> }; Returns: {
+              "diferenca_centavos": number,"esperado_centavos": number,"forma": Database["public"]['Enums']["forma_pagamento"],"informado_centavos": number
+            }[]
+                           },
+"lote_da_venda_sem_saldo":
+{ Args: { "p_validade": string,"p_variacao": string }; Returns: string
+                           },
 "lote_geral":
 { Args: { "p_variacao": string }; Returns: string
                            },
@@ -891,6 +1044,11 @@ isOneToOne: false
                            },
 "papel_atual":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["papel_usuario"]
+                           },
+"preco_da_linha":
+{ Args: { "p_forma": string,"p_quantidade": number }; Returns: {
+              "preco_unitario_centavos": number,"total_centavos": number
+            }[]
                            },
 "proximo_codigo_interno":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -907,8 +1065,21 @@ isOneToOne: false
 "registrar_entrada_manual":
 { Args: { "p_codigo_lote"?: string,"p_custo_unitario": number,"p_motivo": string,"p_quantidade": number,"p_validade"?: string,"p_variacao": string }; Returns: number
                            },
+"registrar_movimento_caixa":
+{ Args: { "p_motivo": string,"p_tipo": Database["public"]['Enums']["tipo_movimento_caixa"],"p_valor_centavos": number }; Returns: number
+                           },
 "registrar_perda_ou_ajuste":
 { Args: { "p_lote": string,"p_motivo": string,"p_quantidade": number,"p_tipo": Database["public"]['Enums']["tipo_movimentacao"],"p_variacao": string }; Returns: string
+                           },
+"registrar_venda":
+{ Args: { "p_chave"?: string,"p_desconto_centavos": number,"p_itens": Json,"p_pagamentos": Json,"p_total_centavos": number }; Returns: {
+              "numero": number,"troco_centavos": number,"venda_id": number
+            }[]
+                           },
+"resumo_fechamento":
+{ Args: { "p_caixa": number }; Returns: {
+              "diferenca_centavos": number,"esperado_centavos": number,"forma": Database["public"]['Enums']["forma_pagamento"],"informado_centavos": number
+            }[]
                            },
 "resumo_inventario":
 { Args: { "p_inventario": number }; Returns: {
@@ -928,6 +1099,32 @@ isOneToOne: false
 "salvar_recebimento_item":
 { Args: { "p_item": string,"p_lotes": Json,"p_quantidade_recebida": number }; Returns: undefined
                            },
+"travar_caixa_aberto":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "aberto_em": string,
+"aberto_por": string,
+"conferido_em": string | null,
+"conferido_por": string | null,
+"esperado_credito_centavos": number | null,
+"esperado_debito_centavos": number | null,
+"esperado_dinheiro_centavos": number | null,
+"esperado_pix_centavos": number | null,
+"fechado_em": string | null,
+"fechado_por": string | null,
+"id": number,
+"informado_credito_centavos": number | null,
+"informado_debito_centavos": number | null,
+"informado_dinheiro_centavos": number | null,
+"informado_pix_centavos": number | null,
+"situacao": Database["public"]['Enums']["situacao_caixa"],
+"troco_inicial_centavos": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "caixas"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "travar_inventario":
 { Args: { "p_inventario": number }; Returns: {
               "aberto_em": string,
@@ -983,10 +1180,18 @@ isOneToOne: false
 { Args: { "p_inventario": number }; Returns: {
               "codigo_interno": string,"produto": string,"total": number,"variacao": string,"variacao_id": string
             }[]
+                           },
+"vendas_do_caixa":
+{ Args: { "p_caixa": number }; Returns: number
+                           },
+"vendas_sem_saldo":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "item_id": number,"numero": number,"produto": string,"quantidade_sem_saldo_base": number,"tipo_venda": Database["public"]['Enums']["tipo_venda"],"variacao": string,"vendida_em": string
+            }[]
                            }
           }
           Enums: {
-            "escopo_inventario": "loja"|"categorias"|"variacoes","papel_usuario": "administrador"|"funcionario","situacao_inventario": "aberto"|"em_revisao"|"aprovado"|"cancelado","situacao_nota": "em_revisao"|"aguardando_administrador"|"confirmada"|"descartada","situacao_solicitacao": "pendente"|"aprovada"|"recusada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno","tipo_venda": "unidade"|"peso"
+            "escopo_inventario": "loja"|"categorias"|"variacoes","forma_pagamento": "dinheiro"|"cartao_credito"|"cartao_debito"|"pix","papel_usuario": "administrador"|"funcionario","situacao_caixa": "aberto"|"fechado","situacao_inventario": "aberto"|"em_revisao"|"aprovado"|"cancelado","situacao_nota": "em_revisao"|"aguardando_administrador"|"confirmada"|"descartada","situacao_solicitacao": "pendente"|"aprovada"|"recusada","situacao_venda": "concluida"|"cancelada","tipo_movimentacao": "entrada_nota"|"entrada_manual"|"ajuste_inventario"|"ajuste_manual"|"perda_vencimento"|"perda_avaria"|"quebra_pesagem"|"estorno"|"venda"|"entrada_venda_sem_saldo","tipo_movimento_caixa": "retirada"|"reforco","tipo_venda": "unidade"|"peso"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1106,7 +1311,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "escopo_inventario": ["loja", "categorias", "variacoes"],"papel_usuario": ["administrador", "funcionario"],"situacao_inventario": ["aberto", "em_revisao", "aprovado", "cancelado"],"situacao_nota": ["em_revisao", "aguardando_administrador", "confirmada", "descartada"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno"],"tipo_venda": ["unidade", "peso"]
+            "escopo_inventario": ["loja", "categorias", "variacoes"],"forma_pagamento": ["dinheiro", "cartao_credito", "cartao_debito", "pix"],"papel_usuario": ["administrador", "funcionario"],"situacao_caixa": ["aberto", "fechado"],"situacao_inventario": ["aberto", "em_revisao", "aprovado", "cancelado"],"situacao_nota": ["em_revisao", "aguardando_administrador", "confirmada", "descartada"],"situacao_solicitacao": ["pendente", "aprovada", "recusada"],"situacao_venda": ["concluida", "cancelada"],"tipo_movimentacao": ["entrada_nota", "entrada_manual", "ajuste_inventario", "ajuste_manual", "perda_vencimento", "perda_avaria", "quebra_pesagem", "estorno", "venda", "entrada_venda_sem_saldo"],"tipo_movimento_caixa": ["retirada", "reforco"],"tipo_venda": ["unidade", "peso"]
           }
         }
 } as const

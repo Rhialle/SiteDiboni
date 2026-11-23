@@ -1,4 +1,4 @@
-import { ArrowDown, ClipboardCheck, Clock, ReceiptText, TriangleAlert, type LucideIcon } from "lucide-react"
+import { ArrowDown, ClipboardCheck, Clock, PackageX, ReceiptText, TriangleAlert, Wallet, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { Suspense, type CSSProperties } from "react"
 
@@ -11,12 +11,14 @@ import { NumeroAnimado } from "./numero-animado"
 import { TudoEmDia } from "./tudo-em-dia"
 
 // Cada tipo de aviso tem uma cor que diz o que é: vencido em coral, vencendo em sol, repor em azul.
-const CARTAS: Record<Exclude<AvisoDoInicio["tipo"], "conferencia">, { icone: LucideIcon; cor: string; acao: string }> = {
+const CARTAS: Record<Exclude<AvisoDoInicio["tipo"], "conferencia" | "caixaAberto">, { icone: LucideIcon; cor: string; acao: string }> = {
   vencidos: { icone: TriangleAlert, cor: "icone-coral", acao: "Ver alertas" },
   vencendo: { icone: Clock, cor: "icone-sol", acao: "Ver alertas" },
   abaixoDoMinimo: { icone: ArrowDown, cor: "icone-azul", acao: "Ver alertas" },
   solicitacoes: { icone: ClipboardCheck, cor: "icone-magenta", acao: "Ver solicitações" },
   notas: { icone: ReceiptText, cor: "icone-magenta", acao: "Ver notas" },
+  semSaldo: { icone: PackageX, cor: "icone-sol", acao: "Ver vendas sem saldo" },
+  caixaDiferenca: { icone: Wallet, cor: "icone-coral", acao: "Ver caixas" },
 }
 
 // A moldura aparece na hora do clique; a sessão e as contagens chegam dentro dela.
@@ -64,8 +66,9 @@ async function Inicio() {
   ])
   if (error) throw error
   const avisos = avisosDoInicio(contagens)
-  const cartas = avisos.filter((aviso) => aviso.tipo !== "conferencia")
-  const faixas = avisos.filter((aviso) => aviso.tipo === "conferencia")
+  // Com número, carta; sem número (conferência, caixa aberto de outro dia), faixa.
+  const cartas = avisos.filter((aviso) => aviso.quantidade !== null)
+  const faixas = avisos.filter((aviso) => aviso.quantidade === null)
 
   return (
     <div className="flex flex-col gap-8">
@@ -93,7 +96,13 @@ async function Inicio() {
                 <span aria-hidden="true" className="icone-jogo icone-coral size-9 rounded-[11px]">
                   <TriangleAlert className="size-[18px]" />
                 </span>
-                {aviso.texto}
+                {aviso.link ? (
+                  <Link href={aviso.link} className="hover:underline">
+                    {aviso.texto}
+                  </Link>
+                ) : (
+                  aviso.texto
+                )}
               </p>
             ))}
           </>
@@ -105,7 +114,7 @@ async function Inicio() {
 
 // A carta inteira é o link; o "botão" de baixo é só desenho, para o nome do link ser a frase do aviso.
 function CartaDeAviso({ aviso, ordem }: { aviso: AvisoDoInicio; ordem: number }) {
-  if (aviso.tipo === "conferencia" || aviso.quantidade === null || !aviso.link) return null
+  if (aviso.tipo === "conferencia" || aviso.tipo === "caixaAberto" || aviso.quantidade === null || !aviso.link) return null
   const { icone: Icone, cor, acao } = CARTAS[aviso.tipo]
   return (
     <li className="entra-com-mola" style={{ "--i": ordem } as CSSProperties}>

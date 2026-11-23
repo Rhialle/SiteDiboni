@@ -169,10 +169,33 @@ export async function salvarFormaVenda(
   const preco = centavos(texto(formData, "preco"))
   if (preco === null) return falha(MENSAGENS.precoInvalido)
 
+  const codigoBarras = texto(formData, "codigo_barras").replace(/\D/g, "")
+  if (codigoBarras && !gtinValido(codigoBarras)) return falha(MENSAGENS.codigoBarrasInvalido)
+
   const supabase = await criarClienteServidor()
-  const { error } = await supabase
-    .from("formas_venda")
-    .insert({ variacao_id: variacaoId, nome: texto(formData, "nome"), fator, preco_centavos: preco })
+  const { error } = await supabase.from("formas_venda").insert({
+    variacao_id: variacaoId,
+    nome: texto(formData, "nome"),
+    fator,
+    preco_centavos: preco,
+    codigo_barras: codigoBarras || null,
+  })
+  return concluir(produtoId, error)
+}
+
+// O código de barras do pacote ou da caixa (fase 2.1): bipado no balcão, põe esta forma na venda.
+export async function salvarCodigoBarrasForma(
+  produtoId: string,
+  formaId: string,
+  _estado: EstadoFicha,
+  formData: FormData,
+): Promise<EstadoFicha> {
+  await exigirAdministrador()
+  const codigoBarras = texto(formData, "codigo_barras").replace(/\D/g, "")
+  if (codigoBarras && !gtinValido(codigoBarras)) return falha(MENSAGENS.codigoBarrasInvalido)
+
+  const supabase = await criarClienteServidor()
+  const { error } = await supabase.from("formas_venda").update({ codigo_barras: codigoBarras || null }).eq("id", formaId)
   return concluir(produtoId, error)
 }
 

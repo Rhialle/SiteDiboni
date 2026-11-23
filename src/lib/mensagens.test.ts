@@ -11,6 +11,9 @@ const SEM_NADA = {
   conferencia_em: null,
   conferencia_divergencias: null,
   notas_aguardando: 0,
+  vendas_sem_saldo: 0,
+  caixas_com_diferenca: 0,
+  caixa_aberto_desde: null,
 }
 
 describe("avisosDoInicio", () => {
@@ -101,5 +104,33 @@ describe("mensagemNaoContadas", () => {
 describe("mensagemListaCortada", () => {
   it("diz quantas aparecem e como ver as outras", () => {
     expect(mensagemListaCortada(1000)).toBe("Mostrando as primeiras 1000. Conte estas e as outras aparecem.")
+  })
+})
+
+describe("avisos do balcão no Início", () => {
+  it("vendas sem saldo e caixas com diferença viram cartas para o administrador conferir", () => {
+    expect(avisosDoInicio({ ...SEM_NADA, vendas_sem_saldo: 2, caixas_com_diferenca: 1 })).toEqual([
+      {
+        tipo: "semSaldo",
+        quantidade: 2,
+        resto: "venda(s) sem saldo a conferir",
+        texto: "2 venda(s) sem saldo a conferir",
+        link: "/vendas/sem-saldo",
+      },
+      {
+        tipo: "caixaDiferenca",
+        quantidade: 1,
+        resto: "caixa(s) com diferença a conferir",
+        texto: "1 caixa(s) com diferença a conferir",
+        link: "/caixa",
+      },
+    ])
+  })
+
+  it("caixa aberto desde outro dia vira uma faixa com a data", () => {
+    const texto = "O caixa está aberto desde 20/11/2026: feche o caixa do dia."
+    expect(avisosDoInicio({ ...SEM_NADA, caixa_aberto_desde: "2026-11-20T12:00:00Z" })).toEqual([
+      { tipo: "caixaAberto", quantidade: null, resto: texto, texto, link: "/caixa" },
+    ])
   })
 })

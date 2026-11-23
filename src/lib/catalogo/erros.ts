@@ -5,6 +5,7 @@ const POR_RESTRICAO: Record<string, string> = {
   categorias_nome_por_pai: MENSAGENS.categoriaRepetida,
   etiquetas_nome_key: MENSAGENS.materialRepetido,
   variacoes_codigo_barras_key: MENSAGENS.codigoBarrasRepetido,
+  formas_venda_codigo_barras_key: MENSAGENS.codigoBarrasEmUso,
   variacoes_codigo_interno_key: MENSAGENS.codigoInternoRepetido,
   variacoes_atributos_por_produto: MENSAGENS.variacaoRepetida,
   movimentacoes_estorno_de_key: MENSAGENS.jaEstornada,

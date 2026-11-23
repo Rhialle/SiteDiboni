@@ -9,7 +9,7 @@ import { criarClienteServidor } from "@/lib/supabase/servidor"
 import { cnpjValido, normalizarCnpj } from "@/lib/validacao/cnpj"
 import { lerDiasDeAlerta } from "@/lib/validacao/dias-alerta"
 
-export type ValoresConfiguracoes = { cnpj: string; limite: string; dias: string }
+export type ValoresConfiguracoes = { cnpj: string; limite: string; dias: string; desconto: string; cupom: string }
 
 export type EstadoConfiguracoes = {
   erro: string
@@ -28,6 +28,8 @@ export async function salvarConfiguracoes(
     cnpj: String(formData.get("cnpj") ?? "").trim(),
     limite: String(formData.get("limite") ?? "").trim(),
     dias: String(formData.get("dias") ?? "").trim(),
+    desconto: String(formData.get("desconto") ?? "").trim(),
+    cupom: String(formData.get("cupom") ?? "80").trim(),
   }
   const falha = (erro: string): EstadoConfiguracoes => ({ erro, sucesso: "", valores })
 
@@ -47,10 +49,21 @@ export async function salvarConfiguracoes(
     return falha(MENSAGENS.diasInvalidos)
   }
 
+  const desconto = Number(valores.desconto)
+  if (!/^\d{1,3}$/.test(valores.desconto) || desconto > 100) return falha(MENSAGENS.limiteDescontoInvalido)
+  const cupom = Number(valores.cupom)
+  if (cupom !== 58 && cupom !== 80) return falha(MENSAGENS.acaoFalhou)
+
   const supabase = await criarClienteServidor()
   const { error } = await supabase
     .from("configuracoes")
-    .update({ cnpj_loja: cnpj, limite_ajuste_centavos: limite, dias_alerta_validade: dias })
+    .update({
+      cnpj_loja: cnpj,
+      limite_ajuste_centavos: limite,
+      dias_alerta_validade: dias,
+      limite_desconto_percentual: desconto,
+      largura_cupom_mm: cupom,
+    })
     .eq("id", 1)
   if (error) return falha(MENSAGENS.acaoFalhou)
 

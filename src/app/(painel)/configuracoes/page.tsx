@@ -24,7 +24,11 @@ async function Configuracoes() {
   const supabase = await criarClienteServidor()
   const [, { data: configuracoes, error }] = await Promise.all([
     exigirAdministrador(),
-    supabase.from("configuracoes").select("cnpj_loja, limite_ajuste_centavos, dias_alerta_validade").eq("id", 1).single(),
+    supabase
+      .from("configuracoes")
+      .select("cnpj_loja, limite_ajuste_centavos, dias_alerta_validade, limite_desconto_percentual, largura_cupom_mm")
+      .eq("id", 1)
+      .single(),
   ])
   if (error) throw error
 
@@ -40,6 +44,8 @@ async function Configuracoes() {
             cnpj: configuracoes.cnpj_loja ? formatarCnpj(configuracoes.cnpj_loja) : "",
             limite: formatarReais(configuracoes.limite_ajuste_centavos),
             dias: formatarDiasDeAlerta(configuracoes.dias_alerta_validade),
+            desconto: String(configuracoes.limite_desconto_percentual),
+            cupom: String(configuracoes.largura_cupom_mm),
           }}
           limiteAtual={formatarMoeda(configuracoes.limite_ajuste_centavos)}
         />

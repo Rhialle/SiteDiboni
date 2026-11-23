@@ -7,6 +7,11 @@ const ENDERECO = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 // O inventário, as notas e os fornecedores apontam para as variações e os lotes, como o estoque: saem
 // juntos, antes do catálogo.
 export const TABELAS_DO_ESTOQUE = [
+  "public.venda_pagamentos",
+  "public.venda_itens",
+  "public.vendas",
+  "public.caixa_movimentos",
+  "public.caixas",
   "public.inventario_itens",
   "public.inventario_escopo",
   "public.inventarios",
@@ -132,5 +137,83 @@ export async function itensDoInventario(inventarioId: number): Promise<number> {
       inventarioId,
     ])
     return Number(rows[0].total)
+  })
+}
+
+// Balcão: um caixa aberto direto no banco (pelo site, quem abre é a tela do Caixa).
+export async function abrirCaixaTeste(usuarioId: string, trocoCentavos = 0): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query(
+      "insert into public.caixas (aberto_por, troco_inicial_centavos) values ($1, $2) returning id",
+      [usuarioId, trocoCentavos],
+    )
+    return Number(rows[0].id)
+  })
+}
+
+// Um caixa já fechado, com o esperado e o contado do dinheiro.
+export async function caixaFechadoTeste(
+  usuarioId: string,
+  dados: { esperadoCentavos: number; contadoCentavos: number },
+): Promise<number> {
+  return comoDono(async (conexao) => {
+    const { rows } = await conexao.query(
+      `insert into public.caixas (situacao, aberto_por, troco_inicial_centavos, fechado_por, fechado_em,
+         esperado_dinheiro_centavos, informado_dinheiro_centavos, esperado_credito_centavos,
+         esperado_debito_centavos, esperado_pix_centavos)
+       values ('fechado', $1, 0, $1, now(), $2, $3, 0, 0, 0) returning id`,
+      [usuarioId, dados.esperadoCentavos, dados.contadoCentavos],
+    )
+    return Number(rows[0].id)
+  })
+}
+
+export async function codigoDeBarrasDaFormaTeste(formaId: string, codigo: string): Promise<void> {
+  await comoDono((conexao) => conexao.query("update public.formas_venda set codigo_barras = $2 where id = $1", [formaId, codigo]))
+}
+
+// Uma venda feita como a pessoa (as regras do banco valem), paga em Pix, no caixa aberto.
+export async function venderTeste(usuarioId: string, formaId: string, quantidade: number, totalCentavos: number): Promise<number> {
+  return comoDono(async (conexao) => {
+    await conexao.query("begin")
+    await conexao.query("select tests.entrar_como($1, 'aal1')", [usuarioId])
+    const { rows } = await conexao.query(
+      `select numero from public.registrar_venda(
+         jsonb_build_array(jsonb_build_object('forma_venda_id', $1::uuid, 'quantidade', $2::int)), 0,
+         jsonb_build_array(jsonb_build_object('forma', 'pix', 'valor_centavos', $3::int)), $3::int)`,
+      [formaId, quantidade, totalCentavos],
+    )
+    await conexao.query("commit")
+    return Number(rows[0].numero)
+  })
+}
+
+// Muitas entradas de 1 un (cada uma com custo), para a loja passar de 1.000 custos guardados.
+export async function muitasEntradasTeste(variacaoId: string, usuarioId: string, quantas: number): Promise<void> {
+  await comoDono((conexao) =>
+    conexao.query(
+      "select public.entrar_no_estoque($1, 1, 0.05, null, null, 'entrada_manual', 'carga de teste', $2) from generate_series(1, $3)",
+      [variacaoId, usuarioId, quantas],
+    ),
+  )
+}
+
+// Fecha o caixa aberto como a pessoa, informando o dinheiro contado.
+export async function fecharCaixaTeste(usuarioId: string, dinheiroCentavos: number): Promise<void> {
+  await comoDono(async (conexao) => {
+    await conexao.query("begin")
+    await conexao.query("select tests.entrar_como($1, 'aal1')", [usuarioId])
+    await conexao.query("select * from public.fechar_caixa($1)", [dinheiroCentavos])
+    await conexao.query("commit")
+  })
+}
+
+// Cancela a venda como o administrador (com as duas etapas).
+export async function cancelarVendaTeste(administradorId: string, numero: number, motivo: string): Promise<void> {
+  await comoDono(async (conexao) => {
+    await conexao.query("begin")
+    await conexao.query("select tests.entrar_como($1, 'aal2')", [administradorId])
+    await conexao.query("select public.cancelar_venda((select id from public.vendas where numero = $1), $2)", [numero, motivo])
+    await conexao.query("commit")
   })
 }

@@ -56,6 +56,24 @@ export function FormularioConfiguracoes({
           Separados por vírgula. Ex.: 30, 15, 7 avisa 30, 15 e 7 dias antes de vencer.
         </p>
       </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={`${id}-desconto`}>Limite de desconto da funcionária (%)</Label>
+        <Input id={`${id}-desconto`} name="desconto" inputMode="numeric" defaultValue={valores.desconto} required className="w-28" />
+        <p className="text-xs text-muted-foreground">
+          No balcão, a funcionária dá desconto até esse percentual da venda; acima, só o administrador.
+        </p>
+      </div>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-medium">Largura do cupom</legend>
+        <div className="flex gap-4 text-sm">
+          <label className="flex items-center gap-2">
+            <input type="radio" name="cupom" value="80" defaultChecked={valores.cupom !== "58"} /> 80 mm
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="radio" name="cupom" value="58" defaultChecked={valores.cupom === "58"} /> 58 mm
+          </label>
+        </div>
+      </fieldset>
       <MensagemDeErro>{estado.erro}</MensagemDeErro>
       {estado.sucesso ? (
         <MensagemDeSucesso>

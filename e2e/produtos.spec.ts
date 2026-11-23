@@ -208,6 +208,28 @@ test("outra aba mudou para Por peso: a forma por unidade desta aba é recusada",
   expect(await formasDoProduto(produtoId)).toEqual([])
 })
 
+test("código de barras do pacote fica na forma; o da variação não pode ser repetido nela", async ({ page }) => {
+  const { produtoId, variacaoId } = await criarProdutoTeste({ nome: "Forminha", variacao: { codigo_barras: "7891000000014" } })
+  await criarFormaTeste(variacaoId, { nome: "Pacote com 100", fator: 100, preco_centavos: 1500 })
+  await abrirFicha(page, produtoId)
+  const forma = page.getByRole("group", { name: "Pacote com 100" })
+
+  await forma.getByLabel("Código de barras da forma", { exact: true }).fill("7891000000014")
+  await forma.getByRole("button", { name: "Salvar código" }).click()
+  await expect(forma.getByText("Este código de barras já está em outra variação ou forma de venda.")).toBeVisible()
+
+  await forma.getByLabel("Código de barras da forma", { exact: true }).fill("7891000000022")
+  await forma.getByRole("button", { name: "Salvar código" }).click()
+  await expect(forma.getByText("Código de barras inválido.")).toBeVisible()
+
+  await forma.getByLabel("Código de barras da forma", { exact: true }).fill("7891000000021")
+  await forma.getByRole("button", { name: "Salvar código" }).click()
+  await page.reload()
+  await expect(
+    page.getByRole("group", { name: "Pacote com 100" }).getByLabel("Código de barras da forma", { exact: true }),
+  ).toHaveValue("7891000000021")
+})
+
 test("código de barras repetido em outra variação mostra a mensagem", async ({ page }) => {
   await criarProdutoTeste({ nome: "Caixa", variacao: { codigo_barras: "4006381333931" } })
   const { produtoId } = await criarProdutoTeste({ nome: "Tampa" })

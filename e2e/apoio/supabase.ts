@@ -81,7 +81,13 @@ export async function ultimoLinkPorEmail(para: string): Promise<string> {
 export async function restaurarConfiguracoes(): Promise<void> {
   const { error } = await admin
     .from("configuracoes")
-    .update({ cnpj_loja: null, limite_ajuste_centavos: 5000, dias_alerta_validade: [30, 15, 7] })
+    .update({
+      cnpj_loja: null,
+      limite_ajuste_centavos: 5000,
+      dias_alerta_validade: [30, 15, 7],
+      limite_desconto_percentual: 10,
+      largura_cupom_mm: 80,
+    })
     .eq("id", 1)
   if (error) throw error
 }
