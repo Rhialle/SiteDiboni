@@ -281,7 +281,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
         />
         {/* Reserva do leitor USB: o código lido entra como se tivesse sido bipado. */}
         <div>
-          <LeitorDeCodigo aoLer={(codigo) => procurar(codigo)} />
+          <LeitorDeCodigo aoLer={(codigo) => procurar(codigo)} aoFechar={() => campo.current?.focus()} />
         </div>
         <MensagemDeErro>{erro}</MensagemDeErro>
         {resultados.length > 0 ? (

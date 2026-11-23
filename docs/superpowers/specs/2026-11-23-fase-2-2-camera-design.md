@@ -11,7 +11,7 @@ Na contagem do inventário, quem conta anda pela loja com o celular e hoje digit
 ## Decisões do usuário
 
 - Na loja há **iPhone** (ou iPhone e Android): o leitor precisa funcionar nos dois.
-- Biblioteca **`barcode-detector`** (no Android usa o leitor do próprio navegador; no iPhone, o leitor que vem junto), versão **3.2.3**.
+- Biblioteca **`barcode-detector`**, versão **3.2.3**. Usada como "ponyfill": o mesmo leitor que vem junto (zxing-wasm) lê no Android e no iPhone. (A primeira versão desta especificação dizia que no Android seria o leitor do navegador; corrigido na revisão.)
 
 ## O que muda
 
