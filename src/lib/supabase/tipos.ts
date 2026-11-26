@@ -1077,6 +1077,11 @@ isOneToOne: false
 "papel_atual":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["papel_usuario"]
                            },
+"preco_da_devolucao":
+{ Args: { "p_forma": string,"p_quantidade": number }; Returns: {
+              "preco_unitario_centavos": number,"total_centavos": number
+            }[]
+                           },
 "preco_da_linha":
 { Args: { "p_forma": string,"p_quantidade": number }; Returns: {
               "preco_unitario_centavos": number,"total_centavos": number
