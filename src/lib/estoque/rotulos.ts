@@ -10,6 +10,7 @@ export const ROTULO_TIPO_MOVIMENTACAO: Record<string, string> = {
   estorno: "Estorno",
   venda: "Venda",
   entrada_venda_sem_saldo: "Entrada de venda sem saldo",
+  entrada_troca: "Entrada de troca",
 }
 
 export const ROTULO_SITUACAO_SOLICITACAO: Record<string, string> = {
