@@ -70,14 +70,16 @@ select is(pg_temp.saldo('FM-1'), 900::bigint, 'entraram 100 un e saíram 200');
 select results_eq(
   $$select motivo, origem from movimentacoes where tipo = 'entrada_troca' and origem_id = (select venda_id from t1)::text$$,
   format($$values (%L::text, 'venda'::text)$$, 'Troca na venda nº ' || (select numero from t1)), 'uma entrada de troca ligada à venda');
-select is(
-  (select mc.custo_unitario from movimentacoes_custos mc join movimentacoes m on m.id = mc.movimentacao_id
+-- O custo e o esperado do caixa não são lidos pela funcionária: confere fora da sessão dela.
+select tests.sair();
+select ok(
+  (select round(mc.custo_unitario, 4) = 0.05 from movimentacoes_custos mc join movimentacoes m on m.id = mc.movimentacao_id
    where m.tipo = 'entrada_troca' and m.origem_id = (select venda_id from t1)::text),
-  (select custo_medio from custos_variacao where variacao_id = pg_temp.var('FM-1')),
-  'a entrada vai pelo custo médio do momento');
+  'a entrada vai pelo custo médio do momento (R$ 0,05)');
 select ok((select round(custo_medio, 4) = 0.05 from custos_variacao where variacao_id = pg_temp.var('FM-1')),
   'o custo médio não muda');
 select is(pg_temp.dinheiro_esperado(), 6500, 'o caixa espera só a diferença paga');
+select tests.entrar_como('00000000-0000-0000-0000-00000000000b', 'aal1');
 
 -- O devolvido vale o preço de 1 forma: 3 Pacotes = R$ 45,00 (sem a faixa); granel pelo kg
 create temp table t2 as select * from registrar_venda(
@@ -91,11 +93,15 @@ create temp table t4 as select * from registrar_venda(
 select is((select total_centavos from venda_devolucoes where venda_id = (select venda_id from t4)), 4, '1 g = R$ 0,04');
 
 -- Devolvido igual ao total: sem pagamento, e o caixa não muda
+select tests.sair();
 select pg_temp.dinheiro_esperado() as antes into temp esperado_antes;
+select tests.entrar_como('00000000-0000-0000-0000-00000000000b', 'aal1');
 create temp table t5 as select * from registrar_venda(
   pg_temp.item(pg_temp.pacote(), 1), 0, '[]', 1500, null, pg_temp.dev(pg_temp.pacote(), 1), 1500);
 select is((select count(*) from venda_pagamentos where venda_id = (select venda_id from t5)), 0::bigint, 'troca sem diferença não tem pagamento');
+select tests.sair();
 select is(pg_temp.dinheiro_esperado(), (select antes from esperado_antes), 'o caixa não muda');
+select tests.entrar_como('00000000-0000-0000-0000-00000000000b', 'aal1');
 
 -- Recusas
 select throws_ok(
