@@ -1,6 +1,6 @@
 -- Balcão, parte 2.4: a troca (o devolvido volta ao estoque e abate o pagamento da venda).
 begin;
-select plan(29);
+select plan(36);
 
 set constraints all immediate;
 
@@ -163,6 +163,38 @@ select is((select count(*) from movimentacoes where tipo = 'entrada_troca' and o
 select is((select count(*) from buscar_para_venda('CX-1')), 0::bigint, 'a busca da venda não traz a Caixa inativa');
 select is((select count(*) from buscar_para_venda('CX-1', true)), 1::bigint, 'a busca do devolvido traz');
 select is((select jsonb_array_length(formas) from buscar_para_venda('CX-1', true)), 1, 'com a forma dela');
+
+-- Cancelar uma troca (T12): estorna as saídas e a entrada do devolvido; o caixa perde só a diferença
+select pg_temp.saldo('FM-1') as antes into temp saldo_antes;
+select tests.sair();
+select pg_temp.dinheiro_esperado() as antes into temp esperado_antes_cancelar;
+select tests.entrar_como('00000000-0000-0000-0000-00000000000a', 'aal2');
+select cancelar_venda((select venda_id from t1), 'cliente desistiu');
+select is(pg_temp.saldo('FM-1'), (select antes from saldo_antes) + 100, 'voltam 200 un levadas e saem 100 devolvidas');
+select is((select count(*) from movimentacoes e join movimentacoes m on m.id = e.estorno_de
+  where m.tipo = 'entrada_troca' and m.origem_id = (select venda_id from t1)::text), 1::bigint, 'a entrada do devolvido foi estornada');
+select is((select situacao::text from vendas where id = (select venda_id from t1)), 'cancelada', 'a troca está cancelada');
+select tests.sair();
+select is(pg_temp.dinheiro_esperado(), (select antes from esperado_antes_cancelar) - 1500, 'o caixa perde só a diferença paga');
+select tests.entrar_como('00000000-0000-0000-0000-00000000000a', 'aal2');
+
+-- A entrada do devolvido só sai pelo cancelamento
+select throws_ok(
+  format($$select estornar_movimentacao(%s, 'teste')$$,
+    (select id from movimentacoes where tipo = 'entrada_troca' and origem_id = (select venda_id from t2)::text)),
+  'P0001', 'Movimentação de venda só sai pelo cancelamento da venda.', 'estorno direto da entrada de troca');
+
+-- O devolvido já vendido de novo impede o cancelamento
+select tests.entrar_como('00000000-0000-0000-0000-00000000000b', 'aal1');
+create temp table t8 as select * from registrar_venda(
+  pg_temp.item(pg_temp.pacote(), 1), 0, pg_temp.pix(1450), 1500, null, pg_temp.dev(pg_temp.forma('TP-1', 'Unidade'), 1), 50);
+select * from registrar_venda(pg_temp.item(pg_temp.forma('TP-1', 'Unidade'), 1), 0, pg_temp.pix(50), 50);
+select tests.entrar_como('00000000-0000-0000-0000-00000000000a', 'aal2');
+select throws_ok(
+  format($$select cancelar_venda(%s, 'teste')$$, (select venda_id from t8)),
+  'P0001', 'O produto devolvido na troca já saiu do estoque: não dá para cancelar esta venda.', 'devolvido já vendido de novo');
+select is((select situacao::text from vendas where id = (select venda_id from t8)), 'concluida', 'a troca continua concluída');
+select tests.entrar_como('00000000-0000-0000-0000-00000000000b', 'aal1');
 
 -- Ninguém grava o devolvido direto
 select throws_ok(
