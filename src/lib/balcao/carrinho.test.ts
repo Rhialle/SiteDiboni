@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest"
 
+import { mensagemFaltaParaTroca } from "@/lib/mensagens"
+
 import {
   adicionar,
   descontoEmCentavos,
   paraEnvio,
   subtotal,
   totalDaLinha,
+  totalDevolvido,
   troco,
+  valorDevolvido,
+  type LinhaDevolvida,
   type LinhaDoCarrinho,
 } from "./carrinho"
 
@@ -101,6 +106,59 @@ describe("paraEnvio", () => {
         { forma: "dinheiro", valor_centavos: 1645, recebido_centavos: 2000 },
       ],
       p_total_centavos: 3645,
+      p_devolvidos: [],
+      p_devolvido_centavos: 0,
     })
+  })
+})
+
+// Troca (fase 2.4): o devolvido vale o preço de 1 forma × a quantidade, sem a faixa.
+const DEVOLVIDO: LinhaDevolvida = {
+  formaVendaId: "f-pacote",
+  variacaoId: "v-forminha",
+  nome: "Forminha – N4",
+  forma: PACOTE.forma,
+  quantidade: 1,
+  validade: null,
+}
+
+describe("valorDevolvido", () => {
+  it("3 pacotes devolvidos valem R$ 45,00, sem a faixa", () => {
+    expect(valorDevolvido({ ...DEVOLVIDO, quantidade: 3 })).toBe(4500)
+  })
+
+  it("granel pelo preço do kg: 250 g a R$ 40,00/kg valem R$ 10,00", () => {
+    expect(valorDevolvido({ ...DEVOLVIDO, forma: GRANEL.forma, quantidade: 250 })).toBe(1000)
+  })
+
+  it("1 g a R$ 40,00/kg vale R$ 0,04", () => {
+    expect(valorDevolvido({ ...DEVOLVIDO, forma: GRANEL.forma, quantidade: 1 })).toBe(4)
+  })
+
+  it("totalDevolvido soma as linhas", () => {
+    expect(totalDevolvido([DEVOLVIDO, { ...DEVOLVIDO, forma: GRANEL.forma, quantidade: 250 }])).toBe(2500)
+  })
+})
+
+describe("paraEnvio com troca", () => {
+  it("envia o devolvido e o valor dele", () => {
+    const envio = paraEnvio([{ ...PACOTE, quantidade: 2 }], 0, [{ forma: "dinheiro", valorCentavos: 1500, recebidoCentavos: null }], [
+      DEVOLVIDO,
+    ])
+    expect(envio.p_devolvidos).toEqual([{ forma_venda_id: "f-pacote", quantidade: 1, validade: null }])
+    expect(envio.p_devolvido_centavos).toBe(1500)
+    expect(envio.p_total_centavos).toBe(3000)
+  })
+
+  it("sem devolvido, envia a lista vazia e zero", () => {
+    const envio = paraEnvio([PACOTE], 0, [])
+    expect(envio.p_devolvidos).toEqual([])
+    expect(envio.p_devolvido_centavos).toBe(0)
+  })
+})
+
+describe("mensagemFaltaParaTroca", () => {
+  it("diz quanto falta para fechar a troca", () => {
+    expect(mensagemFaltaParaTroca(500)).toBe("Faltam R$ 5,00 para fechar a troca.")
   })
 })

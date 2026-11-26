@@ -1,4 +1,4 @@
-import { formatarData } from "@/lib/formatacao"
+import { formatarData, formatarMoeda } from "@/lib/formatacao"
 
 // Textos fixos da interface (plano 1.1, "Textos fixos da interface").
 export const MENSAGENS = {
@@ -198,6 +198,11 @@ export function mensagemCampoDaContagem(unidade: string): string {
 
 export function mensagemInventarioAprovado(ajustes: number): string {
   return `Inventário aprovado: ${ajustes} ajuste(s) no estoque.`
+}
+
+// Na troca, o devolvido vale mais que o que o cliente leva: ele completa com outro produto.
+export function mensagemFaltaParaTroca(centavos: number): string {
+  return `Faltam ${formatarMoeda(centavos)} para fechar a troca.`
 }
 
 export function mensagemDescontoAcimaDoLimite(limite: number): string {
