@@ -29,7 +29,7 @@ async function Comprovante({ params }: Pick<PageProps<"/vendas/[numero]/comprova
     supabase
       .from("vendas")
       .select(
-        "numero, vendida_em, subtotal_centavos, desconto_centavos, total_centavos, situacao, venda_itens(id, quantidade, total_centavos, preco_unitario_centavos, formas_venda(nome, peso_variavel), variacoes(nome, produtos(nome))), venda_pagamentos(id, forma, valor_centavos, recebido_centavos, troco_centavos)",
+        "numero, vendida_em, subtotal_centavos, desconto_centavos, total_centavos, devolvido_centavos, situacao, venda_devolucoes(id, quantidade, total_centavos, preco_unitario_centavos, formas_venda(nome, peso_variavel), variacoes(nome, produtos(nome))), venda_itens(id, quantidade, total_centavos, preco_unitario_centavos, formas_venda(nome, peso_variavel), variacoes(nome, produtos(nome))), venda_pagamentos(id, forma, valor_centavos, recebido_centavos, troco_centavos)",
       )
       .eq("numero", numero)
       .maybeSingle(),
@@ -94,6 +94,35 @@ async function Comprovante({ params }: Pick<PageProps<"/vendas/[numero]/comprova
           <span>Total</span>
           <span>{formatarMoeda(venda.total_centavos)}</span>
         </p>
+        {venda.venda_devolucoes.length > 0 ? (
+          <>
+            <hr className="my-2 border-dashed border-black" />
+            <p className="font-bold">Devolvido</p>
+            {venda.venda_devolucoes.map((item) => (
+              <div key={item.id} className="mb-1">
+                <p>
+                  {item.variacoes.produtos.nome} – {item.variacoes.nome}
+                </p>
+                <p className="flex justify-between gap-2">
+                  <span>
+                    {item.formas_venda.peso_variavel
+                      ? `${item.quantidade} g × ${formatarMoeda(item.preco_unitario_centavos)}/kg`
+                      : `${item.quantidade} × ${item.formas_venda.nome} ${formatarMoeda(item.preco_unitario_centavos)}`}
+                  </span>
+                  <span>-{formatarMoeda(item.total_centavos)}</span>
+                </p>
+              </div>
+            ))}
+            <p className="flex justify-between">
+              <span>Troca</span>
+              <span>-{formatarMoeda(venda.devolvido_centavos)}</span>
+            </p>
+            <p className="flex justify-between font-bold">
+              <span>A pagar</span>
+              <span>{formatarMoeda(venda.total_centavos - venda.devolvido_centavos)}</span>
+            </p>
+          </>
+        ) : null}
         {venda.venda_pagamentos.map((p) => (
           <p key={p.id} className="flex justify-between">
             <span>{ROTULO_FORMA_PAGAMENTO[p.forma]}</span>

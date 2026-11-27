@@ -38,7 +38,7 @@ async function Vendas({ searchParams }: Pick<PageProps<"/vendas">, "searchParams
     exigirUsuario(),
     supabase
       .from("vendas")
-      .select("id, numero, vendida_em, total_centavos, situacao, venda_pagamentos(forma)")
+      .select("id, numero, vendida_em, total_centavos, devolvido_centavos, situacao, venda_pagamentos(forma)")
       .gte("vendida_em", `${dia}T00:00:00-03:00`)
       .lt("vendida_em", `${diaSeguinte(dia)}T00:00:00-03:00`)
       .order("numero", { ascending: false })
@@ -46,7 +46,10 @@ async function Vendas({ searchParams }: Pick<PageProps<"/vendas">, "searchParams
   ])
   if (vendasR.error) throw vendasR.error
   const vendas = vendasR.data ?? []
-  const totalDoDia = vendas.filter((v) => v.situacao === "concluida").reduce((s, v) => s + v.total_centavos, 0)
+  // O que entrou de verdade: na troca, o total menos o devolvido (T10).
+  const totalDoDia = vendas
+    .filter((v) => v.situacao === "concluida")
+    .reduce((s, v) => s + v.total_centavos - v.devolvido_centavos, 0)
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,7 +86,7 @@ async function Vendas({ searchParams }: Pick<PageProps<"/vendas">, "searchParams
               <tr>
                 <th className="px-4 py-3 font-medium">Nº</th>
                 <th className="px-4 py-3 font-medium">Hora</th>
-                <th className="px-4 py-3 font-medium">Total</th>
+                <th className="px-4 py-3 font-medium">Pago</th>
                 <th className="px-4 py-3 font-medium">Pagamento</th>
                 <th className="px-4 py-3 font-medium">Situação</th>
               </tr>
@@ -97,12 +100,13 @@ async function Vendas({ searchParams }: Pick<PageProps<"/vendas">, "searchParams
                     </Link>
                   </td>
                   <td className="px-4 py-3">{formatarDataHora(v.vendida_em)}</td>
-                  <td className="px-4 py-3 tabular-nums">{formatarMoeda(v.total_centavos)}</td>
+                  <td className="px-4 py-3 tabular-nums">{formatarMoeda(v.total_centavos - v.devolvido_centavos)}</td>
                   <td className="px-4 py-3">
                     {[...new Set(v.venda_pagamentos.map((p) => ROTULO_FORMA_PAGAMENTO[p.forma]))].join(" + ") || "—"}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="flex flex-wrap gap-2 px-4 py-3">
                     <Selo tom={v.situacao === "cancelada" ? "neutro" : "ok"}>{v.situacao === "cancelada" ? "Cancelada" : "Concluída"}</Selo>
+                    {v.devolvido_centavos > 0 ? <Selo tom="neutro">Troca</Selo> : null}
                   </td>
                 </tr>
               ))}

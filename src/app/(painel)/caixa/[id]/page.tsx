@@ -29,7 +29,7 @@ async function Fechamento({ params }: Pick<PageProps<"/caixa/[id]">, "params">) 
     exigirUsuario(),
     supabase.rpc("resumo_fechamento", { p_caixa: caixaId }),
     supabase.rpc("caixas_fechados"),
-    supabase.from("vendas").select("id, numero, vendida_em, total_centavos, situacao, cancelada_em").eq("caixa_id", caixaId).order("numero", { ascending: false }),
+    supabase.from("vendas").select("id, numero, vendida_em, total_centavos, devolvido_centavos, situacao, cancelada_em").eq("caixa_id", caixaId).order("numero", { ascending: false }),
   ])
   // Caixa que não existe, ainda aberto ou que a pessoa não pode ver.
   if (resumoR.error) notFound()

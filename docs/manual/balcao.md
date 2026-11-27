@@ -71,10 +71,26 @@ O fechamento é **às cegas**: o sistema só mostra quanto esperava **depois** d
 
 **Diferença:** o administrador vê o aviso no Início, abre o caixa em **Caixa** → **Caixas fechados**, confere o motivo (troco errado, venda não registrada…) e clica em **Marcar como conferido**.
 
-## 6. Cancelar uma venda (administrador)
+## 6. Troca
+
+Quando o cliente volta para trocar um produto (pegou o tamanho ou o modelo errado):
+
+1. Bipe o que ele **leva**, como numa venda.
+2. Clique em **Troca** e bipe, no campo **Devolvido: código ou nome**, o que ele **devolve**. O devolvido vale o preço da etiqueta (o preço de 1, sem o preço de atacado). Dá para devolver até um produto que saiu de venda.
+3. Embaixo do total aparecem **Devolvido na troca** e **A pagar**:
+   - se o que ele leva vale mais, **Receber (F2)** e ele paga só a diferença, em dinheiro, cartão ou Pix;
+   - se vale o mesmo, **Receber (F2)** mostra **Nada a pagar** e é só **Concluir venda**;
+   - se o devolvido vale mais, aparece **Faltam R$ X para fechar a troca.**: a loja não devolve dinheiro nem dá crédito, então o cliente completa com outro produto.
+4. Para um produto com validade sem lote válido no estoque, informe a **Validade da embalagem** devolvida.
+
+O devolvido volta para o estoque. No caixa, a troca só conta a diferença paga, e aparece à parte ("1 troca · R$ 15,00 devolvido"). Em **Vendas**, a troca tem o selo **Troca**, a coluna **Pago** mostra o que entrou de verdade, e o detalhe e o comprovante mostram o devolvido. **Desfazer troca** tira o devolvido da venda em andamento.
+
+## 7. Cancelar uma venda (administrador)
 
 Em **Vendas**, abra a venda, digite o **Motivo do cancelamento** e clique em **Cancelar venda** (confirme). O estoque volta (por estorno, nada se apaga) e a venda sai do esperado do caixa, se ele ainda estiver aberto. Se o caixa já fechou, o fechamento guardado não muda.
 
-## 7. Se a internet cair
+Cancelar uma troca também tira do estoque o que foi devolvido. Se o produto devolvido já foi vendido de novo, aparece **O produto devolvido na troca já saiu do estoque: não dá para cancelar esta venda.**
+
+## 8. Se a internet cair
 
 O balcão não vende sem internet. Volte à calculadora, anote as vendas (produto, quantidade, pagamento) e lance no sistema quando a internet voltar.

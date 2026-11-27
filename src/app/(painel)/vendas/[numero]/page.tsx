@@ -32,7 +32,7 @@ async function Venda({ params }: Pick<PageProps<"/vendas/[numero]">, "params">) 
     supabase
       .from("vendas")
       .select(
-        "id, numero, vendida_em, subtotal_centavos, desconto_centavos, total_centavos, situacao, cancelada_em, motivo_cancelamento, venda_itens(id, quantidade, quantidade_base, quantidade_sem_saldo_base, preco_unitario_centavos, total_centavos, formas_venda(nome, peso_variavel), variacoes(nome, produtos(nome, tipo_venda))), venda_pagamentos(id, forma, valor_centavos, recebido_centavos, troco_centavos)",
+        "id, numero, vendida_em, subtotal_centavos, desconto_centavos, total_centavos, devolvido_centavos, situacao, cancelada_em, motivo_cancelamento, venda_devolucoes(id, quantidade, preco_unitario_centavos, total_centavos, formas_venda(nome, peso_variavel), variacoes(nome, produtos(nome))), venda_itens(id, quantidade, quantidade_base, quantidade_sem_saldo_base, preco_unitario_centavos, total_centavos, formas_venda(nome, peso_variavel), variacoes(nome, produtos(nome, tipo_venda))), venda_pagamentos(id, forma, valor_centavos, recebido_centavos, troco_centavos)",
       )
       .eq("numero", numero)
       .maybeSingle(),
@@ -112,7 +112,44 @@ async function Venda({ params }: Pick<PageProps<"/vendas/[numero]">, "params">) 
         </table>
       </div>
 
-      <dl className="grid max-w-md gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
+      {venda.venda_devolucoes.length > 0 ? (
+        <section aria-labelledby="devolvido" className="flex flex-col gap-3">
+          <h2 id="devolvido" className="text-xl font-semibold">
+            Devolvido na troca
+          </h2>
+          <div className="tabela-vidro overflow-x-auto">
+            <table aria-label="Devolvido" className="w-full text-left text-sm">
+              <thead className="bg-muted/50 text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Produto</th>
+                  <th className="px-4 py-3 font-medium">Quantidade</th>
+                  <th className="px-4 py-3 font-medium">Preço</th>
+                  <th className="px-4 py-3 font-medium">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {venda.venda_devolucoes.map((item) => (
+                  <tr key={item.id} className="border-t">
+                    <td className="px-4 py-3">
+                      {item.variacoes.produtos.nome} – {item.variacoes.nome}
+                    </td>
+                    <td className="px-4 py-3">
+                      {item.formas_venda.peso_variavel ? `${item.quantidade} g` : `${item.quantidade} × ${item.formas_venda.nome}`}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums">
+                      {formatarMoeda(item.preco_unitario_centavos)}
+                      {item.formas_venda.peso_variavel ? " o kg" : ""}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums">{formatarMoeda(item.total_centavos)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      <dl role="group" aria-label="Resumo da venda" className="grid max-w-md gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
         <dt className="text-muted-foreground">Subtotal</dt>
         <dd>{formatarMoeda(venda.subtotal_centavos)}</dd>
         {venda.desconto_centavos > 0 ? (
@@ -123,6 +160,12 @@ async function Venda({ params }: Pick<PageProps<"/vendas/[numero]">, "params">) 
         ) : null}
         <dt className="text-muted-foreground">Total</dt>
         <dd className="font-semibold">{formatarMoeda(venda.total_centavos)}</dd>
+        {venda.devolvido_centavos > 0 ? (
+          <>
+            <dt className="text-muted-foreground">Troca</dt>
+            <dd>{formatarMoeda(venda.devolvido_centavos)}</dd>
+          </>
+        ) : null}
         {venda.venda_pagamentos.map((p) => (
           <div key={p.id} className="contents">
             <dt className="text-muted-foreground">{ROTULO_FORMA_PAGAMENTO[p.forma]}</dt>

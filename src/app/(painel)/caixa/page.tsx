@@ -34,7 +34,7 @@ async function Caixa() {
   const aberto = abertoR.data?.[0]
   const fechados = fechadosR.data ?? []
   const vendasR = aberto
-    ? await supabase.from("vendas").select("id, numero, vendida_em, total_centavos, situacao, cancelada_em").eq("caixa_id", aberto.id).order("numero", { ascending: false })
+    ? await supabase.from("vendas").select("id, numero, vendida_em, total_centavos, devolvido_centavos, situacao, cancelada_em").eq("caixa_id", aberto.id).order("numero", { ascending: false })
     : null
   if (vendasR?.error) throw vendasR.error
   const movimentos = (aberto?.movimentos ?? []) as Movimento[]
