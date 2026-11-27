@@ -76,14 +76,14 @@ O fechamento é **às cegas**: o sistema só mostra quanto esperava **depois** d
 Quando o cliente volta para trocar um produto (pegou o tamanho ou o modelo errado):
 
 1. Bipe o que ele **leva**, como numa venda.
-2. Clique em **Troca** e bipe, no campo **Devolvido: código ou nome**, o que ele **devolve**. O devolvido vale o preço da etiqueta (o preço de 1, sem o preço de atacado). Dá para devolver até um produto que saiu de venda.
+2. Clique em **Troca** e bipe, no campo **Devolvido: código ou nome**, o que ele **devolve** (ou toque na **Câmera** da parte Devolvido). O devolvido vale o preço da etiqueta (o preço de 1, sem o preço de atacado). Dá para devolver até um produto que saiu de venda.
 3. Embaixo do total aparecem **Devolvido na troca** e **A pagar**:
    - se o que ele leva vale mais, **Receber (F2)** e ele paga só a diferença, em dinheiro, cartão ou Pix;
    - se vale o mesmo, **Receber (F2)** mostra **Nada a pagar** e é só **Concluir venda**;
    - se o devolvido vale mais, aparece **Faltam R$ X para fechar a troca.**: a loja não devolve dinheiro nem dá crédito, então o cliente completa com outro produto.
 4. Para um produto com validade sem lote válido no estoque, informe a **Validade da embalagem** devolvida.
 
-O devolvido volta para o estoque. No caixa, a troca só conta a diferença paga, e aparece à parte ("1 troca · R$ 15,00 devolvido"). Em **Vendas**, a troca tem o selo **Troca**, a coluna **Pago** mostra o que entrou de verdade, e o detalhe e o comprovante mostram o devolvido. **Desfazer troca** tira o devolvido da venda em andamento.
+O devolvido volta para o estoque. No caixa, a troca só conta a diferença paga, e aparece à parte ("1 troca · R$ 15,00 devolvido"). Em **Vendas**, a troca tem o selo **Troca**, a coluna **Pago** mostra o que entrou de verdade, e o detalhe e o comprovante mostram o devolvido. **Desfazer troca** tira o devolvido da venda em andamento. Se mexer nos itens ou no devolvido com o pagamento aberto, o pagamento fecha: clique em **Receber (F2)** de novo.
 
 ## 7. Cancelar uma venda (administrador)
 
