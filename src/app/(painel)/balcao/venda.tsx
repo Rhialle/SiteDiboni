@@ -134,9 +134,12 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
   const [concluida, setConcluida] = useState<{ numero: number; trocoCentavos: number } | null>(null)
   const [ocupado, iniciar] = useTransition()
 
+  // Mexer na venda (itens, devolvido, desconto) com o pagamento aberto fecha o pagamento: os valores
+  // dele seriam os de antes. Receber de novo monta o pagamento com o novo valor a pagar.
   function mudar(nova: Guardada) {
     setVenda(nova)
     guardar(nova)
+    setRecebendo(false)
   }
 
   const sub = subtotal(venda.linhas)
@@ -183,6 +186,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
       guardar(nova)
       return nova
     })
+    setRecebendo(false)
     setResultados([])
     campo.current?.focus()
   }
@@ -216,12 +220,13 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
       guardar(nova)
       return nova
     })
+    setRecebendo(false)
     setResultadosDevolvido([])
     campoDevolvido.current?.focus()
   }
 
-  function procurarDevolvido() {
-    const texto = termoDevolvido.trim()
+  function procurarDevolvido(lido?: string) {
+    const texto = (lido ?? termoDevolvido).trim()
     if (!texto) return
     setTermoDevolvido("")
     setErro("")
@@ -507,6 +512,10 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
               placeholder="Bipe ou digite o que o cliente devolve"
               className="h-11 max-w-xl"
             />
+            {/* A câmera da troca entrega o código ao devolvido, e não à venda. */}
+            <div>
+              <LeitorDeCodigo aoLer={(codigo) => procurarDevolvido(codigo)} aoFechar={() => campoDevolvido.current?.focus()} />
+            </div>
             {resultadosDevolvido.length > 0 ? (
               <ul aria-label="Resultados do devolvido" className="vidro flex max-w-xl flex-col rounded-2xl p-2 text-sm">
                 {resultadosDevolvido.map((item) => (
