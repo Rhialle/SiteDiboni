@@ -14,17 +14,20 @@ import {
   paraEnvio,
   subtotal,
   totalDaLinha,
+  totalDevolvido,
   troco,
+  valorDevolvido,
   type Desconto,
   type FormaDaLinha,
   type FormaPagamento,
+  type LinhaDevolvida,
   type LinhaDoCarrinho,
   type Pagamento,
 } from "@/lib/balcao/carrinho"
 import { ROTULO_FORMA_PAGAMENTO } from "@/lib/balcao/rotulos"
 import { precoUnitario } from "@/lib/catalogo/preco"
 import { formatarMoeda, reaisParaCentavos } from "@/lib/formatacao"
-import { MENSAGENS, mensagemDescontoAcimaDoLimite } from "@/lib/mensagens"
+import { MENSAGENS, mensagemDescontoAcimaDoLimite, mensagemFaltaParaTroca } from "@/lib/mensagens"
 
 import { buscarParaVenda, concluirVenda, type ItemParaVenda } from "./acoes"
 
@@ -49,10 +52,21 @@ type Guardada = {
   variacoes: Record<string, Variacao>
   desconto: Desconto
   conferidas: string[]
+  // Troca (fase 2.4): o que o cliente devolve abate o pagamento.
+  trocando: boolean
+  devolvidos: LinhaDevolvida[]
 }
 
 function novaVenda(): Guardada {
-  return { chave: crypto.randomUUID(), linhas: [], variacoes: {}, desconto: { tipo: "reais", valor: 0 }, conferidas: [] }
+  return {
+    chave: crypto.randomUUID(),
+    linhas: [],
+    variacoes: {},
+    desconto: { tipo: "reais", valor: 0 },
+    conferidas: [],
+    trocando: false,
+    devolvidos: [],
+  }
 }
 
 function lerGuardada(): Guardada {
@@ -66,7 +80,7 @@ function lerGuardada(): Guardada {
 
 function guardar(venda: Guardada) {
   try {
-    if (venda.linhas.length === 0) window.localStorage.removeItem(CHAVE)
+    if (venda.linhas.length === 0 && venda.devolvidos.length === 0 && !venda.trocando) window.localStorage.removeItem(CHAVE)
     else window.localStorage.setItem(CHAVE, JSON.stringify(venda))
   } catch {
     // Navegador sem armazenamento: a venda só não volta depois de recarregar.
@@ -107,10 +121,13 @@ function codigoExato(termo: string, item: ItemParaVenda): boolean {
 export function Venda({ administrador, limiteDescontoPercentual }: { administrador: boolean; limiteDescontoPercentual: number }) {
   const id = useId()
   const campo = useRef<HTMLInputElement>(null)
+  const campoDevolvido = useRef<HTMLInputElement>(null)
   // Só roda no navegador (venda-no-navegador.tsx): a venda guardada já entra no primeiro desenho.
   const [venda, setVenda] = useState<Guardada>(lerGuardada)
   const [termo, setTermo] = useState("")
   const [resultados, setResultados] = useState<ItemParaVenda[]>([])
+  const [termoDevolvido, setTermoDevolvido] = useState("")
+  const [resultadosDevolvido, setResultadosDevolvido] = useState<ItemParaVenda[]>([])
   const [erro, setErro] = useState("")
   const [recebendo, setRecebendo] = useState(false)
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([])
@@ -127,6 +144,9 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
   const total = sub - desconto
   const limiteCentavos = Math.round((sub * limiteDescontoPercentual) / 100)
   const descontoAcima = !administrador && desconto > limiteCentavos
+  const devolvido = totalDevolvido(venda.devolvidos)
+  // O que o cliente paga: o total menos o devolvido. Negativo: o devolvido vale mais (T4).
+  const aPagar = total - devolvido
 
   // Quanto da variação a venda pede, na unidade base, somando as linhas dela.
   function pedido(variacaoId: string): number {
@@ -167,6 +187,69 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
     campo.current?.focus()
   }
 
+  // O devolvido da mesma variação conta como saldo (ele entra antes das saídas).
+  function devolvidoBase(variacaoId: string): number {
+    return venda.devolvidos
+      .filter((d) => d.variacaoId === variacaoId)
+      .reduce((soma, d) => soma + (d.forma.pesoVariavel ? d.quantidade : d.quantidade * d.forma.fator), 0)
+  }
+
+  function porNoDevolvido(item: ItemParaVenda, formaId?: string | null) {
+    const variacao = paraVariacao(item)
+    const opcao = variacao.opcoes.find((o) => o.id === formaId) ?? variacao.opcoes[0]
+    if (!opcao) {
+      setErro(MENSAGENS.semFormaDeVenda)
+      return
+    }
+    const quantidade = opcao.pesoVariavel ? 0 : 1
+    setVenda((atual) => {
+      const existente = atual.devolvidos.find((d) => d.formaVendaId === opcao.id)
+      const devolvidos = existente
+        ? opcao.pesoVariavel
+          ? atual.devolvidos
+          : atual.devolvidos.map((d) => (d === existente ? { ...d, quantidade: d.quantidade + 1 } : d))
+        : [
+            ...atual.devolvidos,
+            { formaVendaId: opcao.id, variacaoId: item.variacao_id, nome: variacao.nome, forma: opcao, quantidade, validade: null },
+          ]
+      const nova = { ...atual, devolvidos, variacoes: { ...atual.variacoes, [item.variacao_id]: variacao } }
+      guardar(nova)
+      return nova
+    })
+    setResultadosDevolvido([])
+    campoDevolvido.current?.focus()
+  }
+
+  function procurarDevolvido() {
+    const texto = termoDevolvido.trim()
+    if (!texto) return
+    setTermoDevolvido("")
+    setErro("")
+    iniciar(async () => {
+      const resposta = await buscarParaVenda(texto, true)
+      if ("erro" in resposta) return setErro(resposta.erro)
+      const itens = resposta.itens
+      if (itens.length === 0) return setErro(MENSAGENS.nadaEncontradoNoBalcao)
+      if (itens.length === 1 && (itens[0].forma_exata || codigoExato(texto, itens[0]))) return porNoDevolvido(itens[0], itens[0].forma_exata)
+      setResultadosDevolvido(itens)
+    })
+  }
+
+  function trocarDevolvido(indice: number, mudanca: Partial<LinhaDevolvida>) {
+    mudar({ ...venda, devolvidos: venda.devolvidos.map((d, i) => (i === indice ? { ...d, ...mudanca } : d)) })
+  }
+
+  function abrirTroca() {
+    mudar({ ...venda, trocando: true })
+    setTimeout(() => campoDevolvido.current?.focus(), 0)
+  }
+
+  function desfazerTroca() {
+    mudar({ ...venda, trocando: false, devolvidos: [] })
+    setResultadosDevolvido([])
+    campo.current?.focus()
+  }
+
   function procurar(lido?: string) {
     const texto = (lido ?? termo).trim()
     if (!texto) return
@@ -195,8 +278,9 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
   }
 
   function abrirPagamento() {
-    if (venda.linhas.length === 0 || descontoAcima) return
-    setPagamentos([{ forma: "dinheiro", valorCentavos: total, recebidoCentavos: null }])
+    if (venda.linhas.length === 0 || descontoAcima || aPagar < 0) return
+    // Troca sem diferença: nada a pagar, conclui sem pagamento.
+    setPagamentos(aPagar === 0 ? [] : [{ forma: "dinheiro", valorCentavos: aPagar, recebidoCentavos: null }])
     setRecebendo(true)
     setErro("")
   }
@@ -216,7 +300,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
     return () => window.removeEventListener("keydown", atalho)
   })
 
-  const pendentes = venda.linhas.some((l) => l.quantidade <= 0)
+  const pendentes = venda.linhas.some((l) => l.quantidade <= 0) || venda.devolvidos.some((d) => d.quantidade <= 0)
   const vencidosSemConferir = Object.entries(venda.variacoes).some(
     ([variacaoId, v]) => v.soVencido && !venda.conferidas.includes(variacaoId) && venda.linhas.some((l) => l.variacaoId === variacaoId),
   )
@@ -231,7 +315,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
     iniciar(async () => {
       let resposta: Awaited<ReturnType<typeof concluirVenda>>
       try {
-        resposta = await concluirVenda({ ...paraEnvio(venda.linhas, desconto, pagamentos), p_chave: venda.chave })
+        resposta = await concluirVenda({ ...paraEnvio(venda.linhas, desconto, pagamentos, venda.devolvidos), p_chave: venda.chave })
       } catch {
         // A venda continua guardada com a mesma chave: concluir de novo não grava em dobro.
         return setErro(MENSAGENS.balcaoSemConexao)
@@ -280,8 +364,13 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
           className="h-12 max-w-xl text-lg"
         />
         {/* Reserva do leitor USB: o código lido entra como se tivesse sido bipado. */}
-        <div>
+        <div className="flex flex-wrap gap-2">
           <LeitorDeCodigo aoLer={(codigo) => procurar(codigo)} aoFechar={() => campo.current?.focus()} />
+          {venda.trocando ? null : (
+            <Button type="button" variant="outline" onClick={abrirTroca}>
+              Troca
+            </Button>
+          )}
         </div>
         <MensagemDeErro>{erro}</MensagemDeErro>
         {resultados.length > 0 ? (
@@ -307,7 +396,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
         ) : (
           venda.linhas.map((linha, indice) => {
             const variacao = venda.variacoes[linha.variacaoId]
-            const semSaldo = variacao ? pedido(linha.variacaoId) > variacao.disponivel : false
+            const semSaldo = variacao ? pedido(linha.variacaoId) > variacao.disponivel + devolvidoBase(linha.variacaoId) : false
             const unitario = linha.forma.pesoVariavel ? linha.forma.preco_centavos : precoUnitario(linha.forma, linha.quantidade)
             return (
               <div key={linha.formaVendaId} role="group" aria-label={linha.nome} className="flex flex-col gap-2 border-b border-tinta/10 pb-3 last:border-0">
@@ -393,6 +482,114 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
         )}
       </section>
 
+      {venda.trocando ? (
+        <section aria-label="Devolvido" className="vidro flex flex-col gap-3 rounded-3xl p-4 sm:p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h2 className="text-xl font-semibold">Devolvido na troca</h2>
+            <Button variant="ghost" size="sm" onClick={desfazerTroca}>
+              Desfazer troca
+            </Button>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor={`${id}-devolvido`}>Devolvido: código ou nome</Label>
+            <Input
+              ref={campoDevolvido}
+              id={`${id}-devolvido`}
+              value={termoDevolvido}
+              autoComplete="off"
+              onChange={(e) => setTermoDevolvido(e.target.value)}
+              onKeyDown={(evento) => {
+                if (evento.key === "Enter") {
+                  evento.preventDefault()
+                  procurarDevolvido()
+                }
+              }}
+              placeholder="Bipe ou digite o que o cliente devolve"
+              className="h-11 max-w-xl"
+            />
+            {resultadosDevolvido.length > 0 ? (
+              <ul aria-label="Resultados do devolvido" className="vidro flex max-w-xl flex-col rounded-2xl p-2 text-sm">
+                {resultadosDevolvido.map((item) => (
+                  <li key={item.variacao_id}>
+                    <button
+                      type="button"
+                      className="w-full rounded-xl px-3 py-2 text-left hover:bg-white/60 focus:bg-white/60"
+                      onClick={() => porNoDevolvido(item)}
+                    >
+                      {item.produto} – {item.variacao} <span className="font-mono text-xs text-muted-foreground">{item.codigo_interno}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+          {venda.devolvidos.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Bipe o produto que o cliente devolve.</p>
+          ) : (
+            venda.devolvidos.map((linha, indice) => {
+              const variacao = venda.variacoes[linha.variacaoId]
+              return (
+                <div key={linha.formaVendaId} role="group" aria-label={linha.nome} className="flex flex-col gap-2 border-b border-tinta/10 pb-3 last:border-0">
+                  <div className="flex flex-wrap items-end gap-3">
+                    <p className="min-w-48 flex-1 font-medium">{linha.nome}</p>
+                    {variacao && variacao.opcoes.length > 1 ? (
+                      <label className="flex flex-col gap-1 text-sm">
+                        Forma
+                        <select
+                          className="campo-escolha"
+                          value={linha.formaVendaId}
+                          onChange={(e) => {
+                            const opcao = variacao.opcoes.find((o) => o.id === e.target.value)
+                            if (opcao) trocarDevolvido(indice, { formaVendaId: opcao.id, forma: opcao })
+                          }}
+                        >
+                          {variacao.opcoes.map((o) => (
+                            <option key={o.id} value={o.id}>
+                              {o.nome}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">{linha.forma.nome}</span>
+                    )}
+                    <label className="flex flex-col gap-1 text-sm">
+                      {linha.forma.pesoVariavel ? "Gramas" : "Quantidade"}
+                      <Input
+                        inputMode="numeric"
+                        value={linha.quantidade || ""}
+                        onChange={(e) => trocarDevolvido(indice, { quantidade: Number(e.target.value.replace(/\D/g, "")) || 0 })}
+                        className="w-24"
+                      />
+                    </label>
+                    <p className="w-28 text-right font-semibold tabular-nums">{formatarMoeda(valorDevolvido(linha))}</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Tirar ${linha.nome} do devolvido`}
+                      onClick={() => mudar({ ...venda, devolvidos: venda.devolvidos.filter((_, i) => i !== indice) })}
+                    >
+                      ×
+                    </Button>
+                  </div>
+                  {variacao?.controlaValidade && variacao.disponivel <= 0 ? (
+                    <label className="flex items-center gap-2 text-sm">
+                      Validade da embalagem
+                      <Input
+                        type="date"
+                        value={linha.validade ?? ""}
+                        onChange={(e) => trocarDevolvido(indice, { validade: e.target.value || null })}
+                        className="w-44"
+                      />
+                    </label>
+                  ) : null}
+                </div>
+              )
+            })
+          )}
+        </section>
+      ) : null}
+
       <section aria-label="Total" className="vidro flex flex-col gap-3 rounded-3xl p-4 sm:p-5">
         <div className="flex flex-wrap items-end gap-3 text-sm">
           <label className="flex flex-col gap-1">
@@ -440,11 +637,25 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
         <p className="text-right text-4xl font-extrabold tabular-nums" aria-label="Total da venda">
           {formatarMoeda(total)}
         </p>
+        {venda.trocando ? (
+          <div className="flex flex-col items-end gap-1 text-right">
+            <p className="text-sm">
+              Devolvido na troca <span aria-label="Devolvido na troca" className="font-semibold tabular-nums">{formatarMoeda(devolvido)}</span>
+            </p>
+            <p className="text-lg">
+              A pagar <span aria-label="A pagar" className="text-2xl font-bold tabular-nums">{formatarMoeda(Math.max(aPagar, 0))}</span>
+            </p>
+            {aPagar < 0 ? <MensagemDeErro>{mensagemFaltaParaTroca(-aPagar)}</MensagemDeErro> : null}
+          </div>
+        ) : null}
         <div className="flex flex-wrap justify-end gap-3">
-          <Button variant="ghost" onClick={descartar} disabled={venda.linhas.length === 0}>
+          <Button variant="ghost" onClick={descartar} disabled={venda.linhas.length === 0 && venda.devolvidos.length === 0}>
             Descartar venda
           </Button>
-          <Button onClick={abrirPagamento} disabled={venda.linhas.length === 0 || pendentes || descontoAcima || vencidosSemConferir}>
+          <Button
+            onClick={abrirPagamento}
+            disabled={venda.linhas.length === 0 || pendentes || descontoAcima || vencidosSemConferir || aPagar < 0}
+          >
             Receber (F2)
           </Button>
         </div>
@@ -452,7 +663,8 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
 
       {recebendo ? (
         <section aria-label="Pagamento" className="vidro flex flex-col gap-3 rounded-3xl p-4 sm:p-5">
-          <h2 className="text-xl font-semibold">Pagamento de {formatarMoeda(total)}</h2>
+          <h2 className="text-xl font-semibold">Pagamento de {formatarMoeda(aPagar)}</h2>
+          {aPagar === 0 ? <p className="text-sm">Nada a pagar: o devolvido cobre a troca.</p> : null}
           {pagamentos.map((p, i) => (
             <div key={i} className="flex flex-wrap items-end gap-3 text-sm">
               <label className="flex flex-col gap-1">
@@ -509,15 +721,17 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
             </div>
           ))}
           <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPagamentos([...pagamentos, { forma: "pix", valorCentavos: Math.max(total - somaPagamentos, 0), recebidoCentavos: null }])}
-            >
-              Dividir o pagamento
-            </Button>
-            {somaPagamentos !== total ? (
-              <p className="text-sm text-muted-foreground">Falta {formatarMoeda(total - somaPagamentos)}</p>
+            {aPagar > 0 ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPagamentos([...pagamentos, { forma: "pix", valorCentavos: Math.max(aPagar - somaPagamentos, 0), recebidoCentavos: null }])}
+              >
+                Dividir o pagamento
+              </Button>
+            ) : null}
+            {somaPagamentos !== aPagar ? (
+              <p className="text-sm text-muted-foreground">Falta {formatarMoeda(aPagar - somaPagamentos)}</p>
             ) : null}
             {trocoTotal > 0 ? <p className="text-2xl font-bold">Troco {formatarMoeda(trocoTotal)}</p> : null}
           </div>
@@ -525,7 +739,7 @@ export function Venda({ administrador, limiteDescontoPercentual }: { administrad
             <Button variant="ghost" onClick={() => setRecebendo(false)}>
               Voltar (Esc)
             </Button>
-            <Button onClick={concluir} disabled={ocupado || somaPagamentos !== total}>
+            <Button onClick={concluir} disabled={ocupado || somaPagamentos !== aPagar}>
               Concluir venda
             </Button>
           </div>

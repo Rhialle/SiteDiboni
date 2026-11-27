@@ -10,10 +10,14 @@ import type { Database } from "@/lib/supabase/tipos"
 
 export type ItemParaVenda = Database["public"]["Functions"]["buscar_para_venda"]["Returns"][number]
 
-export async function buscarParaVenda(termo: string): Promise<{ itens: ItemParaVenda[] } | { erro: string }> {
+// Com `devolucao` (a parte Devolvido da troca), traz também o que não está mais à venda.
+export async function buscarParaVenda(
+  termo: string,
+  devolucao = false,
+): Promise<{ itens: ItemParaVenda[] } | { erro: string }> {
   await exigirUsuario()
   const supabase = await criarClienteServidor()
-  const { data, error } = await supabase.rpc("buscar_para_venda", { p_termo: termo })
+  const { data, error } = await supabase.rpc("buscar_para_venda", { p_termo: termo, p_devolucao: devolucao })
   if (error) return { erro: mensagemDoErroDoBanco(error) }
   return { itens: data ?? [] }
 }
