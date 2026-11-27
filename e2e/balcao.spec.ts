@@ -9,6 +9,7 @@ import {
   criarProdutoTeste,
   criarUsuarioTeste,
   dataDaqui,
+  inativarProdutoTeste,
   limparCatalogo,
   limparUsuarios,
   restaurarConfiguracoes,
@@ -330,4 +331,87 @@ test("Esc fecha a câmera e o cursor volta ao campo Código ou nome", async ({ p
   await expect(janela).toHaveCount(0)
   await expect(campo(page, "Código ou nome")).toBeFocused()
   await expect.poll(() => camerasLigadas(page)).toBe(0)
+})
+
+// Troca (fase 2.4): o devolvido abate o pagamento; o cliente paga só a diferença.
+const devolvido = (page: Page) => page.getByRole("region", { name: "Devolvido" })
+
+async function biparDevolvido(page: Page, codigo: string) {
+  await campo(page, "Devolvido: código ou nome").fill(codigo)
+  await campo(page, "Devolvido: código ou nome").press("Enter")
+}
+
+test("troca com diferença: devolve 1 pacote, leva 2 e paga R$ 15,00 em dinheiro", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7891000000021")
+  await bipar(page, "7891000000021")
+  await expect(linhas(page, "Forminha – N4").getByLabel("Quantidade")).toHaveValue("2")
+  await page.getByRole("button", { name: "Troca" }).click()
+  await biparDevolvido(page, "7891000000021")
+  await expect(devolvido(page).getByRole("group", { name: "Forminha – N4" })).toBeVisible()
+  await expect(page.getByLabel("Devolvido na troca")).toHaveText("R$ 15,00")
+  await expect(page.getByLabel("A pagar")).toHaveText("R$ 15,00")
+  await page.getByRole("button", { name: "Receber (F2)" }).click()
+  const pagamento = page.getByRole("region", { name: "Pagamento" })
+  await expect(pagamento).toContainText("Pagamento de R$ 15,00")
+  await pagamento.getByLabel("Recebido").fill("20,00")
+  await expect(pagamento).toContainText("Troco R$ 5,00")
+  await pagamento.getByRole("button", { name: "Concluir venda" }).click()
+  await expect(page.getByRole("status", { name: "Venda concluída" })).toContainText("Troco R$ 5,00")
+})
+
+test("na troca, se o devolvido vale mais, mostra quanto falta e não deixa receber", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7891000000014")
+  await page.getByRole("button", { name: "Troca" }).click()
+  await biparDevolvido(page, "7891000000021")
+  await expect(textoNaTela(page, "Faltam R$ 14,80 para fechar a troca.")).toBeVisible()
+  await expect(page.getByRole("button", { name: "Receber (F2)" })).toBeDisabled()
+})
+
+test("troca sem diferença: nada a pagar, conclui sem pagamento", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7891000000021")
+  await page.getByRole("button", { name: "Troca" }).click()
+  await biparDevolvido(page, "7891000000021")
+  await expect(page.getByLabel("A pagar")).toHaveText("R$ 0,00")
+  await page.getByRole("button", { name: "Receber (F2)" }).click()
+  const pagamento = page.getByRole("region", { name: "Pagamento" })
+  await expect(pagamento).toContainText("Nada a pagar")
+  await pagamento.getByRole("button", { name: "Concluir venda" }).click()
+  await expect(page.getByRole("status", { name: "Venda concluída" })).toBeVisible()
+})
+
+test("a troca em andamento volta depois de recarregar a página", async ({ page }) => {
+  await forminha()
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7891000000021")
+  await bipar(page, "7891000000021")
+  await page.getByRole("button", { name: "Troca" }).click()
+  await biparDevolvido(page, "7891000000021")
+  await expect(page.getByLabel("Devolvido na troca")).toHaveText("R$ 15,00")
+  await page.reload()
+  await expect(devolvido(page).getByRole("group", { name: "Forminha – N4" })).toBeVisible()
+  await expect(page.getByLabel("Devolvido na troca")).toHaveText("R$ 15,00")
+})
+
+test("na troca, o cliente pode devolver um produto que saiu de venda", async ({ page }) => {
+  await forminha()
+  const { produtoId, variacaoId } = await criarProdutoTeste({ nome: "Caixa", variacao: { codigo_interno: "CX-1" } })
+  await criarFormaTeste(variacaoId, { nome: "Unidade", fator: 1, preco_centavos: 100 })
+  await inativarProdutoTeste(produtoId)
+  await abrirCaixaTeste(funcId)
+  await entrarNoBalcao(page)
+  await bipar(page, "7891000000021")
+  await page.getByRole("button", { name: "Troca" }).click()
+  await biparDevolvido(page, "CX-1")
+  await expect(devolvido(page).getByRole("group", { name: "Caixa – Padrão" })).toBeVisible()
+  await expect(page.getByLabel("A pagar")).toHaveText("R$ 14,00")
 })

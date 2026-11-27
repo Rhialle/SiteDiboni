@@ -316,3 +316,9 @@ export async function variacaoPorCodigo(codigoInterno: string) {
   if (error) throw error
   return data
 }
+
+// Produto que saiu de venda (para a troca: o cliente pode devolver o que não se vende mais).
+export async function inativarProdutoTeste(produtoId: string): Promise<void> {
+  const { error } = await admin.from("produtos").update({ inativo: true }).eq("id", produtoId)
+  if (error) throw error
+}
