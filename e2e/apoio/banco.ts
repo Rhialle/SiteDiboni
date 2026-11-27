@@ -218,3 +218,33 @@ export async function cancelarVendaTeste(administradorId: string, numero: number
     await conexao.query("commit")
   })
 }
+
+// Uma troca como a pessoa: leva `leva` (forma e quantidade), devolve `devolve`, e paga a diferença em
+// dinheiro. Devolve o número da venda.
+export async function trocaTeste(
+  usuarioId: string,
+  dados: {
+    leva: { formaId: string; quantidade: number }
+    devolve: { formaId: string; quantidade: number }
+    totalCentavos: number
+    devolvidoCentavos: number
+  },
+): Promise<number> {
+  return comoDono(async (conexao) => {
+    await conexao.query("begin")
+    await conexao.query("select tests.entrar_como($1, 'aal1')", [usuarioId])
+    const diferenca = dados.totalCentavos - dados.devolvidoCentavos
+    const { rows } = await conexao.query(
+      `select numero from public.registrar_venda(
+         jsonb_build_array(jsonb_build_object('forma_venda_id', $1::uuid, 'quantidade', $2::int)), 0,
+         case when $5::int > 0 then jsonb_build_array(jsonb_build_object('forma', 'dinheiro', 'valor_centavos', $5::int))
+           else '[]'::jsonb end,
+         $6::int, null,
+         jsonb_build_array(jsonb_build_object('forma_venda_id', $3::uuid, 'quantidade', $4::int)), $7::int)`,
+      [dados.leva.formaId, dados.leva.quantidade, dados.devolve.formaId, dados.devolve.quantidade, diferenca,
+        dados.totalCentavos, dados.devolvidoCentavos],
+    )
+    await conexao.query("commit")
+    return Number(rows[0].numero)
+  })
+}

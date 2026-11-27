@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test"
 
-import { abrirCaixaTeste, limparEstoque, muitasEntradasTeste, venderTeste } from "./apoio/banco"
+import { abrirCaixaTeste, limparEstoque, muitasEntradasTeste, trocaTeste, venderTeste } from "./apoio/banco"
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
 import {
   criarEstoqueTeste,
@@ -107,3 +107,43 @@ test("o custo aparece no detalhe da venda mesmo com mais de 1.000 custos guardad
   await expect(saida).not.toContainText("sem custo")
 })
 
+
+// Troca (fase 2.4): Forminha N4 em "Pacote com 100" (R$ 15,00); devolve 1, leva 2, paga R$ 15,00.
+async function trocaDeForminha() {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha", variacao: { nome: "N4", codigo_interno: "FM-1" } })
+  const pacote = await criarFormaTeste(variacaoId, { nome: "Pacote com 100", fator: 100, preco_centavos: 1500 })
+  await criarEstoqueTeste(variacaoId, { quantidade: 1000, custo: 0.05, usuarioId: donaId })
+  await abrirCaixaTeste(funcId)
+  await trocaTeste(funcId, {
+    leva: { formaId: pacote, quantidade: 2 },
+    devolve: { formaId: pacote, quantidade: 1 },
+    totalCentavos: 3000,
+    devolvidoCentavos: 1500,
+  })
+}
+
+test("a troca aparece com o selo Troca e o valor pago; o detalhe e o comprovante mostram o devolvido", async ({ page }) => {
+  await trocaDeForminha()
+  await entrar(page, FUNC.email, FUNC.senha)
+  await expect(page.getByRole("heading", { name: "Início" })).toBeVisible()
+  await page.goto("/vendas")
+  const linha = page.getByRole("table", { name: "Vendas" }).getByRole("row").nth(1)
+  await expect(linha).toContainText("Troca")
+  await expect(linha).toContainText("R$ 15,00")
+  await expect(textoNaTela(page, "R$ 15,00 sem as canceladas")).toBeVisible()
+
+  await page.goto("/vendas/1")
+  const devolvido = page.getByRole("table", { name: "Devolvido" })
+  await expect(devolvido).toContainText("Forminha – N4")
+  await expect(devolvido).toContainText("Pacote com 100")
+  await expect(devolvido).toContainText("R$ 15,00")
+  const resumo = page.getByRole("group", { name: "Resumo da venda" })
+  await expect(resumo).toContainText("TrocaR$ 15,00")
+  await expect(resumo).toContainText("DinheiroR$ 15,00")
+
+  await page.goto("/vendas/1/comprovante")
+  const comprovante = page.getByRole("article", { name: "Comprovante" })
+  await expect(comprovante).toContainText("Devolvido")
+  await expect(comprovante).toContainText("Forminha – N4")
+  await expect(comprovante).toContainText("Troca")
+})

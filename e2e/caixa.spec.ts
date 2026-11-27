@@ -1,8 +1,16 @@
 import { expect, test, type Page } from "@playwright/test"
 
-import { abrirCaixaTeste, caixaFechadoTeste, cancelarVendaTeste, fecharCaixaTeste, limparEstoque, venderTeste } from "./apoio/banco"
+import { abrirCaixaTeste, caixaFechadoTeste, cancelarVendaTeste, fecharCaixaTeste, limparEstoque, trocaTeste, venderTeste } from "./apoio/banco"
 import { campo, entrar, entrarComoAdministrador } from "./apoio/navegador"
-import { criarFormaTeste, criarProdutoTeste, criarUsuarioTeste, limparCatalogo, limparUsuarios, type DadosUsuarioTeste } from "./apoio/supabase"
+import {
+  criarEstoqueTeste,
+  criarFormaTeste,
+  criarProdutoTeste,
+  criarUsuarioTeste,
+  limparCatalogo,
+  limparUsuarios,
+  type DadosUsuarioTeste,
+} from "./apoio/supabase"
 
 const DONA: DadosUsuarioTeste = { email: "dona@loja.test", senha: "SenhaDona123", nome: "Dona", papel: "administrador" }
 const FUNC: DadosUsuarioTeste = { email: "func@loja.test", senha: "SenhaFunc123", nome: "Func", papel: "funcionario" }
@@ -104,3 +112,31 @@ test("as vendas aparecem no caixa; a cancelada depois do fechamento fica marcada
   await expect(page.getByRole("table", { name: "Vendas do caixa" })).toContainText("Cancelada depois do fechamento")
 })
 
+
+test("o caixa mostra as trocas à parte e espera só a diferença paga", async ({ page }) => {
+  const { variacaoId } = await criarProdutoTeste({ nome: "Forminha", variacao: { nome: "N4" } })
+  const pacote = await criarFormaTeste(variacaoId, { nome: "Pacote com 100", fator: 100, preco_centavos: 1500 })
+  await criarEstoqueTeste(variacaoId, { quantidade: 1000, custo: 0.05, usuarioId: donaId })
+  const caixaId = await abrirCaixaTeste(funcId)
+  await trocaTeste(funcId, {
+    leva: { formaId: pacote, quantidade: 2 },
+    devolve: { formaId: pacote, quantidade: 1 },
+    totalCentavos: 3000,
+    devolvidoCentavos: 1500,
+  })
+
+  await entrarComoFuncionaria(page)
+  await page.goto("/caixa")
+  await expect(textoNaTela(page, "1 troca · R$ 15,00 devolvido")).toBeVisible()
+  const vendas = page.getByRole("table", { name: "Vendas do caixa" })
+  await expect(vendas).toContainText("Troca")
+  await expect(vendas.getByRole("row").nth(1)).toContainText("R$ 15,00")
+
+  await fecharCaixaTeste(funcId, 1500)
+  await page.context().clearCookies()
+  await entrarComoAdministrador(page, DONA)
+  await page.goto(`/caixa/${caixaId}`)
+  await expect(textoNaTela(page, "1 troca · R$ 15,00 devolvido")).toBeVisible()
+  // Esperado em dinheiro: só a diferença paga (troco inicial zero).
+  await expect(page.getByRole("table", { name: "Fechamento" }).getByRole("row", { name: /Dinheiro/ })).toContainText("R$ 15,00")
+})
